@@ -10,7 +10,9 @@
 | `node scripts/smoke3.cjs <url>` | Browser | Story, chapel, gate defence, endings, map, music moods |
 | `node scripts/smoke4.cjs <url>` | Browser | Eastern Reach, Ashford, mine, Engine, carbine, fishing, mining, gathering, animation checks |
 | `node scripts/smoke5.cjs <url>` | Browser | The Westmarch (v0.8) |
-| `node dev/bench8.cjs <url> [out.json]` | Browser | Budgets from `docs/TDD.md` §9 |
+| `node scripts/smoke6.cjs <url>` | Browser | Title, grid pack, armoury, the four guns (v0.9) |
+| `node scripts/smoke7.cjs <url>` | Browser | The Saltway Coast, saltway.md §8 (v0.9.3) |
+| `node dev/bench93.cjs <url> [out.json]` | Browser | Budgets from `docs/TDD.md` §9, with coast and Sea Cave views |
 
 Browser suites run headless Chromium with SwiftShader against `npx vite preview --port 5198`.
 

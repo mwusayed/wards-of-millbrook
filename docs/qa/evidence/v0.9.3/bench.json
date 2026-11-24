@@ -1,0 +1,241 @@
+{
+ "spots": {
+  "millbrook": {
+   "avg": 1.404,
+   "p50": 1.2,
+   "p99": 4.4,
+   "worst": 5.7,
+   "callsMax": 308,
+   "callsMin": 140
+  },
+  "vale": {
+   "avg": 1.917,
+   "p50": 1.2,
+   "p99": 9.1,
+   "worst": 11.3,
+   "callsMax": 291,
+   "callsMin": 89
+  },
+  "brookfield": {
+   "avg": 5.092,
+   "p50": 1.4,
+   "p99": 23.2,
+   "worst": 35.7,
+   "callsMax": 319,
+   "callsMin": 163
+  },
+  "thornwood": {
+   "avg": 7.313,
+   "p50": 1.4,
+   "p99": 31.1,
+   "worst": 188.2,
+   "callsMax": 286,
+   "callsMin": 75
+  },
+  "toll": {
+   "avg": 1.908,
+   "p50": 1.5,
+   "p99": 13.2,
+   "worst": 14.8,
+   "callsMax": 308,
+   "callsMin": 113
+  },
+  "ashford": {
+   "avg": 2.43,
+   "p50": 1.7,
+   "p99": 13.8,
+   "worst": 14.6,
+   "callsMax": 352,
+   "callsMin": 84
+  },
+  "docks": {
+   "avg": 2.774,
+   "p50": 2,
+   "p99": 9.6,
+   "worst": 10.3,
+   "callsMax": 302,
+   "callsMin": 75
+  },
+  "hollow": {
+   "avg": 4.126,
+   "p50": 1.3,
+   "p99": 30.5,
+   "worst": 35.1,
+   "callsMax": 278,
+   "callsMin": 26
+  },
+  "heath": {
+   "avg": 1.567,
+   "p50": 1.3,
+   "p99": 8.1,
+   "worst": 10.4,
+   "callsMax": 316,
+   "callsMin": 139
+  },
+  "smeath": {
+   "avg": 1.599,
+   "p50": 1,
+   "p99": 6.9,
+   "worst": 11.8,
+   "callsMax": 320,
+   "callsMin": 104
+  },
+  "downs": {
+   "avg": 1.101,
+   "p50": 1,
+   "p99": 4,
+   "worst": 4.3,
+   "callsMax": 280,
+   "callsMin": 86
+  },
+  "fernhollow": {
+   "avg": 1.753,
+   "p50": 1.5,
+   "p99": 9.6,
+   "worst": 25.7,
+   "callsMax": 275,
+   "callsMin": 116
+  },
+  "marsh": {
+   "avg": 7.028,
+   "p50": 3.4,
+   "p99": 34.2,
+   "worst": 36.3,
+   "callsMax": 336,
+   "callsMin": 42
+  },
+  "saltgap": {
+   "avg": 1.129,
+   "p50": 1,
+   "p99": 5.2,
+   "worst": 5.5,
+   "callsMax": 375,
+   "callsMin": 98
+  },
+  "shrine_s": {
+   "avg": 8.837,
+   "p50": 3.4,
+   "p99": 33.5,
+   "worst": 36.6,
+   "callsMax": 360,
+   "callsMin": 63
+  },
+  "gulltower": {
+   "avg": 2.769,
+   "p50": 1.6,
+   "p99": 27.8,
+   "worst": 31.8,
+   "callsMax": 311,
+   "callsMin": 55
+  },
+  "gullhaven": {
+   "avg": 10.664,
+   "p50": 9.5,
+   "p99": 37.9,
+   "worst": 48.9,
+   "callsMax": 244,
+   "callsMin": 99
+  },
+  "quay": {
+   "avg": 2.311,
+   "p50": 1.4,
+   "p99": 15.3,
+   "worst": 16.2,
+   "callsMax": 265,
+   "callsMin": 75
+  },
+  "lighthouse": {
+   "avg": 1.304,
+   "p50": 1,
+   "p99": 6.8,
+   "worst": 8,
+   "callsMax": 257,
+   "callsMin": 36
+  },
+  "flats": {
+   "avg": 5.815,
+   "p50": 4,
+   "p99": 27.1,
+   "worst": 28.1,
+   "callsMax": 239,
+   "callsMin": 81
+  },
+  "wreck": {
+   "avg": 5.165,
+   "p50": 1.6,
+   "p99": 29.4,
+   "worst": 31.8,
+   "callsMax": 267,
+   "callsMin": 32
+  },
+  "cove": {
+   "avg": 1.183,
+   "p50": 1,
+   "p99": 5.9,
+   "worst": 7.7,
+   "callsMax": 320,
+   "callsMin": 35
+  },
+  "gullhaven_night": {
+   "avg": 7.204,
+   "p50": 2.1,
+   "p99": 28.6,
+   "worst": 30.1,
+   "callsMax": 248,
+   "callsMin": 91
+  },
+  "lighthouse_night": {
+   "avg": 1.29,
+   "p50": 1.2,
+   "p99": 4,
+   "worst": 5.1,
+   "callsMax": 261,
+   "callsMin": 35
+  },
+  "flats_night": {
+   "avg": 1.647,
+   "p50": 1.5,
+   "p99": 4.8,
+   "worst": 11.7,
+   "callsMax": 232,
+   "callsMin": 78
+  }
+ },
+ "dungeons": {
+  "mine": {
+   "avg": 3.759,
+   "p50": 2,
+   "p99": 29.9,
+   "worst": 44.7,
+   "callsMax": 97,
+   "callsMin": 23
+  },
+  "barrow": {
+   "avg": 2.896,
+   "p50": 1.9,
+   "p99": 23.5,
+   "worst": 30.4,
+   "callsMax": 94,
+   "callsMin": 44
+  },
+  "seacave_store": {
+   "avg": 9.443,
+   "p50": 7.7,
+   "p99": 33.5,
+   "worst": 38.3,
+   "callsMax": 32,
+   "callsMin": 23
+  },
+  "seacave_grotto": {
+   "avg": 4.27,
+   "p50": 1.5,
+   "p99": 38.2,
+   "worst": 38.5,
+   "callsMax": 28,
+   "callsMin": 20
+  }
+ },
+ "programsAtLoad": 22,
+ "programsAfter": 22,
+ "pageErrors": []
+}

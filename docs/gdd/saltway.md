@@ -127,3 +127,31 @@ multipliers; flood speed; prices. All in `sim/balance.ts` or `sim/south.ts`.
 6. sq1–sq5 play through; Marrow can be arrested, squeezed or let go, with their faction effects.
 7. New meals, gear, the charm, traders, the inn and the auction work.
 8. v0.8 saves load with the new fields; every earlier suite still passes; budgets hold in the new places.
+
+## 9. As built in v0.9.3 (24 Nov 2026)
+Rules added or made precise while wiring the coast into the live game. All tested (rules: `tests/sim.test.ts`,
+v0.9.3 block; browser: `scripts/smoke7.cjs`).
+- **One charge, two ways to buy it.** Dorran's counter sells the charge (25 crowns) whenever none is held, set or
+  spent. While The Salt Gap's own Dorran line is on offer, that line is the purchase and the counter button is
+  hidden, so there is never a second button. A charge bought (or a gap blown) before Sera's offer counts: accepting
+  sq1 afterwards skips the finished stages.
+- **The fuse.** Setting the charge takes 1.6 s (kneel); the fuse is 8 s with sparks and a four-second call. A save
+  made mid-fuse relights it from 8 s on load. The blast shakes the camera with distance and throws dust.
+- **Wading on the flats.** The near flats (z 350–368) are waded (×0.65, sea boots or waders ×1, sea legs halfway)
+  only while the water is over them (`tide ≥ −0.5`). At low water they are dry sand.
+- **The tide warning** is given once per low water, to a player on the far flats, when 30 game minutes or less
+  remain. When the water returns the player is put down at the shore edge (z ≈ 351, same x), −10 stamina, and the
+  game saves.
+- **Far mussel beds** (z > 366) can be picked only at low water; picked beds and samphire return the next morning.
+- **Site groups** (from the morning the gap is open): the Saltway 2 smugglers; the Gull Tower a pistoleer and a
+  smuggler; the flats 3 crabs; the cove 2 smugglers and a pistoleer.
+- **Loot:** crab 70% crab meat; smuggler 75% coin (3–10) and 30% salt fish; pistoleer 70% coin (4–11) and 35% a box
+  of cartridges. Deterministic per seed and kill count like every other kill.
+- **The Sea Cave:** two smugglers and a pistoleer wake when you enter the store (until the Wreck-Mother is dead).
+  The grotto floods in 6 s and drains in 3 s. Leaving or collapsing in the cave resets the fight (full health,
+  drained, her crabs removed). A save in the cave restores into the cave.
+- **The bell** is carried like a strongbox: no running, no walking the map, shown held against the chest.
+- **People:** Lowdy is on the flats at low water and on the quay by day; Collector Marrow is gone from the
+  customs house after an arrest; the shrine, milestone, keeper's log, tide board and the town pump all respond.
+- **Map:** the coast sheet opens by default south of the gap; the wreck is marked (sand-coloured when it can be
+  reached); the next low water shows once you own the spyglass or have read the harbour tide board.

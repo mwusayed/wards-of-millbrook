@@ -670,7 +670,7 @@ export class World {
     if (this.mine) this.mine.veins.forEach(mark);
     const wr = this.west; if (wr) { wr.gate.leaves.forEach(mark); mark(wr.gate.leaves[0]?.userData.bar); wr.critters.forEach(c => mark(c.root)); wr.boats.forEach(mark); wr.smoke.forEach(mark); mark(wr.pole); }
     const br = this.barrow; if (br) { br.braziers.forEach(b => mark(b.fire)); mark(br.slab.mesh); }
-    const so = this.south; if (so) { so.boats.forEach(mark); so.gulls.forEach(g => mark(g.root)); mark(so.sea); mark(so.beam); mark(so.lampRoom); so.rockfall.meshes.forEach(mark); mark(this.scene.getObjectByName('wrenBell')); mark(this.scene.getObjectByName('signalLantern')); }
+    const so = this.south; if (so) { so.boats.forEach(mark); so.gulls.forEach(g => mark(g.root)); mark(so.sea); mark(so.beam); mark(so.lampRoom); so.rockfall.meshes.forEach(mark); mark(this.scene.getObjectByName('wrenBell')); mark(this.scene.getObjectByName('signalLantern')); mark(this.scene.getObjectByName('wreckBell')); }
     const sc = this.seacave; if (sc) mark(sc.flood);
     this.scene.updateMatrixWorld(true);
     for (const r of this.regionGroups) {
@@ -702,7 +702,7 @@ export class World {
   }
   /** Show only the regions that can be seen from here. Call every frame (cheap). */
   updateRegions(p: THREE.Vector3) {
-    const reach = this.fogFar + 25;
+    const reach = this.fogFar + 10;   // v0.9.3: was +25; fog colour is the sky colour, so a cell past the fog is invisible (the camera sits ~5 m back)
     for (const r of this.regionGroups) {
       if (r.id === 'mill' || r.id === 'chapel' || r.id === 'mine' || r.id === 'barrow' || r.id === 'seacave') { r.g.visible = this.dungeon === r.id; continue; }
       if (this.dungeon) { r.g.visible = false; continue; }

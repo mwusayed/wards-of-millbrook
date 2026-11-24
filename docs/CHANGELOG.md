@@ -1,5 +1,35 @@
 # Changelog
 
+## v0.9.3 — The Saltway Coast (24 Nov 2026)
+The fourth region is wired into the live game and switched on (`FEATURES.coast = true`). Builds on Codex's v0.9.2
+Salt Gap preview.
+- **The Salt Gap:** Dorran sells one charge (his counter before the quest, the quest line during it); kneel to set
+  it, an 8 s fuse with sparks, a blast that shakes the camera, throws dust and hurts by distance (40 / 15 / 0);
+  the boulders and collider go. A mid-fuse save relights the fuse. Fixed: a new game after loading an open gap
+  left the boulders invisible behind an invisible wall.
+- **The tide in play:** the sea rises and falls; the near flats are waded while the water is on them; a warning
+  half an hour before the far flats flood; the returning water carries you ashore. Far mussel beds at low water only.
+- **Gullhaven and the coast:** every interaction works: the Anchor and Gull (kitchen and beds), the chandlery, the
+  fish auction, the slipway, the sea chapel's blessing, the notice post (and Bree's harbour notices), sea fishing
+  off the breakwater, the town pump, the tide board, the keeper's log, the shrine, the milestone, mussels and
+  samphire. Coast NPCs offer their services in conversation.
+- **Discovery, map, travel, music:** seven coast places and four cairns are discovered by walking; the map's coast
+  sheet marks them and the wreck; walk-to entries for each; the coast has its own music zones and HUD region names.
+- **Enemies:** smugglers, pistoleers and crab packs hold the coast's four sites each morning once the gap is open;
+  crabs drop crab meat, cove men coin, salt fish and cartridges.
+- **The Sea Cave and the Wreck-Mother:** the grille opens with Marrow's key; guards in the store; the Merry Wren's
+  cargo and strongbox; the boss wakes from the pool with a boss bar, front armour and belly window, crab calls at
+  75% and 35%, the six-second flood at half health with wading off the platforms, charges between platforms.
+  Leaving or collapsing resets her; saves inside the cave restore inside; once she is dead the grotto stays calm.
+- **Quests:** all five coast quests are open: The Salt Gap, False Lights (all three fates for Collector Marrow),
+  Mussels and Samphire, The Merry Wren's Bell (carried at a walk, shown in your arms, hung in the chapel), The
+  Keeper's Oil. Quest props (the bell on the wreck, the red lantern, the chapel bell) follow the story.
+- **Fixes along the way:** sea boots now also wade the ford and the marsh, as their description says; finished
+  Westmarch and coast notices pointed to the Ashford Lodge for pay instead of their own post.
+- **Tests:** 102 rules tests (5 new); new browser suite `scripts/smoke7.cjs` (48 checks, every saltway.md §8
+  criterion); `dev/bench93.cjs` adds twelve coast views and two cave views to the budget run.
+
+
 
 
 ## v0.9.1 — Reloads and seats (22 Nov 2026)

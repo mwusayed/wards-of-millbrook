@@ -76,6 +76,7 @@ export function buildSeaCave(w: World): SeaCaveRefs {
     for (let i = 0; i < 14; i++) { const a = rnd() * 6.28, d = 6 + rnd() * 9; const b = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 1.2 + rnd(), 4), mats.bone); b.position.set(G0.x + Math.cos(a) * d, 0.06, G0.z + Math.sin(a) * d); b.rotation.set(Math.PI / 2, rnd() * 3, 0); add(b); }   // bones of boats
     for (let i = 0; i < 3; i++) { const k = new THREE.Mesh(new THREE.TorusGeometry(1.6, 0.1, 4, 8, Math.PI), MAT.timber); k.position.set(G0.x - 12 + i * 11, 0.1, G0.z - 9 + (i % 2) * 14); k.rotation.set(Math.PI / 2 - 0.3, rnd() * 3, 0); add(k); }   // ribs of a wreck
     for (const [lx, lz] of [[G0.x - 14, G0.z + 2], [G0.x + 14, G0.z + 2]]) w.lights.add(lx, 1.2, lz, 0x7ab8a8, 6, 12, 1.6, { flicker: 0.03, zone: 'seacave' });
+    w.lights.add(G0.x, 5.2, G0.z - 2, 0xb8d8e0, 9, 24, 1.3, { zone: 'seacave' });   // v0.9.3: daylight off the water over the floor, so she can be seen
   }
   // the flood: a sheet of water over the grotto floor with holes where the platforms stand dry
   const shape = new THREE.Shape(); shape.absarc(0, 0, R + 1, 0, Math.PI * 2, false);

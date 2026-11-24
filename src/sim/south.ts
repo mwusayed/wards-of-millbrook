@@ -37,6 +37,16 @@ export function wadeMult(s: GameState): number {
   if (s.gear.seaboots || s.gear.waders) return 1;
   return G.buffActive(s, 'seaLegs') ? 1 - (1 - B.WADE_MULT) / 2 : B.WADE_MULT;
 }
+/** v0.9.3: warn anyone out on the flats this many game minutes before the water comes back (saltway.md §4). */
+export const TIDE_WARN_MINUTES = 30;
+/** The flats are out but the water is due back within the warning window. */
+export function floodWarning(s: GameState): boolean { return flatsExposed(s) && minutesToFlood(s) <= TIDE_WARN_MINUTES; }
+/** Which low water this is (one id per exposure), so the warning is given once per tide. */
+export function lowWaterId(s: GameState): number { return Math.floor((s.minutes + 120) / 720); }
+/** Wading on the near flats: only while the water is over them. The far flats carry you back instead. */
+export function wadingOnFlats(s: GameState): boolean { return !flatsExposed(s); }
+/** Lowdy Pengelly is out on the flats only while they are out of the water. */
+export const lowdyOnFlats = (s: GameState) => flatsExposed(s);
 /** The water came back while you were out on the flats: it carries you to the shore. */
 export function tideCarry(s: GameState) {
   s.stamina = Math.max(0, s.stamina - 10); G.count(s, 'tideCarried');
@@ -44,6 +54,7 @@ export function tideCarry(s: GameState) {
 }
 
 // ---------------- the Salt Gap ----------------
+/** v0.9.3: one charge, from whichever conversation offers it first (Dorran's counter or the sq1 talk). */
 export function canBuyCharge(s: GameState): boolean { return !F(s, 'saltGapOpen') && s.inventory.blastcharge <= 0 && !F(s, 'chargeSet'); }
 export function buyCharge(s: GameState): boolean {
   if (!canBuyCharge(s)) return false;
@@ -88,6 +99,8 @@ export function takeBell(s: GameState): string {
   return 'You work the pin out of the bracket and the bell drops into your arms like a drowned dog. Heavy. You will be walking back.';
 }
 export const carryingBell = (s: GameState) => s.inventory.shipsbell > 0;
+/** Things that stop you running or walking the map (the bell is carried like a strongbox). */
+export function heavyLoad(s: GameState): string { return carryingBell(s) ? 'Not while carrying the Merry Wren\'s bell: walk it in.' : ''; }
 /** The red lantern at the top of the Gull Tower. */
 export function takeLantern(s: GameState): string {
   if (F(s, 'lanternFound')) return 'Only the iron hook where the lantern hung, and soot on the stones.';

@@ -375,8 +375,8 @@ export const GEAR: Record<GearId, { name: string; desc: string; cost: number }> 
 export const GRAVE_CHILL = { stamina: 18, comfort: 3 };
 export const CROWN_SALE = 200, VANE_KEY_PRICE = 60, WARD_HEATHER = 3;
 /** v0.9: the Saltway Coast (docs/gdd/saltway.md §4). */
-/** The coast is built but not yet wired into the game loop (v1.0): its quests stay closed until then. */
-export const FEATURES = { coast: false };
+/** v0.9.3: the coast is wired into the game loop and its five quests are open. */
+export const FEATURES = { coast: true };
 export const CHARGE_PRICE = 25, SQUEEZE = 150, OIL_FOR_KEEPER = 2, MUSSELS_FOR_JOWAN = 6, SAMPHIRE_FOR_JOWAN = 4;
 export const BLAST = { fuse: 8, near: 6, far: 12, dmgNear: 40, dmgFar: 15 };
 export const TIDE_LOW = -0.5, WADE_MULT = 0.65, GULL_INN_COST = 5, BLESSING_STRESS = 15;

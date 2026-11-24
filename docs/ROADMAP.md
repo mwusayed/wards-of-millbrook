@@ -106,3 +106,10 @@ new workflow.
 ## v0.9.2 Salt Gap Preview, 24 November 2026
 
 Codex connected the Salt Gap and tidal wreck interactions. See HANDOVER-CLAUDE.md for the change inventory, scope and outstanding acceptance checks. Build and 97 rules checks passed. Browser verification is pending.
+
+## v0.9.3 The Saltway Coast, 24 November 2026
+
+Claude verified v0.9.2 in a browser for the first time (135/136 inherited checks; the miss, smoke2's chapel exit,
+passed on the next run) and finished the coast: everything in HANDOVER.md §8 except publishing v1.0 under that
+name. All eight saltway.md §8 criteria have browser evidence (`docs/qa/evidence/v0.9.3/INDEX.md`). v1.0 waits for
+Waiz's play notes and a real-GPU check. Next candidates: horses (task #31), splitting main.ts, real-device bench.

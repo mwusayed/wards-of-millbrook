@@ -26,3 +26,13 @@ wait for Waiz's play notes.
 ## v0.9.2 Salt Gap Preview, 24 November 2026
 
 Codex connected the Salt Gap and tidal wreck interactions. See HANDOVER-CLAUDE.md for the change inventory, scope and outstanding acceptance checks. Build and 97 rules checks passed. Browser verification is pending.
+
+## v0.9.3 The Saltway Coast, 24 November 2026
+
+Claude (Opus 5.5) wired the whole coast into the live loop on top of Codex's v0.9.2 preview: the interaction
+dispatcher, services, gathering, the notice post, travel, map and discoveries, the tide warning, carry and wading,
+site enemies and loot, the Sea Cave, the Wreck-Mother's hooks, flood and boss bar, cave save/restore, quest props,
+the Dorran reconciliation, five rules tests, `scripts/smoke7.cjs`, `dev/bench93.cjs`, and two engine fixes (enemy
+culling past the fog, tighter region culling). All text in the new interactions is invented for this game.
+Human direction: Waiz's HANDOVER-CLAUDE.md (verify v0.9.2, then finish the coast). Not yet human-reviewed: play
+balance on the coast, audio, real-GPU frame pacing.

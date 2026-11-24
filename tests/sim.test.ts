@@ -454,4 +454,39 @@ t('v0.8 saves load into v0.9 with Gullhaven standing, sea boots and the coast it
   const o = G.deserialize(JSON.stringify({ s, extra: {} }))!; assert.equal(o.s.factions.gullhaven, 0); assert.equal(o.s.gear.seaboots, false); assert.equal(o.s.gear.spyglass, false); assert.equal(o.s.inventory.mussels, 0); assert.equal(o.s.inventory.charmShell, 0);
 });
 
+// ───────────── v0.9.3: the coast in the live game ─────────────
+t('v0.9.3: the coast is switched on; The Salt Gap is offered after the mill or from day 4', () => {
+  assert.equal(B.FEATURES.coast, true);
+  const s = G.newGame(); assert.ok(!S7.talkChoices(s, 'sera').some(c => c.key === 'offer:sq1'));
+  s.minutes += 1440 * 3; S7.updateQuests(s); assert.ok(S7.talkChoices(s, 'sera').some(c => c.key === 'offer:sq1'));
+});
+t('v0.9.3: Dorran\'s counter and the quest line sell the same single charge (bought early, the stage is already done)', () => {
+  const s = coastStart(); assert.ok(SO.canBuyCharge(s)); assert.ok(SO.buyCharge(s)); assert.equal(s.inventory.blastcharge, 1);
+  assert.equal(SO.canBuyCharge(s), false); assert.equal(SO.buyCharge(s), false); assert.equal(s.inventory.blastcharge, 1);
+  S7.chooseTalk(s, 'offer:sq1'); S7.updateQuests(s); assert.equal(s.quests.sq1.stage, 1);
+  assert.ok(!S7.talkChoices(s, 'dorran').some(c => /blasting charge/i.test(c.label)), 'no second purchase line once a charge is held');
+  SO.setCharge(s); assert.equal(SO.canBuyCharge(s), false); SO.blowGap(s, 30); assert.equal(SO.canBuyCharge(s), false);
+  const poor = coastStart(); poor.crowns = 10; assert.equal(SO.buyCharge(poor), false); assert.equal(poor.crowns, 10); assert.equal(poor.inventory.blastcharge, 0);
+});
+t('v0.9.3: the tide warning comes in the last half hour of low water, once per low water', () => {
+  const s = coastStart(), base = Math.floor(s.minutes / 1440) * 1440 + 1440, at = (h: number) => { s.minutes = base + Math.round(h * 60); };
+  at(9); assert.equal(SO.floodWarning(s), false); const id = SO.lowWaterId(s);
+  at(9.6); assert.equal(SO.floodWarning(s), true); assert.equal(SO.lowWaterId(s), id);
+  at(6.2); assert.equal(SO.lowWaterId(s), id);
+  at(10.5); assert.equal(SO.floodWarning(s), false);
+  at(21.7); assert.equal(SO.floodWarning(s), true); assert.notEqual(SO.lowWaterId(s), id);
+  at(13); assert.equal(SO.wadingOnFlats(s), true); at(8); assert.equal(SO.wadingOnFlats(s), false);
+  assert.equal(SO.lowdyOnFlats(s), true); at(13); assert.equal(SO.lowdyOnFlats(s), false);
+});
+t('v0.9.3: the Merry Wren\'s bell is carried like a strongbox: no map walking until it is hung', () => {
+  const s = coastStart(); assert.equal(SO.heavyLoad(s), ''); atHour(s, 8); SO.takeBell(s); assert.ok(SO.heavyLoad(s).includes('bell'));
+  s.inventory.shipsbell = 0; assert.equal(SO.heavyLoad(s), '');
+});
+t('v0.9.3: coast kills leave loot: crab meat from crabs, coin from smugglers and pistoleers, fixed by the seed', () => {
+  const s = coastStart(); let meat = 0, coin = 0;
+  for (let i = 0; i < 40; i++) { s.stats.kills = i; const l = T.rollLoot(s, 'crab'); if (l?.item === 'crabmeat') meat++; const m = T.rollLoot(s, i % 2 ? 'smuggler' : 'pistoleer'); if (m?.crowns) coin++; }
+  assert.ok(meat > 15 && meat < 40, String(meat)); assert.ok(coin > 15, String(coin));
+  s.stats.kills = 7; assert.deepEqual(T.rollLoot(s, 'crab'), T.rollLoot(s, 'crab'));
+});
+
 console.log(`\n${passed} passed`);

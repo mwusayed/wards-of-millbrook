@@ -31,7 +31,8 @@ import * as RU from './ui/reach_ui';
 import { WardenEngine } from './render/mine';
 import * as W from './sim/west';
 import * as coast from './sim/south';
-import { inDeepFlats } from './render/south';
+import { inFlats, inDeepFlats, FLATS } from './render/south';
+import { WreckMother } from './render/seacave';
 import { BarrowKing } from './render/barrow';
 
 // ---------------- setup ----------------
@@ -85,7 +86,7 @@ const player = {
   dodgeT: 0, dodgeCd: 0, dodgeX: 0, dodgeZ: 0, lantern: false, indoors: false, wading: false,
   // v0.7 feel: input direction, previous speed and yaw (for lean), footstep phase, camera springs
   inX: 0, inZ: 0, prevSpeed: 0, prevYaw: Math.PI / 2, stepIdx: 0, airT: 0, trauma: 0, dipY: 0, dipV: 0, fovNow: 72,
-  zone: 'town' as 'home' | 'town' | 'vale' | 'mill' | 'office' | 'ashford' | 'reach' | 'march' | 'fernhollow',
+  zone: 'town' as 'home' | 'town' | 'vale' | 'mill' | 'office' | 'ashford' | 'reach' | 'march' | 'fernhollow' | 'coast' | 'gullhaven',
 };
 const carbineTP = makeRevolver(); carbineTP.rotation.set(-Math.PI / 2, Math.PI, Math.PI); // barrel forward, grip down, in the two-hand pose
 // holstered copies: revolver on the right hip, staff across the back
@@ -111,7 +112,7 @@ shieldMesh.scale.set(0.9, 1.15, 0.9); world.scene.add(shieldMesh);
 let now = 0;
 const enemies = new EnemyManager(world.scene, world.colliders, {
   hurtPlayer: (amt, src) => hurtPlayer(amt, src),
-  killed: (e: Enemy) => { if (e.tag === 'patriarch' || e.tag === 'wraith' || e.tag === 'engine') return; G.onKill(s, e.kind, e.tag); feed.push(s, 'kill', EVENTS.kill(s, e.kind), 'combat', 2, 1); if (e.kind !== 'hound') sfx.death(); hud.hitmarker(); dropLoot(e); onEnemyDown(e); },
+  killed: (e: Enemy) => { if (e.tag === 'patriarch' || e.tag === 'wraith' || e.tag === 'engine' || e.tag === 'mother' || e.tag === 'orm') return; G.onKill(s, e.kind, e.tag); feed.push(s, 'kill', EVENTS.kill(s, e.kind), 'combat', 2, 1); if (e.kind !== 'hound') sfx.death(); hud.hitmarker(); dropLoot(e); onEnemyDown(e); },
   sound: (n, pan) => { const f = (sfx as any)[n]; if (typeof f === 'function') f.call(sfx, pan); },
   playerShielded: () => player.shield > 0 && absorb(14),
 });
@@ -163,7 +164,9 @@ function spawnChapel() {
   place('drowned', -2.5, 7); place('drowned', 3, 1); place('imp', 11, 3);
   if (!S.flag(s, 'chapelCleared')) { place('drowned', -1, -5); place('imp', -11, 1); place('imp', 10, 0); place('drowned', -11, 4); }
 }
-const SITE_KIND: Partial<Record<SiteId, EnemyKind>> = { mill_road: 'hound', raider_camp: 'raider', whisper_stones: 'shade', thornwood: 'wolf', toll_tower: 'bandit', hollow_road: 'boar', heath_road: 'wolf' };
+const SITE_KIND: Partial<Record<SiteId, EnemyKind>> = { mill_road: 'hound', raider_camp: 'raider', whisper_stones: 'shade', thornwood: 'wolf', toll_tower: 'bandit', hollow_road: 'boar', heath_road: 'wolf', saltway: 'smuggler', gull_tower: 'pistoleer', tidal_flats: 'crab', wreckers_cove: 'smuggler' };
+/** v0.9.3: the coast's sites hold mixed groups (saltway.md §3.3): pistoleers with the smugglers, crabs in packs. */
+const SITE_GROUP: Partial<Record<SiteId, EnemyKind[]>> = { saltway: ['smuggler', 'smuggler'], gull_tower: ['pistoleer', 'smuggler'], tidal_flats: ['crab', 'crab', 'crab'], wreckers_cove: ['smuggler', 'pistoleer', 'smuggler'] };
 let ambientDay = -1;
 function spawnAmbient() {
   ambientDay = G.day(s);
@@ -172,6 +175,8 @@ function spawnAmbient() {
     const k = SITE_KIND[site]; if (!k) continue;
     if (site === 'toll_tower' && S.flag(s, 'tollCleared')) continue;               // the toll is broken for good
     if (site === 'heath_road' && !S.flag(s, 'westGateOpen')) continue;            // nothing comes over a shut gate
+    const group = SITE_GROUP[site];
+    if (group) { if (!S.flag(s, 'saltGapOpen')) continue; for (let i = alive; i < group.length; i++) enemies.spawn(group[i], world.sites[site], null); continue; }
     const n = k === 'wolf' ? (S.flag(s, 'reachWarded') ? 2 : 3) : 2;
     for (let i = alive; i < n; i++) enemies.spawn(k, world.sites[site], null);
   }
@@ -313,6 +318,7 @@ function respawnHome() {
   if (world.inChapel && S.flag(s, 'chapelCheckpoint')) { player.pos.copy(world.chapel.checkpoint); player.vy = 0; player.yaw = 0; player.pitch = 0; player.shield = 0; G.log(s, 'You wake by the crypt waystone, soaked and aching.', 'warn'); return; }
   if (world.inMine && S.flag(s, 'mineCheckpoint')) { engine.reset(); player.pos.copy(world.mine.checkpoint).add(new THREE.Vector3(-1.2, 0, 0)); player.vy = 0; player.yaw = 0; player.pitch = 0; player.shield = 0; G.log(s, 'You wake by the deep waystone, its copper light on your face.', 'warn'); return; }
   if (world.dungeon === 'barrow') { barrowKing.reset(); world.barrowDark = false; for (const e of [...enemies.list]) if (e.tag === 'barrow' || e.tag === 'orm_call') enemies.remove(e); if (S.flag(s, 'hallLit')) { player.pos.copy(world.barrow.checkpoint); player.vy = 0; player.yaw = 0; player.pitch = 0; player.shield = 0; G.log(s, 'You wake on the cold floor of the Hall of Kings, by the burning braziers. Something carried you there, or let you crawl.', 'warn'); return; } world.setDungeon(null); }
+  if (world.dungeon === 'seacave') { leaveSeaCave(); world.setDungeon(null); }
   if (world.inMill && s.flags.millCheckpoint) { player.pos.copy(world.mill.checkpoint); player.vy = 0; player.yaw = 0; player.pitch = 0; player.shield = 0; G.log(s, 'You wake by the mill waystone, aching.', 'warn'); return; }
   world.setMillMode(false);
   engine.reset();
@@ -657,6 +663,10 @@ const TRAVEL: { id: string; label: string; pos: () => THREE.Vector3; known: () =
   ...([['fernhollow', 'Fernhollow'], ['smeath', 'The Smeaths\' clamp'], ['vane_dig', 'Vane\'s dig'], ['ring', 'The Ring of Nine'], ['orm_mound', 'King Orm\'s mound'], ['jetty', 'Fernhollow jetty']] as [string, string][]).map(([id, label]) => ({ id: 'p_' + id, label, pos: () => world.places[id].clone().add(new THREE.Vector3(1.2, 0, 1.2)), known: () => s.discovered.includes('place:' + id) })),
   ...(['heath_road', 'barrow_downs', 'reed_marsh'] as SiteId[]).map(site => ({ id: 'cairn_' + site, label: `Cairn: ${SITES[site].name.replace(/^the /, '')}`, pos: () => world.places['cairn_' + site].clone().add(new THREE.Vector3(1.5, 0, 1.5)), known: () => s.discovered.includes('cairn_' + site) })),
   ...(['thornwood', 'toll_tower', 'brookfield', 'hollow_road'] as SiteId[]).map(site => ({ id: 'cairn_' + site, label: `Cairn: ${SITES[site].name.replace(/^the /, '')}`, pos: () => world.places['cairn_' + site].clone().add(new THREE.Vector3(1.5, 0, 1.5)), known: () => s.discovered.includes('cairn_' + site) })),
+  // v0.9.3: the Saltway Coast (only once the gap is open and you have walked there)
+  { id: 'salt_gap', label: 'The Salt Gap', pos: () => world.places.salt_gap, known: () => S.flag(s, 'saltGapOpen') > 0 },
+  ...([['gullhaven', 'Gullhaven'], ['saltway', 'The carter\'s shrine'], ['gulltower', 'The Gull Tower'], ['lighthouse', 'The lighthouse'], ['flats', 'The tidal flats'], ['cove', 'Wreckers\' Cove']] as [string, string][]).map(([id, label]) => ({ id: 'p_' + id, label, pos: () => world.places[id].clone(), known: () => S.flag(s, 'saltGapOpen') > 0 && s.discovered.includes('place:' + id) })),
+  ...(['saltway', 'gull_tower', 'tidal_flats', 'wreckers_cove'] as SiteId[]).map(site => ({ id: 'cairn_' + site, label: `Cairn: ${SITES[site].name.replace(/^the /, '')}`, pos: () => world.places['cairn_' + site].clone().add(new THREE.Vector3(1.5, 0, 1.5)), known: () => S.flag(s, 'saltGapOpen') > 0 && s.discovered.includes('cairn_' + site) })),
 ];
 function discoverPlaces() {
   if (world.dungeon) return;
@@ -669,6 +679,7 @@ function travelBlock(): string {
   if (world.dungeon) return 'There is no map of this place.';
   if (gate.active) return 'Not while the gate is under attack.';
   if (s.carryingCrate) return 'Not while carrying a strongbox: walk it in.';
+  if (coast.heavyLoad(s)) return coast.heavyLoad(s);
   if (enemies.list.some(e => e.alive && e.state !== 'idle' && e.state !== 'return' && e.pos.distanceTo(player.pos) < 35)) return 'Not with enemies on you.';
   return '';
 }
@@ -684,8 +695,15 @@ function openMap() {
   for (const p of EAST_PLACES) { if (p.id === 'east_gate') continue; const at = world.places[p.id], k = s.discovered.includes('place:' + p.id); if (at && (k || p.id === 'ashford')) marks.push({ x: at.x, z: at.z, label: k ? p.name.replace(/^the /, '') : '?', color: k ? '#cfc8b0' : '#77705e', shape: p.id === 'ashford' || p.id === 'copper_hollow' ? 'square' : 'tri' }); }
   for (const site of ['thornwood', 'toll_tower', 'brookfield', 'hollow_road'] as SiteId[]) { const p = world.places['cairn_' + site]; if (s.discovered.includes('cairn_' + site)) marks.push({ x: p.x, z: p.z, label: '', color: '#cfc8b0', shape: 'tri' }); }
   for (const t of folk) if (t.present && t.mark.visible) marks.push({ x: t.pos.x, z: t.pos.z, label: '', color: '#ffd24a', shape: 'dot' });
-  const c = s.active; if (c) { const done = c.progress >= c.count, cp = done ? (c.board ? world.places.lodge : world.places.board) : c.kind !== 'sweep' ? world.places['cairn_' + c.site] : world.sites[c.site]; marks.push({ x: cp.x + 2, z: cp.z + 2, label: done ? 'Collect pay' : 'Notice', color: '#9fd0ff', shape: 'diamond' }); }
-  const tr = S.tracked(s), qp = resolveWhere(tr?.where ?? null); if (qp && !world.inMillArea(qp) && !world.inChapelArea(qp) && !world.inMineArea(qp) && !world.inBarrowArea(qp)) marks.push({ x: qp.x, z: qp.z, label: tr!.title, color: '#ffd24a', shape: 'diamond' });
+  const c = s.active; if (c) { const done = c.progress >= c.count, cp = done ? boardPlace(c) : c.kind !== 'sweep' ? world.places['cairn_' + c.site] : world.sites[c.site]; marks.push({ x: cp.x + 2, z: cp.z + 2, label: done ? 'Collect pay' : 'Notice', color: '#9fd0ff', shape: 'diamond' }); }
+  const coastKnown = S.flag(s, 'saltGapOpen') > 0 || player.pos.z > 136;
+  if (coastKnown) {
+    for (const p of COAST_PLACES) { if (p.id === 'wreck') continue; const at = world.places[p.id], k = s.discovered.includes('place:' + p.id); if (at && (k || p.id === 'gullhaven')) marks.push({ x: at.x, z: at.z, label: k ? p.name.replace(/^the /, '') : '?', color: k ? '#cfc8b0' : '#77705e', shape: p.id === 'gullhaven' || p.id === 'lighthouse' ? 'square' : 'tri' }); }
+    for (const site of COAST_SITES_LIST) { const p = world.places['cairn_' + site]; if (s.discovered.includes('cairn_' + site)) marks.push({ x: p.x, z: p.z, label: '', color: '#cfc8b0', shape: 'tri' }); }
+    if (s.discovered.includes('place:wreck') || s.discovered.includes('place:flats')) marks.push({ x: world.south.wreck.x, z: world.south.wreck.z, label: 'Merry Wren', color: coast.flatsExposed(s) ? '#e8d8a8' : '#6a8aa8', shape: 'dot' });
+  }
+  marks.push({ x: world.places.salt_gap.x, z: world.places.salt_gap.z, label: S.flag(s, 'saltGapOpen') ? 'Salt Gap' : 'Salt Gap (blocked)', color: '#cfc8b0', shape: 'dot' });
+  const tr = S.tracked(s), qp = resolveWhere(tr?.where ?? null); if (qp && !world.inMillArea(qp) && !world.inChapelArea(qp) && !world.inMineArea(qp) && !world.inBarrowArea(qp) && !world.inSeaCaveArea(qp)) marks.push({ x: qp.x, z: qp.z, label: tr!.title, color: '#ffd24a', shape: 'diamond' });
   const block = travelBlock();
   const travel = block ? [] : TRAVEL.filter(t => t.known() && t.pos().distanceTo(player.pos) > 25).map(t => ({ id: t.id, label: t.label, minutes: Math.max(2, Math.round(t.pos().distanceTo(player.pos) / 4.2)) }));
   const d = G.today(s);
@@ -693,7 +711,7 @@ function openMap() {
   const westKnown = S.flag(s, 'westGateOpen') > 0;
   for (const p of WEST_PLACES) { const at = world.places[p.id], k = s.discovered.includes('place:' + p.id); if (at && (k || p.id === 'fernhollow') && westKnown) marks.push({ x: at.x, z: at.z, label: k ? p.name.replace(/^the /, '') : '?', color: k ? '#cfc8b0' : '#77705e', shape: p.id === 'fernhollow' || p.id === 'orm_mound' ? 'square' : 'tri' }); }
   for (const site of ['heath_road', 'barrow_downs', 'reed_marsh'] as SiteId[]) { const p = world.places['cairn_' + site]; if (s.discovered.includes('cairn_' + site)) marks.push({ x: p.x, z: p.z, label: '', color: '#cfc8b0', shape: 'tri' }); }
-  showMap(openModal, { buildings: world.buildings, marks, player: { x: player.pos.x, z: player.pos.z, yaw: player.yaw }, travel, travelNote: block || 'Walking takes the same time it would on foot, and you get as hungry and thirsty as if you had walked. The coach between Millbrook\'s East Gate and Ashford is quicker.', header: `Day ${G.day(s)}, ${G.clock(s)} · ${WEATHER_TEXT[d.weather]} · ${world.regionAt(player.pos).name}`, features: world.east.map, view: player.pos.x > 64 ? 'reach' : player.pos.x < -64 ? 'west' : 'local', reachKnown, west: world.west.map, westKnown, westGateOpen: westKnown }, id => {
+  showMap(openModal, { buildings: world.buildings, marks, player: { x: player.pos.x, z: player.pos.z, yaw: player.yaw }, travel, travelNote: block || 'Walking takes the same time it would on foot, and you get as hungry and thirsty as if you had walked. The coach between Millbrook\'s East Gate and Ashford is quicker.', header: `Day ${G.day(s)}, ${G.clock(s)} · ${WEATHER_TEXT[d.weather]} · ${world.regionAt(player.pos).name}`, features: world.east.map, view: player.pos.z > 136 ? 'coast' : player.pos.x > 64 ? 'reach' : player.pos.x < -64 ? 'west' : 'local', reachKnown, west: world.west.map, westKnown, westGateOpen: westKnown, coast: world.south.map, coastKnown, gapOpen: S.flag(s, 'saltGapOpen') > 0, lowTideIn: s.gear.spyglass || S.flag(s, 'tideRead') ? coast.minutesToLowWater(s) : undefined }, id => {
     const t = TRAVEL.find(x => x.id === id)!; const mins = Math.max(2, Math.round(t.pos().distanceTo(player.pos) / 4.2));
     hud.fade(`You walk to ${t.label.toLowerCase().replace('cairn: ', 'the cairn at ')}… (${mins} min)`, 900).then(() => { G.advanceMinutes(s, mins, 'active'); player.pos.copy(t.pos()); player.vy = 0; G.count(s, 'walks'); save(); relock(); });
   }, relock);
@@ -813,8 +831,8 @@ function goMine(enter: boolean) {
 // ---- fishing: cast, wait for the bite, strike in time ----
 let fishing: null | { spot: R.FishSpot; t: number; wait: number; window: number; phase: 'wait' | 'bite' } = null;
 function startFishing(it: Interactable) {
-  if (s.inventory.rod <= 0) { G.log(s, it.pos.x < -200 ? 'You need a fishing rod. Marra Quill and Ebba Rook sell them in Fernhollow.' : 'You need a fishing rod. Oskar Penn sells them on the Ashford docks.', 'warn'); sfx.bad(); return; }
-  const spot: R.FishSpot = it.id === 'fish_pond' ? 'pond' : it.id === 'fish_lake' ? 'lake' : it.id === 'fish_marsh' ? 'marsh' : 'river';
+  if (s.inventory.rod <= 0) { G.log(s, it.pos.z > 300 ? 'You need a fishing rod. Pasco Hendy and Tegen Rowse sell them on Gullhaven quay.' : it.pos.x < -200 ? 'You need a fishing rod. Marra Quill and Ebba Rook sell them in Fernhollow.' : 'You need a fishing rod. Oskar Penn sells them on the Ashford docks.', 'warn'); sfx.bad(); return; }
+  const spot: R.FishSpot = it.id === 'fish_pond' ? 'pond' : it.id === 'fish_lake' ? 'lake' : it.id === 'fish_marsh' ? 'marsh' : it.id === 'fish_sea' ? 'sea' : 'river';
   const tm = R.fishTiming(s, spot);
   fishing = { spot, t: 0, wait: tm.wait, window: tm.window, phase: 'wait' };
   player.action = { clip: 'fish', t: 0, dur: 9999, facing: it.facing, upper: false }; if (it.facing !== undefined) player.yaw = it.facing;
@@ -1083,39 +1101,164 @@ function westEvents() {
   }
 }
 function westEnemyDown(e: Enemy) { void e; }
-let fuseRemaining = B.BLAST.fuse as number;
-function southInteract(it: Interactable): boolean {
-  switch (it.id) {
-    case 'rockfall':
-      if (coast.setCharge(s)) fuseRemaining = B.BLAST.fuse;
-      return true;
-    case 'wreck_log': G.log(s, coast.searchWreck(s), 'info'); return true;
-    case 'wreck_bell': G.log(s, coast.takeBell(s), 'info'); return true;
-    case 'tower_lantern': G.log(s, coast.takeLantern(s), 'info'); return true;
-    case 'customs_desk': G.log(s, coast.takeLedger(s), 'info'); return true;
-    case 'tide_table': G.log(s, coast.tideWord(s) + '. Low water at 08:00 and 20:00.', 'info'); return true;
-    case 'cave_mouth': G.log(s, 'The sea cave is closed in this coast preview.', 'info'); return true;
-    default: return false;
-  }
+// ---------------- v0.9.3: the Saltway Coast ----------------
+// The Salt Gap and Dorran's charge, the tide over the flats, Gullhaven's services, the Gull Tower, the customs
+// house, Wreckers' Cove, and the Sea Cave with the Wreck-Mother (docs/gdd/saltway.md). Rules live in sim/south.ts.
+let fuseRemaining = B.BLAST.fuse as number, fuseSpark = 0, tideWarned = -1, coastWading = false, coastWadeK = 1, slowUntil = 0;
+let caveGuards = false, floodTarget = 0, wadeK = 0.62;
+const mother = new WreckMother(world.scene, enemies, world.colliders, world.seacave.grotto.clone(), world.seacave, {
+  hurtPlayer: amt => hurtPlayer(amt, 'mother'),
+  slowPlayer: secs => { slowUntil = Math.max(slowUntil, now + secs); },
+  feed: text => { feed.push(s, 'mother:' + text.slice(0, 14), text, 'combat', 3, 2); },
+  sound: (n, pan) => { const f = (sfx as any)[n]; if (typeof f === 'function') f.call(sfx, pan); },
+  defeated: () => { coast.motherDown(s); G.addXp(s, 'marksman', 40); G.addXp(s, 'spellcraft', 40); sfx.good(); hud.fade('The Wreck-Mother sinks into the pool', 1500); S.updateQuests(s); save(); },
+  spawnCrab: at => { const e = enemies.spawn('crab', at, 'mother_call', false, true); e.state = 'chase'; },
+  shake: k => { player.trauma = Math.min(1, player.trauma + k); },
+  flood: on => { floodTarget = on ? 1 : 0; },
+});
+const caveTags = new Set(['seacave', 'mother_call']);
+world.places.grotto = world.seacave.grotto.clone();                 // sq2's last stage points here (the cave mouth from outside)
+/** Show the quest items that are still in the world, hide the ones you have taken. */
+const coastProps: Record<string, THREE.Object3D | undefined> = {};
+for (const n of ['wreckBell', 'wreckBellYoke', 'signalLantern', 'wrenBell']) coastProps[n] = world.scene.getObjectByName(n);
+function syncCoastProps() {
+  const show = (n: string, v: boolean) => { const o = coastProps[n]; if (o && o.visible !== v) o.visible = v; };
+  show('wreckBell', !S.flag(s, 'bellTaken')); show('signalLantern', !S.flag(s, 'lanternFound')); show('wrenBell', S.flag(s, 'bellRung') > 0);
+  const bell = world.interactables.find(i => i.id === 'wreck_bell'); if (bell) bell.hidden = S.flag(s, 'bellTaken') > 0;
+  const lan = world.interactables.find(i => i.id === 'tower_lantern'); if (lan) lan.hidden = S.flag(s, 'lanternFound') > 0;
+  if (S.flag(s, 'saltGapOpen')) world.south.openGap(true); else world.south.closeGap();
 }
-
-function updateCoast(dt: number) {
-  if (s.story.flags.chargeSet) {
-    fuseRemaining -= dt;
-    if (fuseRemaining <= 0) {
-      const damage = coast.blowGap(s, player.pos.distanceTo(world.south.charge));
-      world.south.openGap();
-      if (damage) hurtPlayer(damage, 'rockfall');
-      S.updateQuests(s);
-      save();
-    }
+function goSeaCave(enter: boolean) {
+  if (busy()) return;
+  if (enter && !coast.enterCave(s)) { G.log(s, coast.caveBlock(s), 'warn'); sfx.bad(); return; }
+  sfx.ui();
+  hud.fade(enter ? 'The grille swings in on its chain. Salt water drips from the roof as you go under the cliff…' : 'You walk back out toward the grey light and the gulls…', 1000).then(() => {
+    if (enter) { player.pos.copy(world.seacave.spawn); player.yaw = 0; world.setDungeon('seacave'); caveGuards = false; }
+    else { player.pos.copy(world.places.cave_mouth); player.yaw = -Math.PI / 2; world.setDungeon(null); leaveSeaCave(); }
+    player.vy = 0; S.updateQuests(s); save();
+  });
+}
+/** Leaving (or dying in) the cave: the boss heals, the grotto drains and the guards go back to their posts. */
+function leaveSeaCave() {
+  mother.reset(); floodTarget = 0; world.seacave.setFlood(0); caveGuards = false;
+  for (const e of [...enemies.list]) if (e.tag && caveTags.has(e.tag)) enemies.remove(e);
+}
+function seaCaveTick(dt: number) {
+  const C = world.seacave, p = player.pos;
+  if (!caveGuards && C.inStore(p) && !S.flag(s, 'motherDown')) {
+    caveGuards = true; const O = C.origin;
+    const at = (x: number, z: number) => O.clone().add(new THREE.Vector3(x, 0, z));
+    for (const [k, x, z] of [['smuggler', -6, -24], ['smuggler', 5, -28], ['pistoleer', 0, -32]] as [EnemyKind, number, number][]) { const e = enemies.spawn(k, at(x, z), 'seacave', false, true); e.pos.copy(at(x, z)); e.wanderTarget.copy(e.pos); e.state = 'chase'; }
+    feed.push(s, 'caveStore', 'Lamplight, crates and voices. "Who left the grille open?" Three of them, and one has a pistol.', 'combat', 3, 0); sfx.shout(0);
   }
+  if (!mother.dead && !mother.active && C.inGrotto(p) && !S.flag(s, 'motherDown')) mother.wake();
+  mother.update(dt, now, p, !busyCollapse);
+  if (C.floodLevel !== floodTarget) { const rate = floodTarget > C.floodLevel ? 1 / 6 : 1 / 3; C.setFlood(C.floodLevel + Math.sign(floodTarget - C.floodLevel) * Math.min(Math.abs(floodTarget - C.floodLevel), dt * rate)); }
+  C.animate(dt, now);
+  if (C.floodLevel > 0.3 && C.inGrotto(p) && !C.onPlatform(p)) { coastWading = true; coastWadeK = coast.wadeMult(s); }
+}
+function blowTheGap() {
+  const dist = player.pos.distanceTo(world.south.charge);
+  const damage = coast.blowGap(s, dist);
+  world.south.openGap(); sfx.thunder(); player.trauma = Math.min(1, player.trauma + (dist < 40 ? 1 - dist / 50 : 0.1));
+  for (let i = 0; i < 14; i++) puff(world.south.charge.clone().add(new THREE.Vector3((Math.random() - 0.5) * 10, 0.4 + Math.random() * 4, (Math.random() - 0.5) * 6)), i % 2 ? 0xb8a890 : 0x8a8070, 0.6 + Math.random() * 0.8);
+  if (damage) hurtPlayer(damage, 'rockfall');
+  S.updateQuests(s); save();
+}
+function updateCoast(dt: number) {
+  coastWading = false;
+  if (S.flag(s, 'chargeSet')) {
+    fuseRemaining -= dt; fuseSpark -= dt;
+    if (fuseSpark <= 0) { fuseSpark = 0.18; puff(world.south.charge.clone().setY(0.35 + Math.random() * 0.2), 0xffc060, 0.08); }
+    if (fuseRemaining <= 4 && fuseRemaining + dt > 4) feed.push(s, 'fuseHalf', 'The fuse fizzes down into the rocks. Four seconds.', 'combat', 3, 0);
+    if (fuseRemaining <= 0) blowTheGap();
+  }
+  if (world.dungeon === 'seacave') { seaCaveTick(dt); return; }
   if (player.pos.z < 136 || world.dungeon) return;
   world.south.setTide(coast.tideAt(s));
-  world.south.animate(dt, performance.now()/1000, player.pos, Number(s.minutes % 1440 < 360 || s.minutes % 1440 > 1080));
-  if (inDeepFlats(player.pos) && !coast.flatsExposed(s)) {
-    player.pos.z = 346;
-    coast.tideCarry(s);
+  world.south.animate(dt, now, player.pos, world.night);
+  // the tide over the flats (saltway.md §4): wade on the near flats while the water is on them, a warning half an
+  // hour before it comes back, and on the far flats the returning water carries you to the shore
+  if (inFlats(player.pos)) {
+    const lw = coast.lowWaterId(s);
+    if (coast.floodWarning(s) && tideWarned !== lw && inDeepFlats(player.pos)) { tideWarned = lw; feed.push(s, 'tideWarn', `The tide has turned. The water will be back over the far flats in about ${coast.minutesToFlood(s)} minutes. Head for the shore.`, 'survival', 3, 0); sfx.bell(); hud.fade('The tide is turning', 900); }
+    if (inDeepFlats(player.pos) && !coast.flatsExposed(s) && !busyCollapse) {
+      const [x, z] = collide(world.colliders, player.pos.x, FLATS.minZ + 3, 0.35, 0);
+      player.pos.set(x, 0, z); player.vy = 0; player.yaw = 0; coast.tideCarry(s); sfx.water(); hud.fade('The sea takes your feet…', 900); save();
+    } else if (coast.wadingOnFlats(s)) { coastWading = true; coastWadeK = coast.wadeMult(s); }
+  }
+}
+const COAST_PLACES: { id: string; name: string; text: string; r: number }[] = [
+  { id: 'saltway', name: 'the carter\'s shrine', text: 'The Saltway, and Old Treloar\'s shrine to a saint nobody else has heard of. The road runs on down to the sea.', r: 16 },
+  { id: 'gulltower', name: 'the Gull Tower', text: 'The Gull Tower: a ruined watchtower above the Saltway, with fresh boot-prints on the stair.', r: 18 },
+  { id: 'gullhaven', name: 'Gullhaven', text: 'Gullhaven: a fishing port on a curved bay. The quay, the Anchor and Gull, the customs house, the fish auction, and gulls on every roof.', r: 30 },
+  { id: 'lighthouse', name: 'the lighthouse', text: 'The lighthouse on the headland, and the keeper\'s cottage beside it.', r: 18 },
+  { id: 'flats', name: 'the tidal flats', text: 'The tidal flats: wet sand, mussel beds and samphire, and far out, the broken hull of the Merry Wren.', r: 20 },
+  { id: 'wreck', name: 'the wreck of the Merry Wren', text: 'The wreck of the Merry Wren, on her side in the sand. Her bell still hangs at the bow.', r: 12 },
+  { id: 'cove', name: 'Wreckers\' Cove', text: 'Wreckers\' Cove: tents on the shingle, a cold fire, and a timber grille over a cave mouth in the cliff.', r: 18 },
+];
+const COAST_SITES_LIST: SiteId[] = ['saltway', 'gull_tower', 'tidal_flats', 'wreckers_cove'];
+function discoverCoast() {
+  if (world.dungeon || player.pos.z < 136) return;
+  for (const p of COAST_PLACES) {
+    const key = 'place:' + p.id; if (s.discovered.includes(key)) continue;
+    const at = world.places[p.id]; if (!at) continue;
+    if (player.pos.distanceTo(at) < p.r) { s.discovered.push(key); sfx.pickup(); feed.push(s, 'found' + p.id, `${p.text} (You can walk back here from the map.)`, 'explore', 3, 0); G.addXp(s, 'survival', 8); S.updateQuests(s); }
+  }
+  for (const site of COAST_SITES_LIST) {
+    const id = 'cairn_' + site; if (s.discovered.includes(id)) continue;
+    if (player.pos.distanceTo(world.places[id]) < 14) { s.discovered.push(id); feed.push(s, 'found' + id, `Found: the cairn at ${SITES[site].name}.`, 'explore', 2, 0); }
+  }
+}
+function southInteract(it: Interactable): boolean {
+  const id = it.id, once = (flag: string) => { if (S.flag(s, flag)) return false; S.setFlag(s, flag); return true; };
+  const after = () => { S.updateQuests(s); syncCoastProps(); save(); };
+  switch (id) {
+    case 'rockfall':
+      if (S.flag(s, 'chargeSet') || S.flag(s, 'saltGapOpen')) return true;
+      if (s.inventory.blastcharge <= 0) { coast.setCharge(s); sfx.bad(); return true; }
+      station(it, { clip: 'kneel', dur: 1.6, fp: 'interact', sound: () => sfx.reload(), then: () => { if (coast.setCharge(s)) { fuseRemaining = B.BLAST.fuse; sfx.hiss(0); hud.fade(`The fuse is lit · ${B.BLAST.fuse} seconds · get more than ${B.BLAST.far} m away`, 900); S.updateQuests(s); save(); } } });
+      return true;
+    case 'milestone_s': G.log(s, 'A salt-white milestone, its letters scoured by the wind: MILLBROOK II · GULLHAVEN VI. Somebody has chalked a gull on the top.', 'info'); return true;
+    case 'shrine_s': station(it, { clip: 'kneel', dur: 2.0, fp: 'none', then: () => { s.needs.stress = G.clampNeedPublic('stress', s.needs.stress - 3); G.log(s, 'A wooden saint with a cartwheel in his hands, painted and repainted until he has no face. Pebbles of rock salt on the ledge. You leave one. The road feels a little shorter.', 'info'); } }); return true;
+    case 'wreck_log': station(it, { clip: 'pick', dur: 1.4, fp: 'interact', then: () => { const had = S.flag(s, 'logFound'); G.log(s, coast.searchWreck(s), 'info'); if (!had && S.flag(s, 'logFound')) sfx.quest(); after(); } }); return true;
+    case 'wreck_bell': station(it, { clip: 'pick', dur: 1.8, fp: 'interact', then: () => { const had = S.flag(s, 'bellTaken'); G.log(s, coast.takeBell(s), 'info'); if (!had && S.flag(s, 'bellTaken')) sfx.bell(); after(); } }); return true;
+    case 'tower_lantern': station(it, { clip: 'pick', dur: 1.2, fp: 'interact', then: () => { const had = S.flag(s, 'lanternFound'); G.log(s, coast.takeLantern(s), 'info'); if (!had) sfx.quest(); after(); } }); return true;
+    case 'customs_desk': station(it, { clip: 'interact', dur: 1.4, fp: 'interact', then: () => { const had = S.flag(s, 'ledgerFound'); G.log(s, coast.takeLedger(s), coast.marrowAtDesk(s) && !had ? 'warn' : 'info'); if (!had && S.flag(s, 'ledgerFound')) sfx.quest(); after(); } }); return true;
+    case 'tide_table': S.setFlag(s, 'tideRead'); G.log(s, `Chalked on the harbour office board: ${coast.tideWord(s)}. Low water at 08:00 and 20:00; the flats are out about two hours either side. ${coast.flatsExposed(s) ? `The water is due back in about ${coast.minutesToFlood(s)} minutes.` : `Next low water in about ${Math.round(coast.minutesToLowWater(s) / 6) / 10} hours.`}`, 'info'); sfx.ui(); return true;
+    case 'keeper_log': G.log(s, S.flag(s, 'trewinCleared') ? 'The keeper\'s log, in a careful hand: "Lamp lit 18:40. Wind SW, fresh. All well." On the last page someone has written in a different hand: "And so it was. B.C."' : 'The keeper\'s log, in a careful hand. On the night the Merry Wren struck: "Lamp lit 18:40. Wind NW, fresh. Lamp burning bright at 02:00. Saw a light at the Gull Tower, red, where no light should be."', 'info'); sfx.ui(); return true;
+    case 'pump_s': station(it, { clip: 'drink', dur: 1.6, fp: 'drink', sound: () => sfx.water(), then: () => { G.drink(s, 'well'); } }); return true;
+    case 'cave_mouth': goSeaCave(true); return true;
+    case 'cave_exit': goSeaCave(false); return true;
+    case 'cave_crate_1': case 'cave_crate_2':
+      station(it, { clip: 'pick', dur: 1.3, fp: 'interact', then: () => {
+        if (!once('crate:' + id)) { G.log(s, 'Empty now.', 'info'); return; }
+        const l = coast.CAVE_LOOT[id]; for (const [k, n] of Object.entries(l.items)) s.inventory[k as B.ItemId] += n as number; s.crowns += l.crowns; G.count(s, 'crownsEarned', l.crowns); G.log(s, `${l.text} +${l.crowns} crowns.`, 'good'); sfx.coin(); save();
+      } });
+      return true;
+    case 'inn_bar_s': RU.openTrader(ui, 'anchor', 'Jowan Penhale wipes the bar with the cloth off his shoulder. "Broth, cakes, salad, mackerel. Or a bed upstairs."'); return true;
+    case 'inn_bed_s': {
+      const cost = R.innCost(s, 'gullhaven');
+      if (s.crowns < cost) { G.log(s, `A bed at the Anchor and Gull is ${cost} crowns. You do not have it.`, 'warn'); sfx.bad(); return true; }
+      const hh = G.hour(s);
+      station(it, { clip: 'sleep', dur: 2.2, fp: 'none', fade: hh >= 18 || hh < 6 ? 'You sleep to the sound of the sea on the harbour wall…' : 'You nap upstairs while the gulls argue on the roof…', then: () => { if (R.innSleep(s, 'gullhaven') !== false) sfx.ui(); } });
+      return true;
+    }
+    case 'chandlery': RU.openTrader(ui, 'chandlery', 'Pasco Hendy, among coils of rope. "Oil, rope, rations, rounds. And a spyglass, if you have the coin."'); return true;
+    case 'auction': RU.openTrader(ui, 'fishauction', 'Morwenna Kitto, over the slap of fish on the slab. "I pay best on the coast. Ask anyone. Ask the fish."'); return true;
+    case 'shipwright': RU.openTrader(ui, 'shipwright', 'Tegen Rowse does not stop caulking. "Sea boots. Tarred to the thigh. You\'ll thank me on the flats."'); return true;
+    case 'sea_chapel': station(it, { clip: 'kneel', dur: 2.6, fp: 'none', sound: () => sfx.bell(), then: () => { if (coast.blessing(s)) sfx.good(); } }); return true;
+    case 'notice_coast': openBoard('coast'); return true;
+    case 'fish_sea': startFishing(it); return true;
+    default:
+      if (id.startsWith('mussel_') || id.startsWith('samphire_')) {
+        const kind = id.startsWith('mussel_') ? 'mussel' : 'samphire';
+        const far = kind === 'mussel' && it.pos.z > FLATS.deep - 2;
+        if (far && !coast.flatsExposed(s)) { G.log(s, 'The far beds are under the sea at this hour. The flats are out about 06:00 to 10:00 and 18:00 to 22:00.', 'warn'); sfx.bad(); return true; }
+        station(it, { clip: 'pick', dur: 1.3, fp: 'interact', then: () => { S.setFlag(s, 'node:' + id, G.day(s) * 2 + 2); it.hidden = true; feed.push(s, 'g' + id, R.gather(s, kind), 'explore', 1, 0); sfx.pickup(); G.count(s, 'gathered'); refreshNodes(); S.updateQuests(s); } });
+        return true;
+      }
+      return false;
   }
 }
 
@@ -1412,15 +1555,17 @@ function openShop() {
 function noticeWhere(c: { kind: string; enemy?: EnemyKind; site: SiteId }) {
   return c.kind === 'sweep' ? `${(c as any).elite ? 'An elite ' + ENEMY_NAMES[c.enemy!].toLowerCase() : ENEMY_NAMES[c.enemy!]} at ${SITES[c.site].name}` : c.kind === 'recovery' ? `Cairn at ${SITES[c.site].name}, guarded by ${ENEMY_NAMES[c.enemy!]}s` : `Waystone at ${SITES[c.site].name}`;
 }
-function openBoard(which: boolean | 'west' = false) {
-  const lodge = which === true, west = which === 'west', bk = (c: { board?: string }) => c.board ?? 'mb', mineKey = west ? 'west' : lodge ? 'lodge' : 'mb';
+/** Where a notice is paid: the board it came from (v0.9.3: the west and coast posts, not the Lodge). */
+function boardPlace(c: { board?: string }): THREE.Vector3 { return c.board === 'west' ? world.places.notice_west : c.board === 'coast' ? world.places.notice_coast : c.board ? world.places.lodge : world.places.board; }
+function openBoard(which: boolean | 'west' | 'coast' = false) {
+  const lodge = which === true, west = which === 'west', coastB = which === 'coast', bk = (c: { board?: string }) => c.board ?? 'mb', mineKey = coastB ? 'coast' : west ? 'west' : lodge ? 'lodge' : 'mb';
   if (G.contractReady(s) && (s.active!.kind !== 'recovery' || s.carryingCrate) && bk(s.active!) === mineKey) { const pay = G.contractPay(s, s.active!); G.turnInContract(s); sfx.coin(); hud.fade(`+${pay} crowns`, 700); save(); return; }
   const render = (root: HTMLElement, close: () => void) => {
     const a = s.active;
     const prep = a ? (Object.keys(G.PREP) as G.PrepId[]).map(p => { const d = G.PREP[p], done = a.prep?.[p]; return `<div class="row2"><div><b>${d.name}</b>${d.cost ? ` · ${d.cost} crowns` : ''}${d.hours ? ` · ${d.hours} hour` : ''}<br><small style="color:var(--muted)">${d.desc}</small></div><button class="btn" data-prep="${p}" ${done || s.crowns < d.cost ? 'disabled' : ''}>${done ? 'Done' : 'Prepare'}</button></div>`; }).join('') : '';
     const mine = s.board.filter(c => bk(c) === mineKey);
-    root.innerHTML = (west ? `<h2>Fernhollow's notice post</h2><p class="sub">Work in the Westmarch, pinned up by the headwoman, the barrow-warden and whoever else is desperate. New notices every morning.</p>` : lodge ? `<h2>The Wardens' Lodge</h2><p class="sub">Harder work in the Eastern Reach, posted by Dace Morrow and the people who pay the Lodge. New notices every morning.</p>` : `<h2>Contract board</h2><p class="sub">Notices nailed up by Millbrook folk. New ones every morning. Pay rises with the issuer's opinion of you.</p>`) +
-      (a && bk(a) !== mineKey ? `<p style="color:var(--muted)">Your current notice is from the ${a.board === 'west' ? 'notice post in Fernhollow' : a.board ? 'Lodge in Ashford' : 'Millbrook board'}; you are paid there.</p>` : '') +
+    root.innerHTML = (coastB ? `<h2>Gullhaven's notice post</h2><p class="sub">Work on the coast, pinned up by the harbourmaster and whoever on the quay is angry enough to pay. New notices every morning.</p>` : west ? `<h2>Fernhollow's notice post</h2><p class="sub">Work in the Westmarch, pinned up by the headwoman, the barrow-warden and whoever else is desperate. New notices every morning.</p>` : lodge ? `<h2>The Wardens' Lodge</h2><p class="sub">Harder work in the Eastern Reach, posted by Dace Morrow and the people who pay the Lodge. New notices every morning.</p>` : `<h2>Contract board</h2><p class="sub">Notices nailed up by Millbrook folk. New ones every morning. Pay rises with the issuer's opinion of you.</p>`) +
+      (a && bk(a) !== mineKey ? `<p style="color:var(--muted)">Your current notice is from the ${a.board === 'coast' ? 'notice post on Gullhaven quay' : a.board === 'west' ? 'notice post in Fernhollow' : a.board ? 'Lodge in Ashford' : 'Millbrook board'}; you are paid there.</p>` : '') +
       (a ? `<div class="card"><h3>Your notice: ${escapeHtml(a.title)}</h3><p>${escapeHtml(a.brief)}</p><p style="color:var(--muted)">Progress ${a.progress}/${a.count} · pay ${G.contractPay(s, a)} · from ${escapeHtml(a.issuer)}</p><h3 style="margin-top:10px">Prepare (Mercenary Maintenance prep)</h3>${prep}<p><button class="btn" data-abandon>Abandon notice</button></p></div>` : '') +
       mine.map(c => `<div class="card"><h3>${escapeHtml(c.title)} <span style="color:var(--accent)">· ${G.contractPay(s, c)} crowns</span></h3><p>${escapeHtml(c.brief)}</p><p style="color:var(--muted);font-size:12.5px">From ${escapeHtml(c.issuer)} (${FACTIONS[issuerFaction(c.issuer)].name}: ${G.standing(s.factions[issuerFaction(c.issuer)]).toLowerCase()}) · ${noticeWhere(c)} · expires end of day ${c.expiresDay}</p><button class="btn primary" data-take="${c.id}" ${a ? 'disabled' : ''}>Take notice</button></div>`).join('') +
       `<p><button class="btn" data-close>Close</button></p>`;
@@ -1484,7 +1629,10 @@ function openTalk(t: Townsfolk) {
   const services: [string, string, () => void][] = [];
   if (id === 'tomlin') services.push(['food', 'Food and drink', () => P.openTavern(ui)], ['dice', 'Play dice', () => P.openDice(ui)]);
   if (id === 'maren') services.push(['chapel', 'Healing, blessing and draughts', () => P.openChapel(ui)]);
-  if (id === 'dorran' && coast.canBuyCharge(s)) services.push(['charge', `Buy Salt Gap charge · ${B.CHARGE_PRICE} crowns`, () => { coast.buyCharge(s); closeTopModal(); }]);
+  // v0.9.3: one charge, one way to buy it at a time. While The Salt Gap offers its own line to Dorran, that line is
+  // the purchase; otherwise (before Sera asks, or short of coin) his counter sells it.
+  const chargeTalk = S.talkChoices(s, 'dorran').some(q => /blasting charge/i.test(q.label));
+  if (id === 'dorran' && coast.canBuyCharge(s) && !chargeTalk) services.push(['charge', `Buy a blasting charge for the Salt Gap · ${B.CHARGE_PRICE} crowns`, () => { if (coast.buyCharge(s)) { sfx.coin(); S.updateQuests(s); save(); } else sfx.bad(); }]);
   if (id === 'dorran') services.push(['forge', 'Gear and repairs', () => P.openSmithy(ui)]);
   if (id === 'sera' || id === 'bram') services.push(['shop', 'Buy and sell', () => openShop()]);
   if (id === 'noname') services.push(['fence', 'Trade quietly', () => P.openNoName(ui)]);
@@ -1498,6 +1646,11 @@ function openTalk(t: Townsfolk) {
   if (id === 'aldous') services.push(['chapel', 'Healing and blessing', () => P.openChapel(ui)]);
   if (id === 'joss') services.push(['coach', 'The coach to Millbrook', () => RU.openCoach(ui, 'millbrook', () => { if (!R.takeCoach(s, 'millbrook')) return; sfx.coin(); hud.fade('The coach rattles west…', 1200).then(() => { player.pos.copy(world.places.coach_mb); player.yaw = Math.PI / 2; player.vy = 0; save(); relock(); }); })]);
   if (id === 'merrin') services.push(['song', 'Ask for a song', () => RU.openBard(ui)]);
+  // v0.9.3: Gullhaven
+  const COAST_SHOP: Record<string, [R.ShopId, string]> = { jowan: ['anchor', 'Food and drink'], pasco: ['chandlery', 'Buy and sell'], morwenna: ['fishauction', 'Sell fish (she pays ×1.3)'], tegen: ['shipwright', 'Sea boots and tackle'] };
+  if (COAST_SHOP[id]) services.push(['trade', COAST_SHOP[id][1], () => RU.openTrader(ui, COAST_SHOP[id][0])]);
+  if (id === 'elowen') services.push(['bless', 'Ask for the fishermen\'s blessing', () => { if (coast.blessing(s)) sfx.good(); }]);
+  if (id === 'bree' && S.flag(s, 'saltGapOpen')) services.push(['notices', 'Harbour notices', () => openBoard('coast')]);
   if (id === 'edda' || id === 'pell') services.push(['bounty', `Hand in Ash Road tags (${s.inventory.tags})`, () => { if (T.claimBounty(s)) sfx.coin(); else { G.log(s, `${short}: "No tags, no bounty."`, 'info'); } }]);
   const render = (root: HTMLElement, close: () => void) => {
     const theirs = s.board.filter(c => issuerFaction(c.issuer) === f), about = t.def.about ?? NPC_ABOUT[id];
@@ -1743,7 +1896,7 @@ function loadFrom(id: SlotId): boolean {
   const o = raw ? G.deserialize(raw) : null; if (!o) return false;
   s = o.s; resetWorldState();
   if (o.extra?.feed) feed.load(o.extra.feed);
-  if (o.extra?.pos) { player.pos.set(o.extra.pos[0], 0, o.extra.pos[1]); if (world.inMillArea(player.pos)) { world.setMillMode(true); spawnMill(); } else if (world.inChapelArea(player.pos)) { world.setDungeon('chapel'); spawnChapel(); } else if (world.inMineArea(player.pos)) { world.setDungeon('mine'); spawnMine(); } else if (world.inBarrowArea(player.pos)) { world.setDungeon('barrow'); barrowWoke = { ante: false, hall: false }; } else world.setDungeon(null); player.yaw = o.extra.yaw ?? 0; player.view = o.extra.view ?? 'first'; selectSlot(o.extra.slot ?? 'carbine'); if (o.extra.holstered) toggleHolster(); }
+  if (o.extra?.pos) { player.pos.set(o.extra.pos[0], 0, o.extra.pos[1]); if (world.inMillArea(player.pos)) { world.setMillMode(true); spawnMill(); } else if (world.inChapelArea(player.pos)) { world.setDungeon('chapel'); spawnChapel(); } else if (world.inMineArea(player.pos)) { world.setDungeon('mine'); spawnMine(); } else if (world.inBarrowArea(player.pos)) { world.setDungeon('barrow'); barrowWoke = { ante: false, hall: false }; } else if (world.inSeaCaveArea(player.pos)) { world.setDungeon('seacave'); caveGuards = false; } else world.setDungeon(null); player.yaw = o.extra.yaw ?? 0; player.view = o.extra.view ?? 'first'; selectSlot(o.extra.slot ?? 'carbine'); if (o.extra.holstered) toggleHolster(); }
   gameoverShown = false;
   G.log(s, `Loaded ${id === 'auto' ? 'the autosave' : `slot ${id}`}.`, 'info');
   return true;
@@ -1760,8 +1913,11 @@ function resetWorldState() {
   millGateOpen = s.flags.notesRead.includes('gate'); millGateOpen ? world.openMillGate() : world.closeMillGate();
   looted.clear(); world.setMillMode(false); feed.lines.length = 0;
   for (const p of pickups) world.scene.remove(p.mesh); pickups.length = 0; player.lantern = false; player.dodgeT = 0; lastDayNoted = -1; gate.active = false;
-  fuseRemaining = B.BLAST.fuse;
-  if (s.story.flags.saltGapOpen) world.south.openGap(); else world.south.closeGap();
+  // v0.9.3: the coast. A charge set when the game was saved burns again from the start; the gap, the bell and the
+  // lantern follow the story flags; the Wreck-Mother is back in her pool unless she is dead.
+  fuseRemaining = B.BLAST.fuse; tideWarned = -1; slowUntil = 0; caveGuards = false; floodTarget = 0; world.seacave.setFlood(0);
+  mother.dead = false; mother.reset(); if (S.flag(s, 'motherDown')) mother.dead = true;
+  syncCoastProps();
   barrowKing.dead = false; barrowKing.reset(); if (S.flag(s, 'ormDown')) barrowKing.dead = true; world.barrowDark = false; westNight = -1; gorseSpawned = false; syncBarrow();
   refreshNodes(); storyTick(true);
 }
@@ -1785,9 +1941,9 @@ function intro() {
         <button class="tbtn" id="thow">How to play</button>
         <button class="tbtn" id="tcred">Credits</button>
       </nav>
-      <p class="tver">v0.9.2 · Salt Gap Preview · saves stay in this browser</p>
+      <p class="tver">v0.9.3 · The Saltway Coast · saves stay in this browser</p>
     </div>
-    <div class="tnews"><h3>Salt Gap Preview</h3><p>Ask Dorran for a charge to open the road south of the Whisper Stones. Visit the wreck at low tide. Available arms include the revolver, the lever carbine, the Breaker scattergun and the Spire long rifle. Silvered rounds for the dead. A gunsmith's armoury in Ashford, and a grid pack with weight.</p></div>`;
+    <div class="tnews"><h3>New: the Saltway Coast</h3><p>Blast the Salt Gap south of the Whisper Stones and walk the Saltway down to Gullhaven. Wade the tidal flats at low water, find out who showed the false light that wrecked the Merry Wren, and go under the cliffs to the Wreck-Mother. Five quests, twelve people, crabs, smugglers and the tide.</p></div>`;
   document.body.appendChild(d); document.body.classList.add('titling');
   const enter = () => { d.remove(); document.body.classList.remove('titling'); introOpen = false; started = true; paused = false; vm.root.visible = true; lockPointer(); };
   const begin = (fresh: boolean) => { sfx.start(); sfx.setVolume(cfg.volume, cfg.sfxVolume); if (!fresh && auto && load()) { enter(); return; } chooseDifficulty(dd => { newGame(dd); enter(); }); };
@@ -1822,14 +1978,14 @@ function prewarm() {
     for (const m of [plain, t]) { m.castShadow = true; m.frustumCulled = false; m.position.copy(world.sun.target.position); world.scene.add(m); instTmp.push(m); }
     t.setMatrixAt(0, new THREE.Matrix4());
   }
-  world.scene.add(tl, pm, boss.model.root, wraith.model.root, engine.model.root, barrowKing.model.root);
-  const bossVis = [boss.model.root.visible, wraith.model.root.visible]; for (const r of [boss.model.root, wraith.model.root, engine.model.root, barrowKing.model.root]) r.visible = true;
+  world.scene.add(tl, pm, boss.model.root, wraith.model.root, engine.model.root, barrowKing.model.root, mother.model.root);
+  const bossVis = [boss.model.root.visible, wraith.model.root.visible]; for (const r of [boss.model.root, wraith.model.root, engine.model.root, barrowKing.model.root, mother.model.root]) r.visible = true;
   applySettings(true);
   renderer.compile(world.scene, camera);
   renderer.render(world.scene, camera);
-  world.scene.remove(tl, pm, boss.model.root, wraith.model.root, engine.model.root, barrowKing.model.root); tl.geometry.dispose();
+  world.scene.remove(tl, pm, boss.model.root, wraith.model.root, engine.model.root, barrowKing.model.root, mother.model.root); tl.geometry.dispose();
   for (const t of instTmp) { world.scene.remove(t); if ((t as THREE.InstancedMesh).isInstancedMesh) (t as THREE.InstancedMesh).dispose(); }
-  boss.model.root.visible = bossVis[0]; wraith.model.root.visible = bossVis[1]; engine.model.root.visible = false; barrowKing.model.root.visible = false;
+  boss.model.root.visible = bossVis[0]; wraith.model.root.visible = bossVis[1]; engine.model.root.visible = false; barrowKing.model.root.visible = false; mother.model.root.visible = mother.active;
   enemies.clearTag('prewarm'); for (const p of [...enemies.projectiles]) world.scene.remove(p.mesh); enemies.projectiles.length = 0; void temps;
   for (const o of hidden) o.visible = false;
 }
@@ -1869,7 +2025,7 @@ function frame(ts: number) {
   weatherFx.update(dt, camera.position, world.weather, outdoors);
   lanternAnchor.on = player.lantern && s.gear.lantern; lanternAnchor.zone = world.dungeon ?? 'out';
   if (lanternAnchor.on) lanternAnchor.pos.set(player.pos.x - Math.sin(player.yaw) * 0.5, player.pos.y + 1.5, player.pos.z - Math.cos(player.yaw) * 0.5);
-  lanternMesh.visible = lanternAnchor.on;
+  lanternMesh.visible = lanternAnchor.on; bellCarry.visible = coast.carryingBell(s);
   if (started) { let hd = (-player.yaw * 180 / Math.PI) % 360; if (hd < 0) hd += 360; hud.compass(hd, compassMarks()); }
   for (const tr of [...tracers]) { tr.life -= dt; if (tr.life <= 0) { world.scene.remove(tr.line); tr.line.geometry.dispose(); (tr.line.material as THREE.Material).dispose(); tracers.splice(tracers.indexOf(tr), 1); } }
   for (const p of [...puffs]) { p.life -= dt; p.mesh.scale.multiplyScalar(1 + dt * 4); (p.mesh.material as THREE.MeshBasicMaterial).opacity = Math.max(0, p.life * 2.5); if (p.life <= 0) { world.scene.remove(p.mesh); (p.mesh.material as THREE.Material).dispose(); puffs.splice(puffs.indexOf(p), 1); } }
@@ -1888,24 +2044,28 @@ function frame(ts: number) {
 // ---------------- story, markers, weather (pass 4) ----------------
 const weatherFx = new WeatherFx(world.scene);
 player.model.j.hips.add(lanternMesh);
+// v0.9.3: the Merry Wren's bell, held against the chest while you carry it (sq4)
+const bellCarry = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.17, 0.26, 8, 1, true), new THREE.MeshStandardMaterial({ color: 0x6a8a6a, metalness: 0.6, roughness: 0.5, flatShading: true, side: THREE.DoubleSide }));
+bellCarry.position.set(0, 1.18, -0.42); bellCarry.visible = false; player.model.root.add(bellCarry);   // on the root: baked joint meshes are hidden, and so would their children be
 const gate = { active: false, wave: 0, t: 0, shotT: 0 };
 let storyT = 0, lastDayNoted = -1, thunderT = 12;
 
 /** The mood of the music follows where you are and whether anything is trying to kill you. */
 function pickMood(): Mood {
   if (!started || cfg.musicVolume <= 0) return 'off';
-  if ((boss.active && !boss.dead) || (wraith.active && !wraith.dead) || (engine.active && !engine.dead) || (barrowKing.active && !barrowKing.dead) || gate.active) return 'boss';
+  if ((boss.active && !boss.dead) || (wraith.active && !wraith.dead) || (engine.active && !engine.dead) || (barrowKing.active && !barrowKing.dead) || (mother.active && !mother.dead) || gate.active) return 'boss';
   if (now - player.lastCombat < 7 || enemies.list.some(e => e.alive && (e.state === 'chase' || e.state === 'windup') && e.pos.distanceTo(player.pos) < 22)) return 'combat';
   if (world.dungeon) return 'dungeon';
   const b = world.insideBuilding(player.pos);
-  if (b === 'Your house') return 'home'; if (b === 'The Gilded Tankard' || b === 'The Drowned Lantern' || b === 'The Heron and Reed') return 'tavern'; if (b === 'Chapel of the Quiet Flame' || b === 'Shrine of the Quiet Flame') return 'chapel';
+  if (b === 'Your house') return 'home'; if (b === 'The Gilded Tankard' || b === 'The Drowned Lantern' || b === 'The Heron and Reed' || b === 'The Anchor and Gull') return 'tavern'; if (b === 'Chapel of the Quiet Flame' || b === 'Shrine of the Quiet Flame') return 'chapel';
   if (player.zone === 'reach' || player.zone === 'march') return world.night > 0.5 ? 'night' : 'vale';
-  if (player.zone === 'fernhollow') return world.night > 0.6 ? 'night' : 'town';
+  if (player.zone === 'fernhollow' || player.zone === 'gullhaven') return world.night > 0.6 ? 'night' : 'town';
+  if (player.zone === 'coast') return world.night > 0.5 ? 'night' : 'vale';
   if (player.zone === 'ashford') return world.night > 0.6 ? 'night' : 'town';
   if (player.zone === 'vale') return world.night > 0.5 ? 'night' : 'vale';
   return world.night > 0.6 ? 'home' : 'town';
 }
-const presentNow = (id: string) => id === 'aldric' ? S.flag(s, 'gateHeld') > 0 : id === 'tolan' ? !S.tolanGone(s) : id === 'garth' ? S.flag(s, 'westGateOpen') > 0 : id === 'gorse_lost' ? !S.flag(s, 'gorseFreed') : id === 'gorse' ? S.flag(s, 'gorseFreed') > 0 : id === 'vane' || id === 'sully' ? S.flag(s, 'crownFate') !== 2 : true;
+const presentNow = (id: string) => id === 'aldric' ? S.flag(s, 'gateHeld') > 0 : id === 'tolan' ? !S.tolanGone(s) : id === 'garth' ? S.flag(s, 'westGateOpen') > 0 : id === 'gorse_lost' ? !S.flag(s, 'gorseFreed') : id === 'gorse' ? S.flag(s, 'gorseFreed') > 0 : id === 'vane' || id === 'sully' ? S.flag(s, 'crownFate') !== 2 : id === 'lowdy' ? (coast.lowdyOnFlats(s) || G.hour(s) >= 10 && G.hour(s) < 18 || G.hour(s) >= 22 || G.hour(s) < 6) : id === 'marrow' ? S.flag(s, 'collectorFate') !== 1 : true;
 const markTargets: { pos: THREE.Vector3; kind: string; label: string }[] = [];
 const marksOut: { bearing: number; kind: string; label: string }[] = [];
 function resolveWhere(w: string | null): THREE.Vector3 | null {
@@ -1915,6 +2075,7 @@ function resolveWhere(w: string | null): THREE.Vector3 | null {
   // a place inside a dungeon: while you are outside it, point at its door instead (v0.8)
   if (p && p.z < -270 && !world.dungeon) {
     if (world.inBarrowArea(p)) return world.west.door;
+    if (world.inSeaCaveArea(p)) return world.places.cave_mouth;
     if (world.inMineArea(p)) return world.places.copper_hollow ?? p;
     if (world.inChapelArea(p)) return world.places.chapel_door ?? p;
     if (world.inMillArea(p)) return world.millDoorPos;
@@ -1931,7 +2092,7 @@ function storyTick(quiet = false) {
   markTargets.length = 0;
   if (!world.dungeon) {
     const qp = resolveWhere(tr?.where ?? null); if (qp) markTargets.push({ pos: qp, kind: 'quest', label: 'quest' });
-    const c = s.active; if (c) { const done = c.progress >= c.count; const cp = done ? (c.board ? world.places.lodge : world.places.board) : c.kind !== 'sweep' ? world.places['cairn_' + c.site] : world.sites[c.site]; markTargets.push({ pos: cp, kind: 'job', label: done ? 'board' : 'notice' }); }
+    const c = s.active; if (c) { const done = c.progress >= c.count; const cp = done ? boardPlace(c) : c.kind !== 'sweep' ? world.places['cairn_' + c.site] : world.sites[c.site]; markTargets.push({ pos: cp, kind: 'job', label: done ? 'board' : 'notice' }); }
     if (player.zone === 'vale') { markTargets.push({ pos: world.places.gate, kind: 'home', label: 'gate' }); }
     else if (player.zone !== 'home' && player.pos.distanceTo(world.places.home) > 30) markTargets.push({ pos: world.places.home, kind: 'home', label: 'home' });
   }
@@ -1944,7 +2105,7 @@ function storyTick(quiet = false) {
   const wet = isWet(world.weather) && !world.dungeon;
   sfx.rain(wet ? (player.indoors ? 0.3 : world.weather === 'storm' ? 1.3 : 1) : 0);
   if (world.weather === 'storm' && !world.dungeon) { thunderT -= 0.5; if (thunderT <= 0) { thunderT = 7 + Math.random() * 14; world.flash = 1; setTimeout(() => sfx.thunder(), 600 + Math.random() * 1200); } }
-  refreshNodes(); discoverPlaces(); discoverEast(); discoverWest();
+  refreshNodes(); discoverPlaces(); discoverEast(); discoverWest(); discoverCoast(); syncCoastProps();
   if (!music && sfx.ctx) { music = new Music(sfx.ctx, sfx.out); music.setVolume(cfg.musicVolume); }
   music?.setMood(pickMood());
   // the true ending: debt cleared and the wards settled
@@ -1956,7 +2117,8 @@ function compassMarks() {
   return marksOut;
 }
 function zoneOf(p: THREE.Vector3): typeof player.zone {
-  if (world.inMillArea(p) || world.inChapelArea(p) || world.inMineArea(p) || world.inBarrowArea(p)) return 'mill';
+  if (world.inMillArea(p) || world.inChapelArea(p) || world.inMineArea(p) || world.inBarrowArea(p) || world.inSeaCaveArea(p)) return 'mill';
+  if (p.z > 136 && world.regionAt(p).id !== 'vale') { const r = world.regionAt(p).id; return r === 'gullhaven' || r === 'lighthouse' ? 'gullhaven' : 'coast'; }
   if (p.x < -42.4) { const r = world.regionAt(p).id; return r === 'fernhollow' ? 'fernhollow' : 'march'; }
   if (p.x > 42.4) { const r = world.regionAt(p).id; return r === 'ashford' || r === 'docks' ? 'ashford' : 'reach'; }
   const b = world.insideBuilding(p);
@@ -1985,12 +2147,13 @@ function update(dt: number) {
   const runHeld = down('sprint'); if (cfg.runToggle) { if (runHeld && !runWasDown) runLatched = !runLatched; if (!player.moving) runLatched = false; } runWasDown = runHeld;
   const wantSprint = cfg.runToggle ? runLatched : runHeld;
   const load = G.loadState(s);
-  player.sprinting = player.moving && wantSprint && !s.staminaLocked && mz < 0 && !s.carryingCrate && load.canSprint;
+  player.sprinting = player.moving && wantSprint && !s.staminaLocked && mz < 0 && !s.carryingCrate && !coast.carryingBell(s) && load.canSprint;
   let speed = (player.sprinting ? 7.2 : 4.2) * load.speedMult * G.moveMult(s);
   if (s.needs.fatigue > B.T.exhausted) speed *= 0.8;
   if (s.needs.calories < B.T.starving) speed *= 0.85;
   if (s.needs.bladder > 375) speed *= 0.9;
-  if (player.wading) speed *= 0.62;
+  if (player.wading) speed *= wadeK;
+  if (now < slowUntil) speed *= 0.6;                                    // the Wreck-Mother's brine spray
   if (player.moving) {
     const l = Math.hypot(mx, mz); mx /= l; mz /= l;
     const sin = Math.sin(player.yaw), cos = Math.cos(player.yaw);
@@ -2031,6 +2194,9 @@ function update(dt: number) {
     if (e) { enemies.damage(e, p.dmg * G.dealtMult(s), now, p.kind === 'fire' ? 'burn' : 'slow', p.kind === 'fire' ? 'fire' : 'frost'); hud.hitmarker(); }
     if (p.kind === 'fire' && world.dungeon === 'barrow') { const b = world.barrow.braziers.find(x => !x.lit && Math.hypot(x.pos.x - at.x, x.pos.z - at.z) < 1.6); if (b) lightBrazier(b.id, 'fire'); }
   });
+  // v0.9.3: enemies beyond the fog are not drawn (the coast's site groups were adding draw calls and shadows to
+  // every view facing south, and the whole roster to every dungeon)
+  { const far = (world.scene.fog as THREE.Fog).far + 8; for (const e of enemies.list) if (!e.external) e.root.visible = Math.abs(e.pos.x - player.pos.x) < far && Math.abs(e.pos.z - player.pos.z) < far && e.pos.distanceTo(player.pos) < far; }
   // the Old Mill
   if (world.inMill) {
     G.millTick(s, dt);
@@ -2056,7 +2222,10 @@ function update(dt: number) {
   updateCoast(dt);
   if (world.dungeon === 'barrow') barrowTick(dt);
   updateFishing(dt); reachEvents(); westEvents();
-  player.wading = player.wading || (!world.dungeon && !s.gear.waders && (world.inFord(player.pos) || world.inMarsh(player.pos)));
+  const fordWade = !world.dungeon && !s.gear.waders && !s.gear.seaboots && (world.inFord(player.pos) || world.inMarsh(player.pos));
+  player.wading = player.wading || fordWade || coastWading;
+  wadeK = coastWading && !fordWade && world.dungeon !== 'chapel' ? coastWadeK : 0.62;
+  if (world.dungeon !== 'seacave' && mother.active && !mother.dead) leaveSeaCave();
   updateGate(dt);
   // autosave every game hour
   const hr = Math.floor(s.minutes / 60); if (hr !== lastSaveHour) { lastSaveHour = hr; save(); }
@@ -2091,7 +2260,7 @@ function updatePlayerVisual(dt: number) {
   else {
     const tired = s.needs.fatigue > B.T.exhausted ? 1 : s.needs.fatigue > 60 ? 0.5 : 0;
     const legs = player.dodgeT > 0 ? clip('dodge', 0.32 - player.dodgeT) : !player.onGround ? airPose(player.vy, player.airT)
-      : player.moving ? gaitPose(m.phase, player.speed, player.sprinting, { dir: localDir, tired, carry: s.carryingCrate }) : turning ? gaitPose(m.phase, 1.0, false, { dir: yr > 0 ? Math.PI / 2 : -Math.PI / 2 }) : clip('idle', now);
+      : player.moving ? gaitPose(m.phase, player.speed, player.sprinting, { dir: localDir, tired, carry: s.carryingCrate || coast.carryingBell(s) }) : turning ? gaitPose(m.phase, 1.0, false, { dir: yr > 0 ? Math.PI / 2 : -Math.PI / 2 }) : clip('idle', now);
     const holdClip: ClipName = player.dodgeT > 0 ? 'dodge' : player.hitT > 0 ? 'hit' : act?.upper ? act.clip : tpOverlay ? tpOverlay.clip : holstered ? 'idle' : player.slot === 'carbine' ? 'aim' : 'staffIdle';
     const t = act?.upper ? act.t : tpOverlay ? tpOverlay.t : now;
     const gunUp = player.slot === 'carbine' && !holstered && (holdClip === 'aim' || holdClip === 'shoot' || holdClip === 'reload');
@@ -2099,7 +2268,7 @@ function updatePlayerVisual(dt: number) {
     // firearm: a grip that follows where you look; lowered while sprinting
     const gk = holdClip === 'shoot' ? 'shoot' : holdClip === 'reload' ? 'reload' : player.sprinting ? 'low' : 'aim';
     const upper = gunUp ? (rifle ? riflePose(gk, t, player.pitch) : pistolPose(gk, t, player.pitch)) : holstered && player.moving ? legs : clip(holdClip, t);
-    pose = s.carryingCrate ? legs : layered(legs, upper);
+    pose = s.carryingCrate || coast.carryingBell(s) ? legs : layered(legs, upper);
     pose.r.head = [(pose.r.head?.[0] ?? 0) + player.pitch * 0.5, pose.r.head?.[1] ?? 0, pose.r.head?.[2] ?? 0];
     key = gaitKey + '|' + (gunUp ? (rifle ? 'r:' : 'p:') + gk : holdClip);
   }
@@ -2178,6 +2347,7 @@ function bossBar(): { name: string; hp: number; stagger?: number; note?: string 
   if (boss.active && !boss.dead) return { name: 'The Shade Patriarch', hp: boss.hpFrac, stagger: boss.staggerT > 0 ? 1 : boss.stagger / 100, note: boss.staggerT > 0 ? 'Staggered: double damage' : boss.phase === 1 ? 'Bound to the millstone · fire staggers him' : boss.phase === 2 ? 'Free · watch the floor' : 'Guttering · hide from the wail behind a pillar' };
   if (wraith.active && !wraith.dead) return { name: 'The Cinder Wraith', hp: wraith.hpFrac, stagger: wraith.lastKind ? wraith.streak / (wraith.phase >= 2 ? 2 : 3) : 0, note: wraith.note() };
   if (barrowKing.active && !barrowKing.dead) return { name: 'King Orm, the Barrow-King', hp: barrowKing.hpFrac, stagger: barrowKing.phase === 2 ? barrowKing.lit / 4 : 0, note: barrowKing.note || (barrowKing.phase === 1 ? 'Step back from the sweep · step aside from the cleave' : `In the dark he is hard to hurt · ${barrowKing.lit}/4 braziers lit`) };
+  if (mother.active && !mother.dead) return { name: 'The Wreck-Mother', hp: mother.hpFrac, stagger: mother.rearing ? 1 : 0, note: mother.note || (mother.phase === 1 ? 'Shell in front · hit her side, or her belly when she rears' : 'The grotto floods · fight from the rock platforms · she charges between them') };
   if (engine.active && !engine.dead) return { name: 'The Warden Engine', hp: engine.hpFrac, stagger: engine.stunT > 0 ? 1 : 0, note: engine.note || (engine.phase === 1 ? 'Front armoured · the core is in its back · jump the slam' : 'Cracked open · faster · watch the side galleries') };
   if (gate.active) { const left = enemies.list.filter(e => e.alive && e.tag === 'gate').length; return { name: `Wardbreak Night · wave ${Math.max(1, gate.wave)} of 3`, hp: gate.wave === 0 ? 1 : Math.min(1, left / 8), note: left ? `${left} still coming` : 'A breath between waves' }; }
   return null;
@@ -2192,6 +2362,7 @@ if (!loopStarted) { loopStarted = true; requestAnimationFrame(frame); }
   S, T, P, ui, folk, pickups, storyTick, dodge, toggleLantern, openJournal, openInventory, cfg: () => cfg, openMap, pickMood, DOOR_EVENTS, get music() { return music; },
   W, barrowKing, goBarrow, lightBrazier, westInteract, discoverWest, syncBarrow, get westNight() { return westNight; },
   R, RU, engine, goMine, startFishing, strikeFish, THREE_V: THREE.Vector3, fire: () => fire(), selectSlot: (sl: Slot) => selectSlot(sl), get fishing() { return fishing; }, reachInteract, ewe, discoverEast, interactWith: (id: string) => { const it = world.interactables.find(i => i.id === id); if (!it) return false; player.pos.set(it.pos.x, 0, it.pos.z); if (!southInteract(it) && !reachInteract(it) && !westInteract(it)) { (window as any).__lastInteract = id; } return true; },
+  GS: G, get now() { return now; }, bossBar, travelBlock, mother, goSeaCave, southInteract, coast, discoverCoast, syncCoastProps,  get coastWading() { return coastWading; }, get wadeK() { return wadeK; }, get fuseRemaining() { return fuseRemaining; }, get slowed() { return now < slowUntil; },
   talkTo: (id: string) => { const t = folk.find(f => f.def.id === id)!; player.pos.set(t.pos.x + 1, 0, t.pos.z + 0.5); openTalk(t); },
   key: (code: string, ms = 300) => new Promise<void>(r => { keys.add(code); setTimeout(() => { keys.delete(code); r(); }, ms); }),
   press: (code: string) => { dispatchEvent(new KeyboardEvent('keydown', { code })); dispatchEvent(new KeyboardEvent('keyup', { code })); },

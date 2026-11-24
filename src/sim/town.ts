@@ -10,7 +10,7 @@ import { TRAITS, TRAUMAS, type TraitId } from './skills';
 const clamp = G.clampNeedPublic;
 
 // ---------- loot ----------
-export type LootKind = 'hound' | 'raider' | 'shade' | 'drowned' | 'imp' | 'wolf' | 'boar' | 'bandit' | 'hollow' | 'elite';
+export type LootKind = 'hound' | 'raider' | 'shade' | 'drowned' | 'imp' | 'wolf' | 'boar' | 'bandit' | 'hollow' | 'crab' | 'smuggler' | 'pistoleer' | 'elite';
 export interface Loot { item?: ItemId; n?: number; crowns?: number }
 /** What a kill leaves behind. Deterministic from the seed and the kill count, so reloading cannot re-roll it. */
 export function rollLoot(s: GameState, kind: LootKind): Loot | null {
@@ -27,6 +27,10 @@ export function rollLoot(s: GameState, kind: LootKind): Loot | null {
     case 'boar': return hit(0.8) ? (r() < 0.55 ? { item: 'boarmeat', n: 1 } : { item: 'tusk', n: 1 }) : null;
     case 'bandit': { const tag = hit(0.6), coin = hit(0.7); if (!tag && !coin) return null; return { item: tag ? (r() < 0.25 ? 'carbineammo' : 'tags') : undefined, n: 1, crowns: coin ? 3 + Math.floor(r() * 8) : 0 }; }
     case 'hollow': return hit(0.6) ? (r() < 0.6 ? { item: 'copper', n: 1 } : { item: 'wardcopper', n: 1 }) : null;
+    // v0.9.3: the coast (saltway.md §3.3): crabs drop crab meat; cove men carry coin and the odd box of rounds
+    case 'crab': return hit(0.7) ? { item: 'crabmeat', n: 1 } : null;
+    case 'smuggler': { const coin = hit(0.75), salt = hit(0.3); if (!coin && !salt) return null; return { item: salt ? 'saltfish' : undefined, n: 1, crowns: coin ? 3 + Math.floor(r() * 8) : 0 }; }
+    case 'pistoleer': { const coin = hit(0.7), shot = hit(0.35); if (!coin && !shot) return null; return { item: shot ? 'ammo' : undefined, n: 1, crowns: coin ? 4 + Math.floor(r() * 8) : 0 }; }
     case 'elite': return { item: 'cinder', n: 1, crowns: 10 + Math.floor(r() * 10) };
   }
 }

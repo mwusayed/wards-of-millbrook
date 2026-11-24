@@ -2,7 +2,7 @@
 
 Prepared 24 Nov 2026 by Claude (Anthropic) for Waiz (Mir Waiz Usayed), so another AI model (for example ChatGPT Pro)
 or a human developer can take over. Read this file first, then `docs/STATUS.md`, `docs/WORKFLOW.md` and
-`docs/TDD.md`. Everything below is accurate for the code in this zip (version v0.9.1).
+`docs/TDD.md`. Everything below was written for v0.9.1; HANDOVER-CLAUDE.md has the v0.9.3 state on top of it.
 
 ---
 
@@ -40,7 +40,9 @@ wards across four regions.
 | v0.8 | 22 Nov | The Westmarch: Fernhollow, the Barrow Downs, King Orm's barrow; 16 NPCs; each character baked into one skinned mesh for performance |
 | v0.9 | 22 Nov | Title screen; four firearms; silvered rounds; the gunsmith's armoury; grid inventory |
 | v0.9.1 | 22 Nov | Long-gun reload animations redone; NPC seating and facing fixed (benches, stools, tables, counters) |
-| **v1.0 (next)** | — | The Saltway Coast: partly built and switched off. See §8 |
+| v0.9.2 | 24 Nov | (Codex) Salt Gap preview: Dorran's charge, the blast, the tidal wreck |
+| v0.9.3 | 24 Nov | The Saltway Coast wired and switched on: Gullhaven, the tide, the Sea Cave and the Wreck-Mother, five quests. See HANDOVER-CLAUDE.md |
+| **v1.0 (next)** | — | Sign-off of the coast after Waiz plays it |
 
 The full changelog is in `docs/CHANGELOG.md`.
 
@@ -268,7 +270,7 @@ saltway.
 
 ---
 
-## 8. Next step: v1.0 "The Saltway Coast"
+## 8. The Saltway Coast (done in v0.9.3; this list is kept as the record of what was wired)
 
 Spec: `docs/gdd/saltway.md`. A coastal region south of the Whisper Stones, reached by blasting the Salt Gap.
 

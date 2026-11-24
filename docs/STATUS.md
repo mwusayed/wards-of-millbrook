@@ -1,10 +1,22 @@
 # Wards of Millbrook — build status
 
-Playable build: https://claude.ai/artifact/TbhKNCwJFRNqmyMgPfd22S (v0.9, 22 Nov 2026)
-Source: wards-of-millbrook-v0.9-source.zip (sent in chat). Process: docs/WORKFLOW.md; evidence: docs/qa/evidence/v0.9/. Design: docs/DESIGN.md; history: docs/CHANGELOG.md; plan and status log: docs/ROADMAP.md.
+Playable build: https://claude.ai/artifact/TbhKNCwJFRNqmyMgPfd22S (v0.9.3, 24 Nov 2026)
+Source: wards-of-millbrook-v0.9.3-full.zip (sent in chat). Process: docs/WORKFLOW.md; evidence: docs/qa/evidence/v0.9.3/. Design: docs/DESIGN.md; history: docs/CHANGELOG.md; plan and status log: docs/ROADMAP.md.
 
 ## What it is
 First/third-person survival life-sim RPG combining Mercenary Maintenance (needs, wounds, contracts, debt), VEILWORK (first-person combat), Ledger & Ward (Millbrook, Aldric's debt, factions, the Wardbreak) and Home Office Tycoon (real debit/credit ledger work). Built directly by Claude in TypeScript + Three.js.
+
+## v0.9.3 (24 Nov 2026): The Saltway Coast
+- The fourth region is live: blast the Salt Gap (Dorran's charge, an 8 s fuse, damage by distance), walk the
+  Saltway past the Gull Tower to Gullhaven, wade the tidal flats, and go under the cliffs to the Wreck-Mother.
+- All five coast quests on, with Collector Marrow's three fates; 12 coast people with their services; tide warning
+  and carry; wading; crabs, smugglers and pistoleers at four sites; the Sea Cave, its guards, loot and boss with the
+  six-second flood; map sheet, discoveries, walk-to places, music zones.
+- Fixes: rockfall restored on a new game after loading an open gap; sea boots wade the ford and marsh; finished
+  west/coast notices pointed to the Ashford Lodge; enemies beyond the fog are no longer drawn.
+- Tests: 102 rules; smoke7 48 (new, all 8 saltway criteria); smoke6 22, smoke5 40, smoke4 34, smoke 14, smoke2 19,
+  smoke3 8 (one flaky check each in smoke and smoke2 on some runs, see INDEX); NPC routes 301 clear.
+- Previous: v0.9.2 (24 Nov, Codex) Salt Gap preview; v0.9.1 (22 Nov) reloads and seats.
 
 ## v0.9 (22 Nov 2026): Arms and the Title
 - Title screen over a slowly circling live view of Millbrook (Continue, New, Load, Settings, How to play, Credits).
@@ -37,13 +49,11 @@ First/third-person survival life-sim RPG combining Mercenary Maintenance (needs,
 
 ## Not verified / open
 - Smoothness on a real GPU (the test browser renders in software). Frame spikes over 16 ms at Ashford and the reed marsh right after a teleport.
-- Balance by real play (King Orm especially); audio.
+- Balance by real play (King Orm and the Wreck-Mother especially); audio. The coast has been played only by scripts.
 - Four v0.7 townsfolk stand slightly inside a table edge (cosmetic).
 
-## Next: v1.0 "The Saltway Coast" (spec docs/gdd/saltway.md)
-- In the build but switched off (`FEATURES.coast`): its rules and quests (tested), the coast, Gullhaven, the sea cave and the Wreck-Mother, crabs, smugglers, 12 people, the map sheet.
-- To do: game-loop wiring (interactions, tide, flooding, boss), browser suite, screenshots, release.
-
-## v0.9.2 Salt Gap Preview, 24 November 2026
-
-Codex connected the Salt Gap and tidal wreck interactions. See HANDOVER-CLAUDE.md for the change inventory, scope and outstanding acceptance checks. Build and 97 rules checks passed. Browser verification is pending.
+## Next: v1.0 sign-off
+- Every saltway.md §8 criterion has browser evidence (docs/qa/evidence/v0.9.3/INDEX.md). v1.0 waits for Waiz's play
+  notes on the coast (balance of the Wreck-Mother and the pistoleers, the tide's feel) and a real-GPU check.
+- Decisions for Waiz: the Anchor and Gull bed costs 5 crowns in code, 12 in the spec; Sera's offer still describes
+  the rockfall if you blew it before she asked.

@@ -340,6 +340,9 @@ export function buildSouth(w: World): SouthRefs {
     w.colliders.push({ minX: W0.x - 4.6, maxX: W0.x + 4.6, minZ: W0.z - 5.2, maxZ: W0.z + 5.2, h: 2.4 });
     w.interact('wreck_log', W0.x + 5.4, W0.z + 4.4, 'Search the captain\'s cabin', 'pick', 1.6, Math.PI / 2);
     w.interact('wreck_bell', W0.x - 3.0, W0.z - 6.0, 'The ship\'s bell on the foredeck', 'pick', 1.6, 0);
+    // v0.9.3: the bell itself, hanging in its bracket at the bow until it is taken (sq4)
+    { const yoke = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.12, 0.12), MAT.timber); yoke.position.set(W0.x - 2.6, 1.95, W0.z - 5.0); yoke.name = 'wreckBellYoke'; w.scene.add(yoke);
+      const wb = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.27, 0.38, 8, 1, true), M(0x6a8a6a, { metalness: 0.6, roughness: 0.5 })); wb.position.set(W0.x - 2.6, 1.66, W0.z - 5.0); (wb.material as THREE.Material).side = THREE.DoubleSide; wb.name = 'wreckBell'; w.scene.add(wb); }
   }
   // mussel beds and samphire (gatherable; regrow each morning)
   const node = (kind: 'mussel' | 'samphire', x: number, z: number, n: number) => {
@@ -376,7 +379,7 @@ export function buildSouth(w: World): SouthRefs {
     salt_gap: V(2, 0, GAP.rock - 5), saltway: V(20, 0, 204), gulltower: V(GULL_TOWER.x, 0, GULL_TOWER.z + 6), gullhaven: V(76, 0, 340), lighthouse: V(LIGHT.x - 6, 0, LIGHT.z - 6),
     flats: V(-12, 0, 356), wreck: V(WRECK.x + 5.4, 0, WRECK.z + 4.4), cove: V(COVE.x + 2, 0, COVE.z - 4), cave_mouth: V(CAVE.x + 1.6, 0, CAVE.z),
     harbour_office: V(58, 0, 361), inn_anchor: V(74, 0, 356), customs: V(93, 0, 353.5), chandlery: V(106, 0, 353.5), auction: V(91, 0, 358), net_lofts: V(119, 0, 347.5),
-    sea_chapel: V(51.5, 0, 329), slipway_s: V(127, 0, 356), breakwater: V(120, 0, 398), notice_coast: V(64, 0, 359.6), shrine_s: V(SHRINE.x - 1, 0, SHRINE.z + 2),
+    gull_tower: V(GULL_TOWER.x, 0, GULL_TOWER.z + 6), sea_chapel: V(51.5, 0, 329), slipway_s: V(127, 0, 356), breakwater: V(120, 0, 398), notice_coast: V(64, 0, 359.6), shrine_s: V(SHRINE.x - 1, 0, SHRINE.z + 2),
   });
   const regions: Region[] = [
     { id: 'saltgap', name: 'the Salt Gap', minX: GAP.minX, maxX: GAP.maxX, minZ: 136, maxZ: GAP.z1 },
@@ -392,6 +395,7 @@ export function buildSouth(w: World): SouthRefs {
     water: [[-128, 392, FLATS.minX, 440], [FLATS.minX, FLATS.maxZ, FLATS.maxX, 440], [FLATS.maxX, QUAY_Z + 0.5, 186, 440]], forest: [], fields: [], walls: [[TOWN.minX, TOWN.minZ, TOWN.maxX, QUAY_Z]],
     hills: [[-128, 136, GAP.minX, 186], [GAP.maxX, 136, 186, 186]], flats: [FLATS.minX, FLATS.minZ, FLATS.maxX, FLATS.maxZ],
   };
+  const rockHome: { p: THREE.Vector3; s: THREE.Vector3 }[] = [];
   const refs: SouthRefs = {
     regions, map, boats, gulls: critter, beam: beam!, lampRoom: lampRoom!, sea, seaY: seaLevel(0),
     rockfall: { meshes: rockMeshes, collider: rockCollider, open: false },
@@ -399,6 +403,7 @@ export function buildSouth(w: World): SouthRefs {
     openGap(instant = false) {
       if (refs.rockfall.open) return;
       refs.rockfall.open = true; void instant;
+      if (!rockHome.length) rockMeshes.forEach(m => rockHome.push({ p: m.position.clone(), s: m.scale.clone() }));
       const i = w.colliders.indexOf(rockCollider); if (i >= 0) w.colliders.splice(i, 1);
       // the boulders are gone; a few broken pieces lie against the gorge walls
       rockMeshes.forEach((m, k) => { if (k % 3) m.visible = false; else { m.position.x = k % 2 ? GAP.minX + 0.6 : GAP.maxX - 0.6; m.position.y = 0.35; m.scale.multiplyScalar(0.55); } });
@@ -407,6 +412,8 @@ export function buildSouth(w: World): SouthRefs {
     closeGap() {
       if (!refs.rockfall.open) return;
       refs.rockfall.open = false; if (!w.colliders.includes(rockCollider)) w.colliders.push(rockCollider);
+      // v0.9.3: a new game after loading an open gap puts every boulder back where it was
+      rockMeshes.forEach((m, k) => { m.visible = true; const h = rockHome[k]; if (h) { m.position.copy(h.p); m.scale.copy(h.s); } });
       const it = w.interactables.find(x => x.id === 'rockfall'); if (it) it.hidden = false;
     },
     setTide(tide: number) { refs.seaY = seaLevel(tide); sea.position.y = refs.seaY; },
