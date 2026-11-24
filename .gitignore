@@ -1,0 +1,4 @@
+node_modules/
+shots93/
+*.log
+.DS_Store
