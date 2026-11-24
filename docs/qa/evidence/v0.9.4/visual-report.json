@@ -1,0 +1,715 @@
+{
+ "sites": [
+  {
+   "id": "mill_road",
+   "at": [
+    -32,
+    72
+   ],
+   "flagged": false,
+   "shots": [
+    {
+     "angle": "y0",
+     "magentaPct": 0,
+     "blackPct": 2,
+     "flatPct": 51.4,
+     "meanLum": 86.7,
+     "flags": []
+    },
+    {
+     "angle": "y90",
+     "magentaPct": 0,
+     "blackPct": 0.4,
+     "flatPct": 55.5,
+     "meanLum": 92.8,
+     "flags": []
+    },
+    {
+     "angle": "y180",
+     "magentaPct": 0,
+     "blackPct": 3.2,
+     "flatPct": 53,
+     "meanLum": 87.8,
+     "flags": []
+    },
+    {
+     "angle": "y270",
+     "magentaPct": 0,
+     "blackPct": 3.7,
+     "flatPct": 52.5,
+     "meanLum": 91.2,
+     "flags": []
+    },
+    {
+     "angle": "down",
+     "magentaPct": 0,
+     "blackPct": 0.4,
+     "flatPct": 57.9,
+     "meanLum": 86.3,
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "raider_camp",
+   "at": [
+    30,
+    86
+   ],
+   "flagged": false,
+   "shots": [
+    {
+     "angle": "y0",
+     "magentaPct": 0,
+     "blackPct": 1.2,
+     "flatPct": 48.4,
+     "meanLum": 93,
+     "flags": []
+    },
+    {
+     "angle": "y90",
+     "magentaPct": 0,
+     "blackPct": 1.1,
+     "flatPct": 48,
+     "meanLum": 89.1,
+     "flags": []
+    },
+    {
+     "angle": "y180",
+     "magentaPct": 0,
+     "blackPct": 3.4,
+     "flatPct": 49.7,
+     "meanLum": 91.5,
+     "flags": []
+    },
+    {
+     "angle": "y270",
+     "magentaPct": 0,
+     "blackPct": 2.8,
+     "flatPct": 50.9,
+     "meanLum": 89.3,
+     "flags": []
+    },
+    {
+     "angle": "down",
+     "magentaPct": 0,
+     "blackPct": 0.1,
+     "flatPct": 56.2,
+     "meanLum": 90.4,
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "whisper_stones",
+   "at": [
+    0,
+    118
+   ],
+   "flagged": false,
+   "shots": [
+    {
+     "angle": "y0",
+     "magentaPct": 0,
+     "blackPct": 1.5,
+     "flatPct": 48.1,
+     "meanLum": 89.4,
+     "flags": []
+    },
+    {
+     "angle": "y90",
+     "magentaPct": 0,
+     "blackPct": 0.2,
+     "flatPct": 50.3,
+     "meanLum": 100.4,
+     "flags": []
+    },
+    {
+     "angle": "y180",
+     "magentaPct": 0,
+     "blackPct": 2.1,
+     "flatPct": 50.1,
+     "meanLum": 77.9,
+     "flags": []
+    },
+    {
+     "angle": "y270",
+     "magentaPct": 0,
+     "blackPct": 1.5,
+     "flatPct": 52.8,
+     "meanLum": 73.6,
+     "flags": []
+    },
+    {
+     "angle": "down",
+     "magentaPct": 0,
+     "blackPct": 0.5,
+     "flatPct": 50.7,
+     "meanLum": 90.4,
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "thornwood",
+   "at": [
+    166,
+    -58
+   ],
+   "flagged": false,
+   "shots": [
+    {
+     "angle": "y0",
+     "magentaPct": 0,
+     "blackPct": 1.1,
+     "flatPct": 49.3,
+     "meanLum": 96.4,
+     "flags": []
+    },
+    {
+     "angle": "y90",
+     "magentaPct": 0,
+     "blackPct": 0.8,
+     "flatPct": 47.1,
+     "meanLum": 95.2,
+     "flags": []
+    },
+    {
+     "angle": "y180",
+     "magentaPct": 0,
+     "blackPct": 6,
+     "flatPct": 47.1,
+     "meanLum": 67,
+     "flags": []
+    },
+    {
+     "angle": "y270",
+     "magentaPct": 0,
+     "blackPct": 2.1,
+     "flatPct": 52,
+     "meanLum": 82.5,
+     "flags": []
+    },
+    {
+     "angle": "down",
+     "magentaPct": 0,
+     "blackPct": 0.3,
+     "flatPct": 54,
+     "meanLum": 86.3,
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "toll_tower",
+   "at": [
+    176,
+    34
+   ],
+   "flagged": false,
+   "shots": [
+    {
+     "angle": "y0",
+     "magentaPct": 0,
+     "blackPct": 0.7,
+     "flatPct": 50.4,
+     "meanLum": 98.9,
+     "flags": []
+    },
+    {
+     "angle": "y90",
+     "magentaPct": 0,
+     "blackPct": 0.1,
+     "flatPct": 53.7,
+     "meanLum": 88.3,
+     "flags": []
+    },
+    {
+     "angle": "y180",
+     "magentaPct": 0,
+     "blackPct": 0.9,
+     "flatPct": 56.2,
+     "meanLum": 104.4,
+     "flags": []
+    },
+    {
+     "angle": "y270",
+     "magentaPct": 0,
+     "blackPct": 0.4,
+     "flatPct": 56.6,
+     "meanLum": 108.2,
+     "flags": []
+    },
+    {
+     "angle": "down",
+     "magentaPct": 0,
+     "blackPct": 0.1,
+     "flatPct": 59.3,
+     "meanLum": 105,
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "brookfield",
+   "at": [
+    128,
+    -10
+   ],
+   "flagged": false,
+   "shots": [
+    {
+     "angle": "y0",
+     "magentaPct": 0,
+     "blackPct": 1,
+     "flatPct": 50.4,
+     "meanLum": 119.1,
+     "flags": []
+    },
+    {
+     "angle": "y90",
+     "magentaPct": 0,
+     "blackPct": 0.1,
+     "flatPct": 52.8,
+     "meanLum": 124.2,
+     "flags": []
+    },
+    {
+     "angle": "y180",
+     "magentaPct": 0,
+     "blackPct": 1.3,
+     "flatPct": 53.6,
+     "meanLum": 124.4,
+     "flags": []
+    },
+    {
+     "angle": "y270",
+     "magentaPct": 0,
+     "blackPct": 1.1,
+     "flatPct": 53.5,
+     "meanLum": 122.7,
+     "flags": []
+    },
+    {
+     "angle": "down",
+     "magentaPct": 0,
+     "blackPct": 0,
+     "flatPct": 62.1,
+     "meanLum": 121.9,
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "hollow_road",
+   "at": [
+    254,
+    -78
+   ],
+   "flagged": true,
+   "shots": [
+    {
+     "angle": "y0",
+     "magentaPct": 0,
+     "blackPct": 0.4,
+     "flatPct": 53.1,
+     "meanLum": 114.6,
+     "flags": [],
+     "file": "/home/claude/wards/visualcheck-run/hollow_road-y0.png"
+    },
+    {
+     "angle": "y90",
+     "magentaPct": 0,
+     "blackPct": 0.2,
+     "flatPct": 52.8,
+     "meanLum": 123.4,
+     "flags": [],
+     "file": "/home/claude/wards/visualcheck-run/hollow_road-y90.png"
+    },
+    {
+     "angle": "y180",
+     "magentaPct": 0,
+     "blackPct": 0.9,
+     "flatPct": 51.7,
+     "meanLum": 119.1,
+     "flags": [],
+     "file": "/home/claude/wards/visualcheck-run/hollow_road-y180.png"
+    },
+    {
+     "angle": "y270",
+     "magentaPct": 0,
+     "blackPct": 99.8,
+     "flatPct": 99.6,
+     "meanLum": 0.3,
+     "flags": [
+      "large black area (missing geometry or camera inside a wall?)",
+      "mostly flat colour (untextured surface?)",
+      "lighting differs from the site's other angles (0.3 vs median 114.6)"
+     ],
+     "file": "/home/claude/wards/visualcheck-run/hollow_road-y270.png"
+    },
+    {
+     "angle": "down",
+     "magentaPct": 0,
+     "blackPct": 0.5,
+     "flatPct": 60.7,
+     "meanLum": 77,
+     "flags": [],
+     "file": "/home/claude/wards/visualcheck-run/hollow_road-down.png"
+    }
+   ]
+  },
+  {
+   "id": "heath_road",
+   "at": [
+    -128,
+    34
+   ],
+   "flagged": false,
+   "shots": [
+    {
+     "angle": "y0",
+     "magentaPct": 0,
+     "blackPct": 0.6,
+     "flatPct": 54,
+     "meanLum": 87.4,
+     "flags": []
+    },
+    {
+     "angle": "y90",
+     "magentaPct": 0,
+     "blackPct": 0.4,
+     "flatPct": 54.8,
+     "meanLum": 89.9,
+     "flags": []
+    },
+    {
+     "angle": "y180",
+     "magentaPct": 0,
+     "blackPct": 1.6,
+     "flatPct": 54.9,
+     "meanLum": 89.3,
+     "flags": []
+    },
+    {
+     "angle": "y270",
+     "magentaPct": 0,
+     "blackPct": 1.1,
+     "flatPct": 53.6,
+     "meanLum": 91.4,
+     "flags": []
+    },
+    {
+     "angle": "down",
+     "magentaPct": 0,
+     "blackPct": 0.2,
+     "flatPct": 58.7,
+     "meanLum": 70.1,
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "barrow_downs",
+   "at": [
+    -186,
+    -58
+   ],
+   "flagged": false,
+   "shots": [
+    {
+     "angle": "y0",
+     "magentaPct": 0,
+     "blackPct": 0.4,
+     "flatPct": 54.1,
+     "meanLum": 98.6,
+     "flags": []
+    },
+    {
+     "angle": "y90",
+     "magentaPct": 0,
+     "blackPct": 0.5,
+     "flatPct": 53.2,
+     "meanLum": 99.4,
+     "flags": []
+    },
+    {
+     "angle": "y180",
+     "magentaPct": 0,
+     "blackPct": 2.3,
+     "flatPct": 54,
+     "meanLum": 95.7,
+     "flags": []
+    },
+    {
+     "angle": "y270",
+     "magentaPct": 0,
+     "blackPct": 0.9,
+     "flatPct": 55.5,
+     "meanLum": 103.1,
+     "flags": []
+    },
+    {
+     "angle": "down",
+     "magentaPct": 0,
+     "blackPct": 0.1,
+     "flatPct": 55.7,
+     "meanLum": 87.9,
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "reed_marsh",
+   "at": [
+    -286,
+    100
+   ],
+   "flagged": false,
+   "shots": [
+    {
+     "angle": "y0",
+     "magentaPct": 0,
+     "blackPct": 0.3,
+     "flatPct": 49,
+     "meanLum": 94.1,
+     "flags": []
+    },
+    {
+     "angle": "y90",
+     "magentaPct": 0,
+     "blackPct": 0.1,
+     "flatPct": 47.4,
+     "meanLum": 88.2,
+     "flags": []
+    },
+    {
+     "angle": "y180",
+     "magentaPct": 0,
+     "blackPct": 1.2,
+     "flatPct": 50.2,
+     "meanLum": 95.6,
+     "flags": []
+    },
+    {
+     "angle": "y270",
+     "magentaPct": 0,
+     "blackPct": 0.7,
+     "flatPct": 48.8,
+     "meanLum": 91.6,
+     "flags": []
+    },
+    {
+     "angle": "down",
+     "magentaPct": 0,
+     "blackPct": 0.1,
+     "flatPct": 53.3,
+     "meanLum": 74,
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "saltway",
+   "at": [
+    30,
+    214
+   ],
+   "flagged": false,
+   "shots": [
+    {
+     "angle": "y0",
+     "magentaPct": 0,
+     "blackPct": 0.3,
+     "flatPct": 54.1,
+     "meanLum": 114.2,
+     "flags": []
+    },
+    {
+     "angle": "y90",
+     "magentaPct": 0,
+     "blackPct": 0.1,
+     "flatPct": 59.1,
+     "meanLum": 116.6,
+     "flags": []
+    },
+    {
+     "angle": "y180",
+     "magentaPct": 0,
+     "blackPct": 1.1,
+     "flatPct": 57.6,
+     "meanLum": 114.5,
+     "flags": []
+    },
+    {
+     "angle": "y270",
+     "magentaPct": 0,
+     "blackPct": 0.6,
+     "flatPct": 58,
+     "meanLum": 116.2,
+     "flags": []
+    },
+    {
+     "angle": "down",
+     "magentaPct": 0,
+     "blackPct": 0.1,
+     "flatPct": 61.2,
+     "meanLum": 108,
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "gull_tower",
+   "at": [
+    64,
+    258
+   ],
+   "flagged": false,
+   "shots": [
+    {
+     "angle": "y0",
+     "magentaPct": 0,
+     "blackPct": 0.4,
+     "flatPct": 55.1,
+     "meanLum": 110.7,
+     "flags": []
+    },
+    {
+     "angle": "y90",
+     "magentaPct": 0,
+     "blackPct": 0.1,
+     "flatPct": 57.5,
+     "meanLum": 118.8,
+     "flags": []
+    },
+    {
+     "angle": "y180",
+     "magentaPct": 0,
+     "blackPct": 1.2,
+     "flatPct": 57.5,
+     "meanLum": 119.4,
+     "flags": []
+    },
+    {
+     "angle": "y270",
+     "magentaPct": 0,
+     "blackPct": 0.6,
+     "flatPct": 59,
+     "meanLum": 122.2,
+     "flags": []
+    },
+    {
+     "angle": "down",
+     "magentaPct": 0,
+     "blackPct": 0.1,
+     "flatPct": 58.9,
+     "meanLum": 110.7,
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "tidal_flats",
+   "at": [
+    -14,
+    366
+   ],
+   "flagged": false,
+   "shots": [
+    {
+     "angle": "y0",
+     "magentaPct": 0,
+     "blackPct": 0.3,
+     "flatPct": 54.8,
+     "meanLum": 104.8,
+     "flags": []
+    },
+    {
+     "angle": "y90",
+     "magentaPct": 0,
+     "blackPct": 0.2,
+     "flatPct": 56.2,
+     "meanLum": 102.9,
+     "flags": []
+    },
+    {
+     "angle": "y180",
+     "magentaPct": 0,
+     "blackPct": 1.1,
+     "flatPct": 56.4,
+     "meanLum": 97.6,
+     "flags": []
+    },
+    {
+     "angle": "y270",
+     "magentaPct": 0,
+     "blackPct": 0.7,
+     "flatPct": 56.7,
+     "meanLum": 105.6,
+     "flags": []
+    },
+    {
+     "angle": "down",
+     "magentaPct": 0,
+     "blackPct": 0.1,
+     "flatPct": 59.2,
+     "meanLum": 81.6,
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "wreckers_cove",
+   "at": [
+    -90,
+    362
+   ],
+   "flagged": false,
+   "shots": [
+    {
+     "angle": "y0",
+     "magentaPct": 0,
+     "blackPct": 0.2,
+     "flatPct": 54.2,
+     "meanLum": 124,
+     "flags": []
+    },
+    {
+     "angle": "y90",
+     "magentaPct": 0,
+     "blackPct": 0.2,
+     "flatPct": 56.3,
+     "meanLum": 116.9,
+     "flags": []
+    },
+    {
+     "angle": "y180",
+     "magentaPct": 0,
+     "blackPct": 1.3,
+     "flatPct": 51.7,
+     "meanLum": 107.6,
+     "flags": []
+    },
+    {
+     "angle": "y270",
+     "magentaPct": 0,
+     "blackPct": 0.6,
+     "flatPct": 56.4,
+     "meanLum": 116.1,
+     "flags": []
+    },
+    {
+     "angle": "down",
+     "magentaPct": 0,
+     "blackPct": 0.1,
+     "flatPct": 56.7,
+     "meanLum": 108.6,
+     "flags": []
+    }
+   ]
+  }
+ ],
+ "flagged": 1,
+ "crashes": []
+}

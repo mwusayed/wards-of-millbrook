@@ -1,25 +1,25 @@
 {
  "colliders": [
   {
-   "i": 919,
+   "i": 922,
    "issue": "very large collider (>300 m)",
    "b": {
     "minX": -372,
     "maxX": -64,
     "minZ": -130,
     "maxZ": -126,
-    "h": 9
+    "h": 3
    }
   },
   {
-   "i": 920,
+   "i": 923,
    "issue": "very large collider (>300 m)",
    "b": {
     "minX": -372,
     "maxX": -64,
     "minZ": 150,
     "maxZ": 154,
-    "h": 9
+    "h": 3
    }
   }
  ],
@@ -42,7 +42,7 @@
  },
  "counts": {
   "colliders": 1531,
-  "meshes": 2022,
+  "meshes": 2026,
   "noMat": 0,
   "nanGeo": 0,
   "badTex": 0,

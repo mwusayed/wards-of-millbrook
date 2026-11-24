@@ -1,3 +1,4 @@
+import { walkTop, mantleTop, STEP_UP } from './sim/climb';
 import * as THREE from 'three';
 import * as G from './sim/state';
 import * as B from './sim/balance';
@@ -804,7 +805,7 @@ const engine = new WardenEngine(world.scene, enemies, world.colliders, world.min
   spawnHollow: at => { const e = enemies.spawn('hollow', at, 'engine_call'); e.state = 'chase'; },
   playerOnGround: () => player.onGround && player.pos.y < 0.15,
   shake: k => { player.trauma = Math.min(1, player.trauma + k); },
-  push: (dx, dz) => { const [x, z] = collide(world.colliders, player.pos.x + dx, player.pos.z + dz, 0.35, player.pos.y); player.pos.x = x; player.pos.z = z; player.vy = 3; player.onGround = false; },
+  push: (dx, dz) => { const [x, z] = collide(world.colliders, player.pos.x + dx, player.pos.z + dz, 0.35, player.pos.y, STEP_UP); player.pos.x = x; player.pos.z = z; player.vy = 3; player.onGround = false; },
 });
 function spawnMine() {
   if (enemies.list.some(e => e.tag === 'mine')) return;
@@ -2158,21 +2159,32 @@ function update(dt: number) {
     const l = Math.hypot(mx, mz); mx /= l; mz /= l;
     const sin = Math.sin(player.yaw), cos = Math.cos(player.yaw);
     const dx = (mx * cos + mz * sin) * speed * dt, dz = (-mx * sin + mz * cos) * speed * dt;
-    const [x, z] = collide(world.colliders, player.pos.x + dx, player.pos.z + dz, 0.35, player.pos.y);
+    const [x, z] = collide(world.colliders, player.pos.x + dx, player.pos.z + dz, 0.35, player.pos.y, STEP_UP);
     player.pos.x = x; player.pos.z = z;
   }
   player.dodgeCd = Math.max(0, player.dodgeCd - dt);
   if (player.dodgeT > 0) {
     player.dodgeT -= dt;
-    const [x, z] = collide(world.colliders, player.pos.x + player.dodgeX * 11 * dt, player.pos.z + player.dodgeZ * 11 * dt, 0.35, player.pos.y);
+    const [x, z] = collide(world.colliders, player.pos.x + player.dodgeX * 11 * dt, player.pos.z + player.dodgeZ * 11 * dt, 0.35, player.pos.y, STEP_UP);
     player.pos.x = x; player.pos.z = z;
   }
   player.speed = player.moving ? speed : 0;
-  if (down('jump') && player.onGround && !locked) { player.vy = 5.4; player.onGround = false; }
+  if (down('jump') && player.onGround && !locked) {
+    // v0.9.4: a jump beside a walkable top up to WALK_TOP_MAX is a mantle: enough speed to land on it
+    const mt = mantleTop(world.colliders, player.pos.x, player.pos.z, player.pos.y);
+    player.vy = mt > 0 ? Math.sqrt(2 * 15 * (mt - player.pos.y + 0.3)) : 5.4; player.onGround = false;
+  }
+  // v0.9.4: support is the highest walkable top under the player (ground 0, ledges and platforms up to STEP_UP
+  // are climbed, walkable tops of any height up to WALK_TOP_MAX are stood on). Walking off an edge starts a fall.
+  if (player.onGround) {
+    const top = walkTop(world.colliders, player.pos.x, player.pos.z, player.pos.y + STEP_UP);
+    if (top >= player.pos.y - 0.05) player.pos.y = top; else { player.onGround = false; player.vy = 0; }
+  }
   player.vy -= 15 * dt; player.pos.y += player.vy * dt;
-  if (player.pos.y <= 0) {
+  const floor = walkTop(world.colliders, player.pos.x, player.pos.z, player.pos.y + 0.05);
+  if (player.pos.y <= floor) {
     if (!player.onGround) { const impact = -player.vy; if (impact > 4) sfx.land(); if (impact > 2) { player.model.land(impact); vm.land(impact); player.dipV -= impact * 0.06; } }
-    player.pos.y = 0; player.vy = 0; player.onGround = true;
+    player.pos.y = floor; player.vy = 0; player.onGround = true;
   }
   // footsteps land on the gait: one per half cycle of the stride
   if (player.moving && player.onGround) { const idx = Math.floor(player.model.phase / Math.PI); if (idx !== player.stepIdx) { player.stepIdx = idx; sfx.step(player.sprinting); } }

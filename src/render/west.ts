@@ -89,11 +89,13 @@ export function buildWest(w: World): WestRefs {
     w.colliders.push(
       { minX: -66, maxX: -64, minZ: 36, maxZ: 152, h: 9 },            // between the Vale and the heath
       { minX: -64, maxX: -62, minZ: -128, maxZ: -30, h: 9 },          // north of Millbrook
-      { minX: -372, maxX: -64, minZ: -130, maxZ: -126, h: 9 }, { minX: -372, maxX: -64, minZ: 150, maxZ: 154, h: 9 },
       // the lake: open water west of the shore, except the jetty
       { minX: -380, maxX: LAKE_X - 0.4, minZ: -130, maxZ: JETTY.z - 1.15, h: 9 }, { minX: -380, maxX: LAKE_X - 0.4, minZ: JETTY.z + 1.15, maxZ: 154, h: 9 },
       { minX: -380, maxX: JETTY.end - 0.4, minZ: JETTY.z - 1.2, maxZ: JETTY.z + 1.2, h: 9 },
     );
+    // v0.9.4: the old north and south edges were invisible 9 m colliders. They are now visible drystone walls
+    // (3 m, same line and footprint), so what blocks you can be seen.
+    w.block(-218, -128, 308, 4, 3, MAT.stoneDark); w.block(-218, 152, 308, 4, 3, MAT.stoneDark);
     w.bounds = { minX: -350, maxX: w.bounds.maxX, minZ: -126, maxZ: 150 };
   }
   // ---------------- helpers ----------------

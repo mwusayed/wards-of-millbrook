@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import * as G from '../src/sim/state';
 import * as B from '../src/sim/balance';
 import { checkPosting, generateShift } from '../src/sim/ledger';
+import { walkTop, climbable, mantleTop, STEP_UP, WALK_TOP_MAX } from '../src/sim/climb';
 
 let passed = 0; const t = (name: string, fn: () => void) => { try { fn(); passed++; console.log('ok  ', name); } catch (e) { console.error('FAIL', name, '\n', e); process.exitCode = 1; } };
 
@@ -487,6 +488,23 @@ t('v0.9.3: coast kills leave loot: crab meat from crabs, coin from smugglers and
   for (let i = 0; i < 40; i++) { s.stats.kills = i; const l = T.rollLoot(s, 'crab'); if (l?.item === 'crabmeat') meat++; const m = T.rollLoot(s, i % 2 ? 'smuggler' : 'pistoleer'); if (m?.crowns) coin++; }
   assert.ok(meat > 15 && meat < 40, String(meat)); assert.ok(coin > 15, String(coin));
   s.stats.kills = 7; assert.deepEqual(T.rollLoot(s, 'crab'), T.rollLoot(s, 'crab'));
+});
+
+t('v0.9.4 ledges: a step up to 0.6 m is climbable, a taller box is a wall', () => {
+  const crate = { minX: 0, maxX: 2, minZ: 0, maxZ: 2, h: 0.6 }, wall = { minX: 0, maxX: 2, minZ: 0, maxZ: 2, h: 3 };
+  assert.ok(climbable(crate, 0)); assert.ok(!climbable(wall, 0)); assert.ok(!climbable(wall, 2.5));
+  assert.equal(walkTop([crate], 1, 1, 0.6), 0.6); assert.equal(walkTop([crate], 1, 1, 0.1), 0);
+});
+t('v0.9.4 walkTop picks the highest walkable top under a point and ignores walls', () => {
+  const low = { minX: 0, maxX: 4, minZ: 0, maxZ: 4, h: 0.5 }, high = { minX: 1, maxX: 2, minZ: 1, maxZ: 2, h: 1.0 }, wall = { minX: 0, maxX: 4, minZ: 0, maxZ: 4, h: 3 };
+  assert.equal(walkTop([low, high, wall], 1.5, 1.5, 2), 1.0); assert.equal(walkTop([low, high, wall], 3.5, 3.5, 2), 0.5);
+  assert.equal(walkTop([wall], 1, 1, 9), 0); assert.equal(WALK_TOP_MAX, 1.2); assert.equal(STEP_UP, 0.6);
+});
+
+t('v0.9.4 mantle: a walkable top 0.8 m away within reach is a mantle target; a wall is not', () => {
+  const ledge = { minX: 0.5, maxX: 3, minZ: -1, maxZ: 1, h: 1.1 }, wall = { minX: -5, maxX: -3, minZ: -5, maxZ: 5, h: 3 };
+  assert.equal(mantleTop([ledge], 0.1, 0, 0), 1.1); assert.equal(mantleTop([wall], 0.1, 0, 0), 0);
+  assert.equal(mantleTop([ledge], -2, 0, 0), 0); assert.equal(mantleTop([{ ...ledge, h: 1.5 }], 0.1, 0, 0), 0);
 });
 
 console.log(`\n${passed} passed`);

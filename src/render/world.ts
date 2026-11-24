@@ -2,6 +2,7 @@
 // Everything is built from code. Colliders are axis-aligned boxes on the ground plane.
 import * as THREE from 'three';
 import type { SiteId } from '../sim/contracts';
+import { climbable } from '../sim/climb';
 import { LightPool, type LightZone } from './lights';
 import type { Weather } from '../sim/days';
 import { buildChapel, type ChapelRefs } from './chapel';
@@ -727,10 +728,11 @@ export class World {
 }
 
 /** Push a circle out of all boxes. Returns corrected position. */
-export function collide(colliders: Box[], x: number, z: number, r: number, y = 0): [number, number] {
+export function collide(colliders: Box[], x: number, z: number, r: number, y = 0, stepUp = 0): [number, number] {
   for (let iter = 0; iter < 2; iter++) {
     for (const b of colliders) {
       if (y >= b.h - 0.05) continue;
+      if (stepUp > 0 && climbable(b, y, stepUp)) continue; // v0.9.4: a ledge the walker can step onto
       const cx = Math.max(b.minX, Math.min(x, b.maxX)), cz = Math.max(b.minZ, Math.min(z, b.maxZ));
       const dx = x - cx, dz = z - cz, d2 = dx * dx + dz * dz;
       if (d2 < r * r) {

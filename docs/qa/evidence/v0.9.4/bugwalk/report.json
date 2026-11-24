@@ -1,0 +1,82 @@
+{
+ "measuredJumpHeight": 0.88,
+ "pointsTested": 346,
+ "moveAttempts": 1364,
+ "stuckCandidates": 1,
+ "stuckConfirmed": 1,
+ "stuckFlaky": 0,
+ "stuckClusters": [
+  {
+   "cell": "-160,40",
+   "count": 1,
+   "sample": {
+    "x": -144,
+    "z": 43.9,
+    "dir": "KeyW",
+    "zone": "march",
+    "y": 0,
+    "retryMoved": 0.4
+   }
+  }
+ ],
+ "fellOut": 0,
+ "crashes": [],
+ "climb": {
+  "tested": 42,
+  "climbed": 42,
+  "failed": []
+ },
+ "tallWallsOrPlatformsAboveJump": 678,
+ "consoleErrors": 0,
+ "audit": {
+  "colliders": [
+   {
+    "i": 922,
+    "issue": "very large collider (>300 m)",
+    "b": {
+     "minX": -372,
+     "maxX": -64,
+     "minZ": -130,
+     "maxZ": -126,
+     "h": 3
+    }
+   },
+   {
+    "i": 923,
+    "issue": "very large collider (>300 m)",
+    "b": {
+     "minX": -372,
+     "maxX": -64,
+     "minZ": 150,
+     "maxZ": 154,
+     "h": 3
+    }
+   }
+  ],
+  "scene": [
+   {
+    "name": "",
+    "issue": "very large mesh 545x405 m",
+    "at": [
+     0,
+     0,
+     0
+    ]
+   }
+  ],
+  "extent": {
+   "minX": -380,
+   "maxX": 540.6,
+   "minZ": -390.15,
+   "maxZ": 460
+  },
+  "counts": {
+   "colliders": 1531,
+   "meshes": 2026,
+   "noMat": 0,
+   "nanGeo": 0,
+   "badTex": 0,
+   "huge": 1
+  }
+ }
+}
