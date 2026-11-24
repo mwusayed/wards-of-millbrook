@@ -1,0 +1,176 @@
+== scripts/smoke.cjs
+PASS  new game starts on standard difficulty with the tutorial quest 
+PASS  tutorial advanced to "ask Tolan" 
+PASS  talking to Tolan advances the quest 
+PASS  bought lantern, loader and coat 
+PASS  dice round resolved 
+PASS  kneeling at the flame blesses 
+PASS  killed enemies with skill-scaled revolver 
+PASS  marksmanship gained XP 
+PASS  spark cast spent mana 
+PASS  dodge moves you and costs stamina 
+PASS  lantern lit 
+PASS  moonpetal can be cut at night 
+PASS  save keeps gear, skills, quests 
+PASS  no page errors 
+
+14 passed, 0 failed
+== scripts/smoke2.cjs
+PASS  story at "attune the cairns" 
+PASS  attuned at a cairn 
+PASS  Spark learned and chapel quest started 
+PASS  entered the Sunken Chapel 
+PASS  wading slows you in the flooded nave 
+PASS  nave drained and the water gate lifted 
+PASS  the Cinder Wraith wakes in the sanctum 
+PASS  three bullets in a row harden it against bullets; fire still hurts 
+PASS  Wraith defeated: flag, Censer 
+PASS  left the chapel 
+PASS  Censer given to the Chapel; Wardbreak Night begins 
+PASS  gate defence started 
+PASS  three waves beaten: the gate held 
+PASS  Aldric comes down from the Spire 
+PASS  Aldric: wards done, 100 off the debt (both stones to the Chapel) 
+PASS  ending screen shown with title 
+PASS  free play after the ending 
+PASS  audit solved: working papers in hand 
+PASS  no page errors 
+
+19 passed, 0 failed
+== scripts/smoke3.cjs
+PASS  walking up to a cairn discovers it 
+PASS  map lists Home as a place to walk to 
+PASS  walking home moves you and costs time 
+PASS  all 19 door-event options run 
+PASS  door event closes cleanly 
+PASS  notice board offers a bounty on an even day 
+PASS  music mood follows place and hour 
+PASS  no page errors 
+
+8 passed, 0 failed
+== scripts/smoke4.cjs
+PASS  walk east through the new East Gate 
+PASS  gait phase advances with distance and limbs move 
+PASS  Vole offers The Road East and hands over the dispatch 
+PASS  arriving in Ashford is discovered and moves the quest on 
+PASS  the Reeve takes the dispatch; Copper and Silence begins 
+PASS  Tam only talks for an eel pie, then gives the lift key 
+PASS  entering Copper Hollow: dungeon, flag, hollowed miners, quest stage 
+PASS  the lift cage takes you to the deep gallery (with the key) 
+PASS  deep gallery: waystone lit, Brask's journal found, his widow's task opens 
+PASS  the Warden Engine wakes when you enter the vault 
+PASS  the Engine's front is armoured and its back core is not 
+PASS  a charge into the wall stuns it 
+PASS  the Engine falls: flag, heart in your pack, quest moves to the seam 
+PASS  open the seam to the guild (+150) and report: the arc is complete 
+PASS  back out of the mine 
+PASS  casting a line from the bridge jetty 
+PASS  striking on the bite lands a fish 
+PASS  a pick works the copper seam outside the Hollow 
+PASS  picking Thornwood mushrooms 
+PASS  buy the Hale carbine and switch to it 
+PASS  the carbine fires from its own tube, in first person 
+PASS  traders pay more for what they want 
+PASS  buy and wear a charm 
+PASS  the coach runs between the towns 
+PASS  the bathhouse leaves you clean and steamed 
+PASS  renting a bed at the Drowned Lantern sleeps you to morning 
+PASS  the Lodge board offers east notices and spawns them 
+PASS  night at the fold brings four wolves 
+PASS  driving them off completes the fold 
+PASS  Bluebell found, follows you home 
+PASS  22 people of the Reach, Ashford folk visible and animating 
+PASS  the map has an Eastern Reach sheet 
+PASS  saves are version 5 and keep the carbine and charm 
+PASS  no page errors 
+
+34 passed, 0 failed
+== rules
+ok   new game starts day 1 at 07:00 with debt 300
+ok   needs decay per MM rates over one rest hour
+ok   exertion burns three times rest calories
+ok   mana max follows fullness (TAS formula)
+ok   8 hours sleep does not dehydrate from full (VEILWORK bug stays fixed)
+ok   bladder accident at threshold
+ok   worst-need penalty (MM) applies once
+ok   big hit leaves a wound that caps max HP; bandage removes it
+ok   collapse wakes you next morning and charges a fee
+ok   missing two instalments calls the debt
+ok   paying the instalment avoids the miss
+ok   paying the whole debt wins
+ok   ledger: correct and reversed postings
+ok   ledger shift pays per correct entry and only in hours
+ok   errors raise Boss Attention (LW +5 each)
+ok   sweep contract: kills tagged to contract count; turn-in pays
+ok   courier contract: deliver then turn in
+ok   reload pulls a box of rounds from inventory
+ok   save round-trip
+ok   no NaN after a long mixed run
+ok   factions: finishing a notice raises the issuer, prices follow town standing
+ok   factions drift back toward neutral when neglected
+ok   missing an instalment angers the Tower
+ok   prep: armour cuts damage, scouting raises pay, supplies stop exertion drain
+ok   recovery: pick up at the cairn, then turn in
+ok   bank: deposits survive a collapse and earn weekly interest
+ok   feather bed clears fatigue on a full night
+ok   v0.1 saves migrate all the way to v3
+ok   magic 1: a fed, watered caster can cast several spells; each costs mana and calories
+ok   magic 2: a hungry caster gets weaker heals and must eat to cast at all
+ok   magic 2b: heal has a cooldown and never closes wounds
+ok   magic 3: regen drinks water in proportion, slows when thirsty, halts when badly dehydrated
+ok   magic 4: a long boss fight is sustainable only with water and food
+ok   magic 5: recovering after a fight with food, water, medicine and rest always works
+ok   sleep refills mana but pays for it in water
+ok   cooking: stew needs a ration and an onion, gives Hearty for 4 h
+ok   buffs: two at most, same meal refreshes, third replaces the one nearest expiry
+ok   sweet tooth makes spells burn fewer calories
+ok   carrying: weight bands slow you gradually and the chest keeps items across saves
+ok   basin is a quick wash, shower is a full one that uses soap
+ok   reconciliation: the correct corrections close the gap exactly
+ok   invoice investigation: three-way match decides every answer
+ok   a perfect case pays well and lowers Boss Attention; errors raise it
+ok   Patriarch defeat sets the world flag; the Ember takes 50 off the debt once
+ok   feed: real state picks the line, cooldowns stop repeats
+ok   dialogue: NPCs react to a drawn gun, wounds and the mill, and remember
+ok   skills grow by doing and change the numbers
+ok   traits: collapses can scar you, milestones harden you, the chapel can cure a trauma
+ok   difficulty scales needs and damage
+ok   loot is deterministic per kill; pelts sell, tags pay a Watch bounty
+ok   gear: smith upgrades change damage, reload, carry and armour; the coat needs pelts
+ok   revolver fouls with use, misfires when filthy, and cleaning restores it
+ok   tavern and chapel services use real state
+ok   home: reading and meditating
+ok   weather and day events are fixed per day and seed
+ok   quests: the tutorial advances on real actions and conversations
+ok   the Ember can go to the Tower, the Chapel or your own staff, once
+ok   main chain can be played through to an ending
+ok   Red Ink: three clean files open the audit; solving it cuts the debt to the true balance
+ok   v0.3 saves load into v4 with skills, story and gear
+ok   v0.6 (v4) saves load into v5 with the carbine, charm and Ashford standing
+ok   the Lodge posts east notices every morning, with a bounty every third day
+ok   the carbine: bought from Corwin, its own tube and reload, harder hits, steadier aim
+ok   traders: standing lowers prices, wanted goods pay a quarter more, charms are worn one at a time
+ok   the iron-nail charm softens the undead, not wolves
+ok   fishing: a strike on the bite lands a fish, a miss lands nothing; dawn brings them quicker
+ok   mining needs a pick; the deep seams sometimes give ward-copper
+ok   new meals give their buffs: roast boar makes you stout
+ok   Ashford services: the bath, a bed at the Lantern, the coach
+ok   the Eastern Reach arc plays through: dispatch, Tam, the Hollow, the Engine, the seam
+ok   wq1: the West Gate needs Renn's key, opens once, and the notice post appears
+ok   wq2: Vane's key: buy, persuade, threaten
+ok   wq2: Gammer Thrush's ward needs three heather; the barrow door needs key and ward
+ok   the Hall of Kings opens when all three braziers are lit
+ok   Orm's shroud follows the lit braziers
+ok   decideCrown: return, sell or keep, once, and only after Orm falls
+ok   night spawns on the Downs follow the crown's fate
+ok   grave-chill drains stamina and comfort unless grounded; heather tea grounds you
+ok   Westmarch meals: pike pie makes you stout, bilberry cake gives night eyes, bilberries are edible raw
+ok   Westmarch charms: rowan softens the dead, the hag stone calms the night, the circlet bites at night
+ok   lake fishing: perch, eels and the odd pike; Osric's spinners shorten the wait
+ok   Westmarch gathering, traders and the inn: heather, bilberries, Vane pays most for barrow gold, Liss's free bed
+ok   the notice post posts Westmarch work, with a bounty every third day
+ok   side tasks: Gorse, Old Grandmother and the drowned road
+ok   the Westmarch arc plays through to the crown
+ok   v0.7 saves load into v0.8 with Fernhollow standing, waders and the new items
+
+86 passed

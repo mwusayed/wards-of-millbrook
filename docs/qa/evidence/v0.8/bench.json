@@ -1,0 +1,129 @@
+{
+ "spots": {
+  "millbrook": {
+   "avg": 1.028,
+   "p50": 0.9,
+   "p99": 3.4,
+   "worst": 3.4,
+   "callsMax": 314,
+   "callsMin": 125
+  },
+  "vale": {
+   "avg": 1.426,
+   "p50": 0.7,
+   "p99": 8.2,
+   "worst": 8.9,
+   "callsMax": 365,
+   "callsMin": 75
+  },
+  "brookfield": {
+   "avg": 2.215,
+   "p50": 0.6,
+   "p99": 15.3,
+   "worst": 21.8,
+   "callsMax": 321,
+   "callsMin": 129
+  },
+  "thornwood": {
+   "avg": 0.735,
+   "p50": 0.5,
+   "p99": 7.1,
+   "worst": 9.5,
+   "callsMax": 294,
+   "callsMin": 78
+  },
+  "toll": {
+   "avg": 1.176,
+   "p50": 0.9,
+   "p99": 8.7,
+   "worst": 11.4,
+   "callsMax": 294,
+   "callsMin": 102
+  },
+  "ashford": {
+   "avg": 1.429,
+   "p50": 0.8,
+   "p99": 16.4,
+   "worst": 21.9,
+   "callsMax": 345,
+   "callsMin": 82
+  },
+  "docks": {
+   "avg": 0.888,
+   "p50": 0.7,
+   "p99": 4.5,
+   "worst": 6.8,
+   "callsMax": 371,
+   "callsMin": 65
+  },
+  "hollow": {
+   "avg": 0.541,
+   "p50": 0.4,
+   "p99": 4,
+   "worst": 4,
+   "callsMax": 323,
+   "callsMin": 27
+  },
+  "heath": {
+   "avg": 0.57,
+   "p50": 0.4,
+   "p99": 4.5,
+   "worst": 5.2,
+   "callsMax": 314,
+   "callsMin": 143
+  },
+  "smeath": {
+   "avg": 0.461,
+   "p50": 0.4,
+   "p99": 2.6,
+   "worst": 2.9,
+   "callsMax": 352,
+   "callsMin": 104
+  },
+  "downs": {
+   "avg": 0.515,
+   "p50": 0.4,
+   "p99": 4.9,
+   "worst": 5,
+   "callsMax": 352,
+   "callsMin": 86
+  },
+  "fernhollow": {
+   "avg": 1.115,
+   "p50": 0.5,
+   "p99": 10.4,
+   "worst": 17.6,
+   "callsMax": 344,
+   "callsMin": 116
+  },
+  "marsh": {
+   "avg": 3.002,
+   "p50": 0.6,
+   "p99": 20.6,
+   "worst": 26.4,
+   "callsMax": 359,
+   "callsMin": 42
+  }
+ },
+ "dungeons": {
+  "mine": {
+   "avg": 1.093,
+   "p50": 0.6,
+   "p99": 7.2,
+   "worst": 8.5,
+   "callsMax": 102,
+   "callsMin": 22
+  },
+  "barrow": {
+   "avg": 0.994,
+   "p50": 0.7,
+   "p99": 5.8,
+   "worst": 13.2,
+   "callsMax": 83,
+   "callsMin": 44
+  }
+ },
+ "programsAtLoad": 22,
+ "programsAfter": 22,
+ "pageErrors": []
+}

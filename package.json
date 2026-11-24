@@ -1,0 +1,16 @@
+{
+  "name": "wards-of-millbrook",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 5173",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --port 4173",
+    "test:sim": "tsx tests/sim.test.ts",
+    "playtest": "node scripts/playtest.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": { "three": "0.170.0" },
+  "devDependencies": { "@types/three": "0.170.0", "typescript": "5.6.3", "vite": "6.0.7", "tsx": "4.19.2" }
+}

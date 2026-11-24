@@ -1,0 +1,129 @@
+{
+ "spots": {
+  "millbrook": {
+   "avg": 2.442,
+   "p50": 1.1,
+   "p99": 16.7,
+   "worst": 19,
+   "callsMax": 323,
+   "callsMin": 133
+  },
+  "vale": {
+   "avg": 1.787,
+   "p50": 0.9,
+   "p99": 13.2,
+   "worst": 14.5,
+   "callsMax": 366,
+   "callsMin": 89
+  },
+  "brookfield": {
+   "avg": 0.881,
+   "p50": 0.8,
+   "p99": 3.9,
+   "worst": 5.2,
+   "callsMax": 321,
+   "callsMin": 168
+  },
+  "thornwood": {
+   "avg": 1.249,
+   "p50": 0.8,
+   "p99": 6.4,
+   "worst": 8.1,
+   "callsMax": 315,
+   "callsMin": 76
+  },
+  "toll": {
+   "avg": 1.177,
+   "p50": 0.9,
+   "p99": 6.1,
+   "worst": 6.8,
+   "callsMax": 302,
+   "callsMin": 113
+  },
+  "ashford": {
+   "avg": 0.968,
+   "p50": 0.9,
+   "p99": 2,
+   "worst": 4.4,
+   "callsMax": 357,
+   "callsMin": 84
+  },
+  "docks": {
+   "avg": 1.062,
+   "p50": 0.9,
+   "p99": 4.1,
+   "worst": 6.2,
+   "callsMax": 380,
+   "callsMin": 76
+  },
+  "hollow": {
+   "avg": 1.227,
+   "p50": 0.8,
+   "p99": 11.6,
+   "worst": 31.9,
+   "callsMax": 334,
+   "callsMin": 27
+  },
+  "heath": {
+   "avg": 1.17,
+   "p50": 0.8,
+   "p99": 6.7,
+   "worst": 7.5,
+   "callsMax": 329,
+   "callsMin": 154
+  },
+  "smeath": {
+   "avg": 0.759,
+   "p50": 0.7,
+   "p99": 2.4,
+   "worst": 4.9,
+   "callsMax": 399,
+   "callsMin": 104
+  },
+  "downs": {
+   "avg": 0.721,
+   "p50": 0.7,
+   "p99": 2.4,
+   "worst": 2.5,
+   "callsMax": 369,
+   "callsMin": 86
+  },
+  "fernhollow": {
+   "avg": 1.584,
+   "p50": 0.8,
+   "p99": 16.7,
+   "worst": 17,
+   "callsMax": 345,
+   "callsMin": 116
+  },
+  "marsh": {
+   "avg": 1.428,
+   "p50": 0.8,
+   "p99": 9,
+   "worst": 12.5,
+   "callsMax": 368,
+   "callsMin": 42
+  }
+ },
+ "dungeons": {
+  "mine": {
+   "avg": 0.926,
+   "p50": 0.7,
+   "p99": 4.1,
+   "worst": 7.9,
+   "callsMax": 71,
+   "callsMin": 22
+  },
+  "barrow": {
+   "avg": 1.334,
+   "p50": 0.8,
+   "p99": 13,
+   "worst": 18.8,
+   "callsMax": 93,
+   "callsMin": 44
+  }
+ },
+ "programsAtLoad": 22,
+ "programsAfter": 22,
+ "pageErrors": []
+}

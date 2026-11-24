@@ -1,0 +1,31 @@
+// Quick visual pass over the v0.7 additions: screenshots of new places and animation states.
+const { chromium } = require('playwright');
+const url = process.argv[2] || 'http://127.0.0.1:5198/';
+(async () => {
+  const browser = await chromium.launch({ args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+  const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+  const errors = []; page.on('pageerror', e => errors.push(String(e.stack || e))); page.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errors.push(m.text()); });
+  await page.goto(url); await page.waitForFunction(() => window.__game, null, { timeout: 240000 });
+  const g = (fn, arg) => page.evaluate(fn, arg);
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  await g(() => { localStorage.clear(); window.__game.start('standard'); }); await wait(400);
+  const shot = async (n, fn) => { await g(fn); await g(() => window.__game.step(0.3)); await wait(400); await page.screenshot({ path: `shots7/${n}.png` }); console.log('shot', n); };
+  const tp = (x, z, yaw, view = 'third', hour = 11) => `(() => { const G = window.__game; G.s.minutes = Math.floor(G.s.minutes / 1440) * 1440 + ${hour} * 60; for (const e of [...G.enemies.list]) G.enemies.remove(e); G.teleport(${x}, ${z}); G.player.yaw = ${yaw}; G.player.pitch = -0.05; G.view('${view}'); G.step(0.5); })()`;
+  await shot('01-east-gate', new Function(tp(36, 4.5, -Math.PI / 2)));
+  await shot('02-brookfield', new Function(tp(100, 8, 0.4)));
+  await shot('03-thornwood', new Function(tp(160, -40, 0.3)));
+  await shot('04-toll', new Function(tp(165, 12, -0.9)));
+  await shot('05-bridge', new Function(tp(196, 12.5, -Math.PI / 2)));
+  await shot('06-ashford-gate', new Function(tp(222, 12.5, -Math.PI / 2)));
+  await shot('07-ashford-square', new Function(tp(258, 18, -2.2)));
+  await shot('08-docks', new Function(tp(226, 24, 1.9)));
+  await shot('09-inn', new Function(tp(239, 25, 0, 'first', 19)));
+  await shot('10-hollow', new Function(tp(262, -100, 0)));
+  await shot('11-ashford-night', new Function(tp(262, 20, 0, 'third', 22)));
+  await shot('12-millbrook-square', new Function(tp(4, 10, 0.6, 'third', 10)));
+  await shot('13-home', new Function(tp(-28, -8, 1.2, 'first', 10)));
+  console.log('errors', errors.length, errors.slice(0, 4).join('\n'));
+  const perf = await g(() => ({ calls: window.__game.renderer.info.render.calls, tris: window.__game.renderer.info.render.triangles }));
+  console.log('render', JSON.stringify(perf));
+  await browser.close();
+})().catch(e => { console.error('ERR', e); process.exit(2); });

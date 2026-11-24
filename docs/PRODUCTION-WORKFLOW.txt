@@ -1,0 +1,1709 @@
+No teammates to show
+Hire your first teammate
+Persistent agents that work for you.
+
+No projects
+
+To make a AAA quality videogames what is the optimum work flow, make it as detailed and as comprehensive as possible. I an AI needs research skills and documentation skill add those.
+The user wants a detailed, comprehensive workflow for making AAA video games, including AI research skills and documentation skills. I need to cover the full production pipeline: pre-production, production, post-production, and also roles, tools, methodologies, and how AI (like research and documentation) fits in. I'll search for current best practices and AI integration in game development.
+Found 51 web pages
+The search results provide a good starting point. I need to open several relevant pages to gather detailed information. I'll open the Unity Learn page (result 0), the Kokku Games page on pre-production (result 0 from search 4), the Kokku Games page on full cycle (result 1 from search 0), the article on production methodologies (result 2 from search 5), and the documentation standards (result 1 and 4 from search 3). Also, the AI-related results (0, 1, 2 from search 2) might be useful.
+Read 8 pages
+The games production cycle - Unity Learn
+The pre-production phase in game development, explained
+What are the essential stages of full cycle game creation
+Production Methodologies in Game Development 
+2026
+2026
+Coding Standards
+View All
+The opened pages provide detailed information on phases, pre-production, full cycle stages, production methodologies, documentation standards, and AI integration. I need to gather more on roles, team structure, and perhaps specific AI tools for research and documentation. I'll search for AAA team roles, AI research tools for game dev, and documentation tools.
+Found 25 web pages
+Read 3 pages
+The games production cycle - Unity Learn
+What are the essential stages of full cycle game creation
+GD-KS: A Spec-Driven Multi-Agent Framework for LLM-Assisted Game Development
+The search results provide additional insights into roles, AI research tools, and documentation tools. I now have enough material to construct a comprehensive workflow. I'll structure the answer around phases, roles, documentation, methodologies, and AI integration. I'll cite sources appropriately. The user asked for "AI needs research skills and documentation skill add those" — so I need to explicitly discuss how AI can assist with research (market research, competitor analysis, technical research) and documentation (GDD, TDD, living docs, automated syncing). I'll also mention specific tools and best practices. The answer should be detailed and comprehensive. I'll organize it with headings.
+Building a AAA game is less a single pipeline and more a staged, risk-managed manufacturing operation where hundreds of specialists must align on a creative vision while hitting hard financial and technical gates. The optimum workflow is not a rigid sequence but a hybrid model: Waterfall-style phase gates for publisher funding and platform certification, wrapped around iterative Agile/Scrum loops for creative discovery in the trenches.
+Here is the detailed, comprehensive workflow, including the AI research and documentation skills you requested.
+🧭 Phase 1: Concept & Pre-Production (The Blueprint)
+This phase is about de-risking before a single full-production dollar is spent. For AAA, it typically runs 6–18 months and is owned by a small, senior "vision team" (Game Director, Lead Designer, Technical Director, Art Director, Producer).
+Core Workflow & Deliverables:
+Concept & Core-Mechanic Prototype: The only question is "Is this defining verb (combat, traversal, building) actually fun?" Build it in a greybox with placeholder assets. Success criterion is game feel, not polish.
+Technical Proof of Concept: Test the single highest-risk technical unknown on target hardware (e.g., networking model, streaming world, destruction physics) before production. If it cannot run at target specs, the project scope must change.
+The Game Design Document (GDD) — The Living Source of Truth: The GDD is not a novel; it is a modular wiki. Modern AAA standards break it into 8 per-mechanic sections: Overview, Player Fantasy, Detailed Rules, Formulas (all math with variables), Edge Cases, Dependencies, Tuning Knobs, and Acceptance Criteria. Crucially, balance values must link to their source formula or rationale.
+Technical Design Document (TDD) & Art Bible: The TDD dictates architecture, memory/CPU budgets, middleware, and coding standards. The Art Bible sets the visual bar with mood boards, style guides, and asset pipelines.
+The Vertical Slice (The Greenlight Gate): This is the most critical deliverable. It is 15–60 minutes of near-shipping-quality gameplay covering the main menu, one complete level, and the full core loop. It proves the team can execute the entire pipeline (code, art, audio, UI) at final quality and produces the real data needed to budget the rest of the game.
+AI Research & Documentation Skills in Pre-Production:
+Research (Market & Competitor Intelligence): Use AI-powered platforms (e.g., Ludo, specialized market research agents) to ingest live web data and produce structured briefs on genre trends, competitor feature matrices, TAM/SAM/SOM sizing, and player sentiment before locking the concept.
+Documentation (Spec-Driven GDD Generation): Use Spec-Driven Development (SDD) frameworks with LLMs. Instead of asking an AI to "write a GDD," feed it the core loop and have it generate engine-agnostic, modular GDD files (one per mechanic) that enforce the 8-section standard, preventing premature phase transitions and ensuring formulas are defined with variables.
+⚙️ Phase 2: Production (The Factory)
+Production is where the blueprint becomes a build. In AAA, this is a parallel, multi-disciplinary pipeline (Art, Design, Engineering, Audio) tied together by milestones.
+The Milestone Ladder (The Gates):
+First Playable: A rough end-to-end build proving the core loop is wired up.
+Alpha (Feature Complete): Every system is in the build and functional, though rough. UI, progression, combat, analytics, accessibility—nothing can be missing. This typically takes ~1 year of full production for AAA.
+Beta (Content Complete): All content is in, all features are polished, and the focus shifts entirely to bug fixing, optimization, and balance.
+Code Freeze & Certification: No new code except critical fixes. The build goes to platform holders (Sony, Microsoft, Nintendo) for certification (approx. 3 months), a brutal checklist of technical requirements (TRC/TCR).
+Gold Master (GM): The final, certified build is printed/released.
+Production Methodology (Hybrid):
+Sprints: 2–3 week Scrum sprints for feature development, followed by dedicated QA/bug-fixing sprints.
+"Done" Definition: A task is not done when code is committed. It is done only when it is fully integrated, tested, optimized, and stable (no hidden tech debt).
+Verification-Driven Development: Write tests first for gameplay systems. For UI/Visual features, the "proof" is a retained screenshot in the QA evidence folder, signed off by a lead—a parse check is not a run.
+AI Research & Documentation Skills in Production:
+Research (Technical Problem Solving): Engineering teams use Retrieval-Augmented Generation (RAG) AI agents grounded in engine documentation (Unreal/Unity docs, internal wikis) to solve tool-use problems without hallucinating APIs. AI can also run automated play-testing pipelines to generate runtime test commands and systematically evaluate dynamic behaviors.
+Documentation (Automated Sync & Context Compilation): The GDD will drift from the build. Use AI to connect the document suite (GDD, TDD, UI Specs, feature breakdowns) and automatically sync cross-references to Confluence/Git. AI can also ingest Jira, Slack, and GitHub to compile a "living wiki" that new engineers and agents read before writing code.
+🚀 Phase 3: Post-Production, Launch & Operations
+Post-production is not a afterthought; it is polish, balance, and live service readiness.
+Workflow:
+QA & Compliance: Massive regression testing, localization (LQA), and accessibility compliance (e.g., Xbox Accessibility Guidelines).
+Polish & Optimization: The "final 10%" that takes 30% of the time—frame-time stability, memory leak hunts, UI/UX friction removal.
+Launch: Day-one patch preparation, marketing beats, and community management.
+Operations (LiveOps): For AAA live-service titles, launch is the start. The team shifts to a Kanban flow for continuous content drops, seasonal events, economy tuning, and telemetry-driven balancing.
+AI Documentation Skills in Post-Production:
+Automated Patch Notes & Knowledge Bases: AI can parse commit logs, Jira tickets, and balance changes to draft player-facing patch notes and update internal knowledge bases.
+Telemetry Synthesis: AI agents can summarize millions of rows of live player data into readable design insights (e.g., "Weapon X has a 0.3% pick rate in high-MMR lobbies; propose tuning knobs").
+📋 The Documentation Stack (Non-Negotiable for AAA)
+You cannot ship a AAA game on verbal agreements. The documentation architecture must be:
+DocumentPurposeFormat & Tooling
+GDD
+Design source of truth
+Markdown, per-system files in Git; synced to Confluence wiki
+TDD
+Engineering blueprint & budgets
+Confluence page + Architecture Decision Records (ADRs) in repo
+Art Bible
+Visual bar & pipeline rules
+Mood boards, style guides, asset naming conventions
+UX/Accessibility Specs
+Per-screen interaction & compliance
+Separate design/ux/ and project-wide accessibility-requirements.md
+Test Evidence
+Proof of "Done"
+Screenshots & logs in production/qa/evidence/
+🤖 The AI Governance Layer (The Meta-Skill)
+Integrating AI into AAA is not about plugging in ChatGPT. The 2026 industry consensus is that governance is the condition for scale—without it, AI creates workflow friction and aesthetic flattening.
+Optimum AI Governance Workflow:
+Define Hand-off Points: Specify exactly when a prompt is used, how outputs are iterated, and where they enter the pipeline (e.g., "AI drafts the GDD section → human designer validates formulas → AI syncs to Confluence").
+Asset-Class Acceptance Criteria: Set separate acceptance thresholds for AI-assisted code, concept art, and audio. An AI-generated texture map needs different QA than AI-generated dialogue.
+Provenance Capture: Log model versions, prompts, and human editorial labor for every AI-influenced asset. This is necessary for copyright audits and regression checking.
+Human-in-the-Loop Ownership: AI compiles and drafts; humans own the creative decision and the sign-off. This preserves authorship and prevents stylistic convergence.
+Summary of the Optimum Flow: Concept Prototype → Technical PoC → Modular GDD + TDD → Vertical Slice Gate → Parallel Production (Alpha → Beta) → Certification → Gold Master → LiveOps. Threaded through every phase: Waterfall gates for funding/legal; Agile sprints for creation; AI-accelerated research and living documentation; and a governance layer that keeps humans accountable for the final creative and technical quality.
+
+Refine this, with more comprehensive details
+
+
+Below is a refined, production-grade workflow for making an AAA-quality game. The core principle is: de-risk creative and technical unknowns before scaling production, then run parallel discipline pipelines against explicit quality, performance, content, and release gates. Game development is commonly organized into pre-production, production, post-production, and operations, though studios use different milestone labels depending on project type and platform.
+
+Operating model
+Use a hybrid model:
+
+Stage gates for funding, scope, architecture, platform certification, and release readiness.
+
+Agile/Scrum execution inside each stage for iterative feature development, playtesting, and bug resolution.
+
+Parallel discipline pipelines for design, engineering, art, animation, audio, narrative, UI/UX, QA, localization, data, and production.
+
+A single source of truth for scope, decisions, assets, requirements, and test evidence.
+
+AI as a force multiplier, not an autonomous decision-maker: it accelerates research, drafting, synthesis, testing support, and documentation, while humans retain creative, legal, quality, and sign-off authority.
+
+A practical AAA cadence is:
+
+Layer	Cadence	Purpose
+Daily standup	15–30 minutes	Remove blockers, align dependencies
+Sprint	2–3 weeks	Deliver playable, testable increments
+Milestone review	Every 6–12 weeks	Assess scope, quality, budget, risk
+Executive/publisher gate	Major milestones	Greenlight, funding, scope, launch decisions
+Continuous integration	Every commit	Build, validate, test, package
+Continuous playtesting	Weekly or biweekly	Validate fun, clarity, pacing, retention
+Release readiness review	8–16 weeks before launch	Certify, localize, optimize, prepare operations
+Phase 0: Portfolio and opportunity
+Before a game exists, establish whether the project should exist.
+
+Strategic research
+Produce a decision brief covering:
+
+Target audience, player motivations, and platform mix.
+
+Genre landscape, competitor feature matrix, pricing, monetization model, and market positioning.
+
+Total addressable market, serviceable market, obtainable market, and realistic sales assumptions.
+
+Publisher, platform-holder, investor, and internal-stakeholder requirements.
+
+Brand/IP constraints, licensing needs, rating-board exposure, and legal risks.
+
+Development budget, staffing model, co-development strategy, marketing budget, and post-launch operating budget.
+
+Success metrics: critical acclaim, sales, player retention, DAU/MAU, ARPU, conversion, churn, community sentiment, or franchise value.
+
+AI research skills
+Use AI to accelerate, not replace, research:
+
+Market research: Collect competitor titles, release dates, pricing, platform availability, review themes, player complaints, feature gaps, and genre trends.
+
+Player research: Cluster reviews, community posts, survey responses, and support tickets into recurring needs, frustrations, and desired features.
+
+Competitive teardown: Turn competitor games into structured matrices: core loop, progression, economy, combat, UI, accessibility, monetization, content cadence, and retention hooks.
+
+Trend synthesis: Separate durable player needs from short-lived trends; identify which trends fit the studio’s capabilities and IP.
+
+Evidence grading: Require every claim to cite a source, date, sample size, and confidence level. Flag unsupported claims as assumptions.
+
+AI output standard: every research brief must include an executive recommendation, evidence table, assumptions, risks, contradictory evidence, and a clear decision request.
+
+Phase 1: Concept
+Goal: Determine whether the game’s core fantasy and defining interaction are worth making.
+
+Typical duration: Weeks to six months for AAA, depending on ambition and risk.
+
+Core team
+Keep this phase intentionally small:
+
+Creative director or game director
+
+Lead game designer
+
+Technical director
+
+Art director
+
+Executive producer or producer
+
+Narrative lead, if story is central
+
+Product/business lead
+
+User research lead, if available
+
+Deliverables
+One-page vision statement
+
+Player fantasy
+
+Genre and reference points
+
+Unique selling proposition
+
+Core emotional promise
+
+Target audience
+
+Platform and business model
+
+Why this studio should make it
+
+Core loop definition
+
+Define the repeatable player actions: for example, explore, encounter, fight, collect, upgrade, return, and choose a new goal.
+
+Identify the “defining verb”: traversal, combat, building, investigation, social play, survival, or another central interaction.
+
+State what players should feel in the first 10 minutes, first hour, and first 10 hours.
+
+Concept prototype
+
+Build a greybox prototype using placeholder assets.
+
+Test responsiveness, readability, game feel, challenge, and repeatability.
+
+Do not invest in final art, narrative, or content before the core interaction is validated.
+
+Concept gate
+
+The team can explain the game in one sentence.
+
+The core loop is demonstrably engaging.
+
+The team has identified the biggest creative, technical, market, and production risks.
+
+The project has a credible reason to proceed.
+
+Each prototype needs a written success criterion and stop condition; this prevents teams from polishing an idea that has already failed its test.
+
+AI research and documentation
+Use AI to generate competitor comparisons, player-persona hypotheses, feature-gap analyses, and market-size ranges.
+
+Use AI to draft vision documents, pitch decks, interview guides, and playtest surveys.
+
+Require human validation for creative positioning, audience assumptions, financial projections, and legal claims.
+
+Store prompts, model versions, source links, and human edits in a research log.
+
+Phase 2: Pre-production
+Goal: Prove that the game is fun, technically feasible, appropriately scoped, and producible at AAA quality.
+
+Typical AAA duration: 6–18 months.
+
+Core leadership
+The minimum senior leadership group should include a game director, lead game designer, technical director, art director, and producer. These roles align creative direction, technical feasibility, visual standards, and production planning before the team scales.
+
+Pre-production deliverables
+Deliverable	Owner	Purpose
+Game Design Document	Lead designer	Define mechanics, progression, systems, content, UX, and scope
+Technical Design Document	Technical director	Define engine, architecture, tools, budgets, and technical risks
+Art Bible	Art director	Establish visual direction, quality bar, asset rules, and pipeline
+Narrative Bible	Narrative lead	Define story, characters, world rules, dialogue structure, and localization needs
+UX and accessibility specification	UX lead	Define flows, controls, readability, input support, and accessibility requirements
+Production plan	Producer	Define scope, staffing, milestones, dependencies, budget, and risks
+Risk register	Producer and leads	Track high-impact unknowns and mitigation owners
+Vertical slice	Cross-discipline team	Prove end-to-end AAA execution
+Game Design Document structure
+Treat the GDD as a living, modular specification, not a 500-page manuscript.
+
+For every major system, create a separate document with:
+
+Overview and player fantasy
+
+Design intent and success metrics
+
+Player-facing rules
+
+Detailed mechanics and state machines
+
+Formulas, variables, tuning ranges, and balance assumptions
+
+Edge cases, failure states, and exploit prevention
+
+Dependencies across art, code, audio, UI, narrative, and data
+
+Content requirements and production estimates
+
+Acceptance criteria and test cases
+
+Open questions and decision log
+
+Examples:
+
+combat/melee.md
+
+progression/xp-and-levels.md
+
+economy/currency-sinks.md
+
+world/streaming-and-level-loading.md
+
+ui/hud-and-menus.md
+
+accessibility/input-and-vision.md
+
+Technical Design Document
+The TDD should specify:
+
+Target platforms, minimum specifications, and recommended specifications.
+
+Engine, version, middleware, source control, build system, and toolchain.
+
+Architecture: gameplay framework, networking model, save system, streaming, ECS or actor model, rendering approach, and mod strategy if relevant.
+
+Performance budgets: frame time, CPU, GPU, memory, load times, network bandwidth, storage, and thermal constraints.
+
+Asset budgets: polygon count, texture resolution, material complexity, animation memory, audio memory, and level streaming rules.
+
+Coding standards, branch strategy, code review rules, testing policy, and error reporting.
+
+Tooling requirements: level editor, character pipeline, animation pipeline, localization pipeline, telemetry, crash reporting, and build automation.
+
+Technical risk register with prototypes, owners, deadlines, and fallback plans.
+
+Art direction package
+Include:
+
+Mood boards and visual references
+
+Color, lighting, material, silhouette, and composition rules
+
+Character, environment, prop, VFX, UI, and cinematic style guides
+
+Asset naming conventions and folder structure
+
+Polygon, texture, LOD, collision, rigging, and optimization standards
+
+Review process and quality acceptance criteria
+
+Representative “hero” assets that demonstrate the target quality bar
+
+Vertical slice
+The vertical slice is the most important pre-production deliverable. It should be a short but representative segment of the final game—often 15–60 minutes of near-shipping-quality gameplay—including the main menu, one complete level, and the core mechanic loop.
+
+It must prove:
+
+The core loop is fun.
+
+The visual target is achievable.
+
+The technical architecture works on target hardware.
+
+The team can produce assets, code, UI, audio, animation, and levels at the intended quality.
+
+The production cost and schedule estimates are grounded in real output.
+
+Greenlight criteria
+Do not enter full production until the following are true:
+
+Core mechanic and core loop are validated.
+
+Highest-risk technical unknowns are tested on real target hardware.
+
+Scope is locked into must-have, should-have, and nice-to-have tiers.
+
+Representative art, code, audio, and UI meet the intended quality bar.
+
+Budget, staffing, schedule, and content plan are based on prototype-derived productivity data.
+
+Core leads are identified, committed, and available.
+
+Legal, IP, platform, rating, accessibility, and data-privacy risks are understood.
+
+Pre-production should end when these exit criteria are met, not merely when a calendar date arrives.
+
+Phase 3: Production
+Goal: Build the complete game through parallel, repeatable pipelines.
+
+Milestone ladder
+Milestone	Definition	Primary question
+First playable	End-to-end core loop exists in rough form	Is the game playable from start to finish?
+Feature complete / Alpha	Every planned system is implemented and testable; content may be rough	Does every feature work?
+Content complete / Beta	All planned content is in and playable from opening to credits	Is the game complete and stable enough for final QA?
+Release candidate	Content, localization, compliance, performance, and stability are ready for certification	Can this build ship?
+Gold master	Final certified build is approved for manufacturing or digital release	Is this the shipping build?
+Alpha means every feature is functional and testable, even if rough; beta means all planned content is present and the game can be played from beginning to end.
+
+Design pipeline
+Feature brief: State player goal, mechanics, success metrics, dependencies, and acceptance criteria.
+
+Paper design: Define rules, formulas, states, edge cases, and content requirements.
+
+Greybox implementation: Build the mechanic with placeholder art and temporary audio.
+
+Playtest: Measure clarity, challenge, pacing, fun, failure recovery, and comprehension.
+
+Iterate: Change only variables necessary to answer the current design question.
+
+Feature lock: Freeze rules, content scope, and acceptance criteria.
+
+Polish: Add final art, audio, VFX, UI, narrative, balancing, and accessibility support.
+
+Engineering pipeline
+Technical specification: Define architecture, APIs, data structures, dependencies, performance budget, and test plan.
+
+Architecture review: Senior engineers approve high-impact designs before implementation.
+
+Implementation: Build in small, reviewable increments.
+
+Unit and integration tests: Cover core rules, save/load, networking, progression, economy, and regression-prone systems.
+
+Code review: Enforce standards, ownership, performance, security, and maintainability.
+
+Integration: Merge into a playable build and validate across platforms.
+
+Profiling: Measure CPU, GPU, memory, load time, network, and frame-time stability.
+
+Bug triage: Classify severity, reproduce, assign, fix, verify, and close.
+
+A feature is not “done” when code is committed. It is done when it is integrated, tested, optimized, documented, and stable.
+
+Art pipeline
+Brief and reference: Define purpose, silhouette, mood, scale, gameplay function, and technical constraints.
+
+Concept: Produce 2D exploration and key art.
+
+Art review: Approve direction before expensive 3D production.
+
+Blockout: Validate scale, readability, gameplay space, and composition.
+
+Modeling and sculpting: Create production geometry.
+
+Texturing and materials: Build PBR or stylized materials within budget.
+
+Rigging and animation: Create skeletal setups, animation sets, facial performance, and technical constraints.
+
+Lighting and VFX: Establish readability, mood, performance, and visual hierarchy.
+
+Optimization: LODs, occlusion, texture streaming, draw-call reduction, collision simplification, and platform-specific scaling.
+
+Final review: Compare against the art bible and vertical slice.
+
+Audio pipeline
+Audio direction: Define sonic identity, instrumentation, mixing targets, and emotional role.
+
+Asset brief: Identify events, contexts, intensity layers, and implementation needs.
+
+Creation: Produce music, ambience, foley, dialogue, UI sound, and VFX audio.
+
+Implementation: Connect audio to gameplay states, spatialization, mix buses, and adaptive systems.
+
+Mix review: Validate loudness, clarity, mix balance, and platform playback.
+
+Localization and accessibility: Support subtitles, captions, audio descriptions where appropriate, and language-specific voice work.
+
+Narrative pipeline
+Narrative bible: Define world rules, factions, character arcs, themes, tone, and canon.
+
+Mission design: Map story beats to gameplay spaces and player objectives.
+
+Dialogue drafting: Create branching, barks, cinematic dialogue, and localization-ready strings.
+
+Cinematic production: Storyboard, previz, performance capture, animation, lighting, and editing.
+
+Localization: Use context, character limits, glossaries, and cultural review.
+
+Integration review: Ensure story supports gameplay rather than interrupting it.
+
+UI/UX pipeline
+Player journey map: Define onboarding, first session, core loop, failure, progression, social features, and retention loops.
+
+Information architecture: Organize menus, settings, inventory, maps, progression, and social systems.
+
+Wireframes: Validate hierarchy and flow before visual design.
+
+Visual design: Apply art direction, readability, controller navigation, and platform conventions.
+
+Prototyping: Test with representative players.
+
+Implementation: Build responsive UI, controller/mouse/keyboard/touch support, and localization-ready layouts.
+
+Accessibility review: Test color contrast, text scaling, remapping, subtitles, audio cues, motion sensitivity, and cognitive load.
+
+QA pipeline
+QA should operate continuously, not only near launch.
+
+Test across four pillars:
+
+Functional testing: crashes, softlocks, progression blockers, save corruption, and broken systems.
+
+Usability testing: whether players understand objectives, controls, UI, and progression without external explanation.
+
+Compatibility testing: hardware configurations, controllers, operating systems, resolutions, aspect ratios, and platform features.
+
+Performance testing: frame rate, loading, memory, thermal behavior, network stability, and platform thresholds.
+
+Maintain a bug taxonomy:
+
+P0: Blocks certification, causes crashes, corrupts saves, breaks progression, or prevents core play.
+
+P1: Major gameplay, visual, audio, or usability failure.
+
+P2: Significant but non-blocking issue.
+
+P3: Minor polish issue.
+
+P4: Cosmetic or low-impact issue.
+
+Every bug needs reproduction steps, build version, platform, hardware, severity, expected behavior, actual behavior, attachments, and regression status.
+
+Data and telemetry pipeline
+Implement analytics early, not after launch.
+
+Track:
+
+Session length, retention, churn, progression funnel, difficulty failures, and drop-off points.
+
+Feature usage, economy flow, item acquisition, currency sinks, store conversion, and monetization events.
+
+Combat outcomes, weapon usage, mission completion, player paths, and difficulty tuning data.
+
+Crashes, errors, performance, device distribution, and network health.
+
+Accessibility settings, control remapping, subtitle usage, and UI friction.
+
+Establish privacy policies, consent flows, data-retention rules, anonymization, regional compliance, and internal access controls before collecting player data.
+
+Phase 4: Alpha
+Goal: Prove every system exists and works.
+
+Entry criteria
+All planned features are represented in the build.
+
+Core loop, progression, UI, save/load, settings, accessibility, localization hooks, analytics, and crash reporting are functional.
+
+Major technical systems are integrated.
+
+The game can be played from a meaningful starting point to a meaningful endpoint.
+
+Work focus
+Close feature gaps.
+
+Stabilize major systems.
+
+Run broad playtests.
+
+Identify scope cuts early.
+
+Establish content-production velocity.
+
+Begin serious optimization and profiling.
+
+Build the regression-test suite.
+
+Exit criteria
+No missing must-have systems.
+
+No known progression-blocking issues in core paths.
+
+Performance direction is understood and within a recoverable range.
+
+Content pipeline is producing at the required rate.
+
+The production plan has been re-forecast using real velocity.
+
+Phase 5: Beta
+Goal: Achieve content completeness and prepare for final quality.
+
+Entry criteria
+All planned content is integrated.
+
+The game is playable from opening screen to credits.
+
+Tutorials, narrative, side content, collectibles, progression, and endgame content are present.
+
+Localization strings are locked or near-locked.
+
+Major systems are stable.
+
+Work focus
+Bug fixing and regression prevention.
+
+Balance, difficulty, economy, pacing, and progression tuning.
+
+Final art, animation, lighting, VFX, UI, and audio polish.
+
+Localization QA and cultural review.
+
+Accessibility certification.
+
+Performance optimization.
+
+Platform certification preparation.
+
+Marketing capture, trailer assets, press builds, and demo planning.
+
+A stable beta is essential: entering beta with an unstable build compresses the QA window and can create cascading launch delays.
+
+Exit criteria
+No P0 issues in core paths.
+
+All critical localization, accessibility, compliance, and platform requirements are addressed.
+
+Performance meets target thresholds on supported hardware.
+
+The game is ready for external QA, certification, and release-candidate preparation.
+
+Phase 6: Certification and release readiness
+Goal: Ship a stable, compliant, polished build.
+
+Final QA
+Run:
+
+Full-game regression passes.
+
+Save/load and progression testing.
+
+Network, matchmaking, party, cross-play, and anti-cheat testing where relevant.
+
+Localization QA in every supported language.
+
+Accessibility audits.
+
+Compatibility testing across supported devices and configurations.
+
+Performance, memory, thermal, load-time, and crash-rate testing.
+
+Compliance testing for ratings, privacy, parental controls, purchases, refunds, and platform policies.
+
+Platform certification
+Console certification is a formal submission process governed by each platform holder’s technical requirements. Release candidates must be crash-free, handle suspend/resume correctly, and meet platform-specific requirements; a critical issue can require a new submission cycle.
+
+Prepare:
+
+Platform compliance checklist.
+
+Certification build and submission package.
+
+Crash-free and stability evidence.
+
+Localization and rating compliance evidence.
+
+Store assets, descriptions, screenshots, trailers, and metadata.
+
+Day-one patch plan and rollback plan.
+
+Server capacity, monitoring, incident-response, and customer-support plans.
+
+Release readiness gate
+Do not launch until:
+
+The release candidate passes internal and external QA.
+
+Certification is complete or a credible launch plan accounts for remaining risk.
+
+Day-one patch is tested and staged.
+
+Servers, telemetry, crash reporting, support tooling, and community channels are operational.
+
+Marketing, storefront, press, influencer, and community assets are ready.
+
+The team has a launch-war-room plan with owners for incidents, hotfixes, social response, and player communication.
+
+Phase 7: Launch
+Goal: Deliver a stable first-week experience and respond rapidly to real player conditions.
+
+Launch-week operations
+Monitor crash rates, server health, matchmaking, purchase flows, review sentiment, social channels, and support tickets.
+
+Triage player-reported issues daily.
+
+Prepare hotfix branches and emergency patch processes.
+
+Track retention, conversion, completion, churn, and sentiment against launch forecasts.
+
+Publish clear patch notes, known-issue lists, and support guidance.
+
+Run a daily launch review with production, engineering, QA, community, data, marketing, and executive stakeholders.
+
+Strong first-week stability matters because early retention patterns can be difficult to reverse once established.
+
+Phase 8: Live operations
+Goal: Sustain the game through patches, content, events, economy management, community, and commercial performance.
+
+Operating cadence
+Activity	Cadence	Owner
+Live incident response	Continuous	Live ops, engineering, support
+Hotfix review	Daily during launch; weekly thereafter	Production and engineering
+Telemetry review	Weekly	Data, design, product
+Balance tuning	Weekly or biweekly	Design and data
+Content update	Every 4–12 weeks, depending on model	Production and design
+Season or expansion planning	Quarterly or longer	Leadership and product
+Community sentiment review	Weekly	Community and research
+Roadmap review	Monthly or quarterly	Executive and product leadership
+Live-service separation
+Keep live operations separate from new-game production. A dedicated live-ops team should own patches, events, support escalations, economy monitoring, and player communication, while a separate team can focus on expansions or the next project.
+
+Team structure
+A AAA project requires clear ownership across disciplines.
+
+Discipline	Core roles	Primary responsibility
+Leadership	Game director, creative director, executive producer, producer	Vision, scope, quality, schedule, and decisions
+Design	Lead designer, systems designers, level designers, economy designers, UX designers	Mechanics, content, pacing, balance, and player experience
+Engineering	Technical director, gameplay, engine, tools, UI, network, AI, platform engineers	Systems, performance, stability, and tooling
+Art	Art director, concept, environment, character, weapon, VFX, lighting, technical artists	Visual quality and production pipeline
+Animation	Animation director, animators, riggers, technical animators	Motion, performance, readability, and game feel
+Audio	Audio director, sound designers, composers, dialogue, technical audio	Sonic identity and implementation
+Narrative	Narrative director, writers, cinematic designers, localization leads	Story, world, dialogue, and cultural consistency
+QA	QA director, functional QA, compatibility QA, localization QA, compliance QA	Quality, regression, and certification readiness
+Data	Data lead, analysts, economists, telemetry engineers	Measurement, experimentation, and decision support
+Operations	Release manager, DevOps, live ops, community, support	Build delivery, uptime, player communication, and post-launch health
+Unity identifies roles such as art director, concept artist, 3D artist, audio designer, animator, level designer, technical artist, gameplay programmer, UI programmer, and QA technician as central contributors to the production process.
+
+Documentation architecture
+Documentation should be versioned, searchable, linked, and owned.
+
+Document	Purpose	Format and ownership
+Vision brief	Explain why the game exists	One-page document owned by creative director
+GDD	Define player-facing systems and content	Modular Markdown or wiki pages owned by design
+TDD	Define technical architecture and constraints	Wiki plus architecture decision records owned by engineering
+Art bible	Define visual quality and production standards	Visual wiki, reference boards, and asset guidelines owned by art
+Narrative bible	Maintain world, story, and character consistency	Wiki owned by narrative
+UX specification	Define flows, controls, and usability rules	Wireframes, prototypes, and specs owned by UX
+Accessibility specification	Define inclusive-play requirements	Requirements matrix owned by accessibility lead
+Production plan	Track scope, schedule, staffing, and dependencies	Project-management system owned by producer
+Risk register	Track unknowns and mitigations	Living register owned by producer and leads
+Decision log	Record decisions, context, alternatives, and owners	ADRs or decision database
+Test plan	Define QA coverage and acceptance criteria	Test-management system owned by QA
+Telemetry dictionary	Define events, properties, and privacy rules	Data dictionary owned by data and engineering
+Release runbook	Define launch, patch, rollback, and incident procedures	Operations runbook owned by release management
+Documentation standards
+Every document needs an owner, last-updated date, status, linked dependencies, and review approver.
+
+Use a consistent template for feature specs.
+
+Link requirements directly to tickets, test cases, assets, and acceptance criteria.
+
+Keep deprecated content archived, not deleted.
+
+Separate decisions from discussion; Slack threads are not documentation.
+
+Require a definition of done that includes documentation updates.
+
+Review documentation at every major milestone.
+
+Make onboarding possible without tribal knowledge.
+
+AI research skills
+Build an internal AI research capability with these skills:
+
+Source discovery
+AI should be able to find and prioritize:
+
+Academic research on player motivation, learning, difficulty, attention, and behavior.
+
+Market reports, platform data, sales estimates, and industry analyses.
+
+Competitor patch notes, store pages, reviews, community discussions, and developer talks.
+
+Engine documentation, SDK references, platform requirements, and technical standards.
+
+Internal prior-project retrospectives, postmortems, playtest reports, and production data.
+
+Synthesis
+AI should convert raw material into:
+
+Executive summaries.
+
+Competitor feature matrices.
+
+Player-need clusters.
+
+Risk registers.
+
+Technical options with trade-offs.
+
+Design recommendations.
+
+Evidence tables.
+
+Verification
+Every AI research output must pass:
+
+Source check: Are the sources real, current, and relevant?
+
+Date check: Is the information still valid?
+
+Scope check: Does the evidence actually support the claim?
+
+Bias check: Are competitor, community, or vendor sources overrepresented?
+
+Contradiction check: What evidence disagrees with the conclusion?
+
+Confidence rating: High, medium, low, or unknown.
+
+Human review: A domain expert approves any decision-changing conclusion.
+
+Research workflows
+Research task	AI role	Human role
+Market sizing	Gather sources, calculate ranges, summarize assumptions	Validate assumptions and approve forecast
+Competitor analysis	Build feature matrix and identify patterns	Judge strategic relevance
+Player research	Cluster feedback and identify themes	Validate with interviews and playtests
+Technical research	Compare engine, middleware, and platform options	Approve architecture and run hardware tests
+Narrative research	Gather cultural, historical, and genre references	Ensure sensitivity, authenticity, and creative intent
+Balance research	Analyze telemetry and propose tuning ranges	Approve changes and playtest
+AI documentation skills
+AI should maintain documentation as a living system.
+
+Drafting
+AI can produce first drafts of:
+
+Feature specifications
+
+User stories and acceptance criteria
+
+Technical design documents
+
+Test plans
+
+Bug reports
+
+Patch notes
+
+Onboarding guides
+
+Meeting summaries
+
+Retrospectives
+
+Asset briefs
+
+Localization context sheets
+
+Linking and synchronization
+AI can:
+
+Detect contradictions between GDD, TDD, tickets, and implementation.
+
+Flag missing acceptance criteria, dependencies, owners, or test coverage.
+
+Generate cross-references between systems.
+
+Summarize changes after each sprint.
+
+Update status pages from Jira, GitHub, GitLab, Slack, and build systems.
+
+Create release notes from commits, tickets, and QA evidence.
+
+Maintain a searchable internal knowledge base for both humans and AI agents.
+
+Retrieval-augmented documentation
+Use retrieval-augmented generation over approved internal sources:
+
+GDD and TDD
+
+Architecture decision records
+
+Engine and platform documentation
+
+Coding standards
+
+Asset pipelines
+
+QA test cases
+
+Prior postmortems
+
+Telemetry dictionaries
+
+Support knowledge base
+
+This reduces hallucinated APIs, inconsistent design rules, and repeated explanations. AI should cite the internal document or external source behind every answer.
+
+Documentation quality gates
+Before AI-generated documentation enters the source of truth:
+
+A named human owner reviews it.
+
+Technical claims are verified by the relevant lead.
+
+Creative claims are approved by the appropriate director.
+
+Legal, privacy, and IP-sensitive content is reviewed by counsel or compliance.
+
+Links, formulas, and version numbers are validated.
+
+The document is assigned an owner and review date.
+
+AI governance
+Treat AI as a production system with quality controls.
+
+Governance policy
+Define:
+
+Approved models, tools, and data sources.
+
+Confidentiality rules for unreleased assets, source code, player data, and partner material.
+
+Human approval requirements by asset class.
+
+Provenance logging for prompts, model versions, source material, and edits.
+
+Prohibited uses, such as generating final dialogue, final art, or legal claims without review.
+
+Bias, cultural sensitivity, accessibility, and safety review requirements.
+
+Contractual and IP review for third-party models, datasets, and generated assets.
+
+Acceptance criteria by asset class
+Asset class	AI can do	Human must own
+Research	Search, cluster, summarize, draft	Validate sources and make strategic decisions
+Design documentation	Draft specs, find inconsistencies, propose options	Approve rules, scope, and creative direction
+Code	Generate boilerplate, tests, refactors, documentation	Review architecture, security, performance, and correctness
+Concept art	Generate exploration and variations	Set direction and approve final visual language
+Production art	Assist with cleanup, variations, upscaling, and tooling	Approve quality, consistency, and final assets
+Audio	Generate drafts, stems, SFX variations, and implementation suggestions	Approve identity, mix, emotion, and final assets
+Narrative	Draft dialogue, barks, summaries, and localization context	Own voice, canon, sensitivity, and final copy
+QA	Generate test cases, reproduce reports, summarize failures	Verify reproduction and approve release readiness
+Data	Query, visualize, summarize, and detect anomalies	Validate methodology and make tuning decisions
+Provenance log
+For every AI-influenced deliverable, record:
+
+Task and asset ID
+
+Model and version
+
+Prompt or workflow
+
+Source material
+
+Human editor
+
+Review decision
+
+Final approver
+
+License and rights status
+
+Date and build version
+
+Quality bar
+AAA quality is not merely high-resolution assets. It is the consistent delivery of:
+
+Game feel: Responsive input, readable feedback, satisfying feedback loops, and strong moment-to-moment play.
+
+Visual coherence: A recognizable art direction applied consistently across characters, environments, UI, VFX, and cinematics.
+
+Technical stability: Low crash rates, stable frame pacing, fast loading, reliable saves, and dependable online systems.
+
+Clarity: Players understand goals, controls, progression, and consequences without unnecessary friction.
+
+Accessibility: Multiple input, visual, auditory, cognitive, and motor-access pathways.
+
+Content quality: Every mission, encounter, system, and asset meets the same standard—not only the demo content.
+
+Performance: The game meets its target experience across supported hardware.
+
+Operational excellence: Fast patches, clear communication, reliable services, and responsive support.
+
+Critical failure modes
+Avoid these common AAA failure patterns:
+
+Greenlighting before the core loop is fun.
+
+Building final art before gameplay is validated.
+
+Allowing scope to grow without reducing another scope item.
+
+Treating documentation as an afterthought.
+
+Letting AI-generated content enter the pipeline without ownership or review.
+
+Delaying performance work until beta.
+
+Treating QA as a final phase rather than a continuous discipline.
+
+Confusing feature completeness with polish.
+
+Launching without a live-ops and incident-response plan.
+
+Letting live-service work and new production work compete for the same team without separation.
+
+Master workflow
+Concept: Validate the fantasy and defining verb.
+Pre-production: Validate fun, feasibility, scope, art direction, and cost.
+Vertical slice: Prove the team can execute the full pipeline at AAA quality.
+Production: Build systems and content in parallel, with continuous integration, testing, and playtesting.
+Alpha: Confirm every planned system is present and functional.
+Beta: Confirm all content is present and the game is stable enough for final QA.
+Certification: Meet platform, compliance, localization, accessibility, and performance requirements.
+Gold master: Approve the final shipping build.
+Launch: Operate a launch war room and respond to real-world issues quickly.
+Live operations: Sustain the game through patches, events, content, telemetry, community, and economy management.
+
+The full-cycle sequence—concept, pre-production, vertical slice, production, alpha, beta, certification, launch, and live ops—provides a durable structure for managing deliverables, owners, and gates across a large game project.
+
+Build an end-to-end game production orchestrator map for AI agent teams — spec authoring, PR reviews, QA sweeps, and human gate integration
+Computer
+Compare game AI workflow tools: Cursor Composer vs Claude Code vs custom orchestrators across multi-file refactoring, CI testing, and cost
+Computer
+Show me an example YAML feature spec
+How to structure an AI agent pipeline
+What tests do AI agents run for QA
+
+All in chat
+
+
+Below is a complete, chat-only blueprint for an AI-agent game-production orchestrator: how to structure agent teams, what a feature spec looks like, how to route work through PR review and QA, which tests agents should run, and how Cursor Composer, Claude Code, and a custom orchestrator compare.
+
+End-to-end orchestrator map
+The orchestrator is the control plane. It does not decide the game’s creative direction; it converts approved intent into bounded, testable work, assigns it to specialist agents, verifies results, and escalates decisions to accountable humans.
+
+text
+                    ┌────────────────────────────┐
+                    │  HUMAN LEADERSHIP / GATES  │
+                    │  Vision · Scope · Release  │
+                    └──────────────┬─────────────┘
+                                   │ approved intent
+                    ┌──────────────▼─────────────┐
+                    │      ORCHESTRATOR AGENT     │
+                    │  Plan · route · track · gate│
+                    └──┬───────┬───────┬───────┬──┘
+                       │       │       │       │
+        ┌──────────────▼┐ ┌────▼────┐ ┌▼───────┐ ┌▼──────────────┐
+        │ RESEARCH AGENT│ │ DESIGN  │ │ ENGINE │ │ ART/AUDIO/NARR│
+        │ Market · docs │ │ GDD ·   │ │ Code · │ │ Assets · copy │
+        │ Competitors   │ │ tuning  │ │ tests  │ │ Localization  │
+        └──────┬────────┘ └────┬────┘ └───┬────┘ └──────┬────────┘
+               │               │          │             │
+               └───────┬───────┴──────────┴─────────────┘
+                       │ deliverables
+              ┌────────▼─────────┐
+              │  VALIDATION LAYER │
+              │  Lint · build ·   │
+              │  unit · integration│
+              │  perf · smoke · QA│
+              └────────┬─────────┘
+                       │ evidence
+              ┌────────▼─────────┐
+              │  REVIEW / GATES   │
+              │  Design · Eng ·   │
+              │  Art · QA · Legal │
+              └────────┬─────────┘
+                       │ approved merge / asset
+              ┌────────▼─────────┐
+              │  INTEGRATION      │
+              │  Main branch ·    │
+              │  playable build · │
+              │  telemetry        │
+              └────────┬─────────┘
+                       │ live build data
+              ┌────────▼─────────┐
+              │  FEEDBACK LOOP    │
+              │  Playtests · bugs │
+              │  telemetry · QA   │
+              └───────────────────┘
+Core control objects
+The orchestrator should operate on five first-class objects:
+
+Object	Purpose	Example
+Feature spec	Defines what must exist and how it is accepted	combat_melee.yaml
+Task	A bounded unit an agent can execute	“Implement stamina drain and unit tests”
+Change request	A proposed code, asset, data, or documentation change	Pull request or asset-review request
+Evidence bundle	Proof that acceptance criteria are met	Test results, captures, profiles, logs
+Human gate	A required approval before progression	Design, engineering, QA, legal, release
+Orchestrator responsibilities
+The orchestrator should:
+
+Read the roadmap, feature backlog, dependencies, capacity, and current build health.
+
+Convert approved features into a dependency graph.
+
+Select the next highest-value, lowest-risk task.
+
+Assemble the correct context package for the assigned agent.
+
+Enforce file, tool, budget, and permission boundaries.
+
+Run or trigger validation.
+
+Collect evidence and determine whether the definition of done is met.
+
+Request the correct human approval.
+
+Merge, archive, document, and update status only after approval.
+
+Escalate ambiguity, conflicts, failures, scope changes, and quality risks.
+
+A useful rule: an agent may propose; only an accountable human may approve. Claude Code supports subagents as isolated execution contexts and hooks that can run shell commands, HTTP endpoints, MCP tools, prompts, or subagents at lifecycle points; it also supports GitHub Actions workflows for repository events and issue-to-PR automation.
+
+Agent team map
+Research and strategy agents
+Agent	Input	Output	Human gate
+Market researcher	Competitor pages, store data, reviews, reports	Market brief, feature gaps, positioning options	Product lead
+Player researcher	Reviews, surveys, support tickets, community posts	Player-need clusters, friction hypotheses	UX researcher
+Technical researcher	Engine docs, SDKs, platform requirements, prior postmortems	Architecture options, risks, benchmarks	Technical director
+Legal/compliance researcher	Platform rules, privacy policy, rating guidelines	Compliance checklist, risk register	Legal/compliance
+Rule: every research output must include source links, retrieval date, confidence, contradictions, assumptions, and a decision recommendation.
+
+Design agents
+Agent	Input	Output	Human gate
+Systems designer	GDD, formulas, telemetry, playtest notes	Feature spec, state machine, edge cases	Lead designer
+Economy designer	Currency flows, item data, player behavior	Economy model, sink/source analysis, tuning ranges	Economy lead
+Level designer	Level goals, art constraints, navigation data	Blockout, encounter layout, objective flow	Level design lead
+UX designer	Player journey, accessibility rules, platform conventions	Wireframes, flows, UI acceptance criteria	UX lead
+Narrative designer	Story bible, tone guide, character profiles	Quest logic, dialogue drafts, localization context	Narrative lead
+Engineering agents
+Agent	Input	Output	Human gate
+Gameplay engineer	Feature spec, engine APIs, coding standards	Gameplay code, tests, docs	Senior engineer
+Systems engineer	Architecture, data schemas, dependencies	Systems code, migrations, tests	Architect
+Tools engineer	Editor workflow, asset pipeline, artist needs	Editor tools, validators, automation	Technical director
+Performance engineer	Profiling data, budgets, platform targets	Optimizations, profiling report	Technical director
+Network engineer	Netcode design, replication model, test plan	Replication code, rollback tests, latency report	Network lead
+Content agents
+Agent	Input	Output	Human gate
+Concept artist agent	Art bible, references, brief	Concept variations, mood exploration	Art director
+Environment agent	Level brief, asset rules, technical budget	Blockouts, asset variants, material proposals	Art director
+Character agent	Character sheet, silhouette rules, rig constraints	Concepts, model variants, texture proposals	Character lead
+Animation agent	Animation list, rig, gameplay states	Animation drafts, retargeting proposals, timing notes	Animation lead
+Audio agent	Audio direction, event list, mix targets	SFX drafts, stems, implementation metadata	Audio director
+Localization agent	String files, glossary, context	Translation drafts, QA flags, cultural notes	Localization lead
+Verification agents
+Agent	Input	Output	Human gate
+Static-analysis agent	Diff, coding standards, dependency graph	Findings, suggested fixes	Engineer
+Test author agent	Feature spec, code, existing tests	Unit/integration test cases	Engineer
+QA sweep agent	Build, test plan, logs, screenshots	Defect reports, coverage gaps, regression risks	QA lead
+Playtest agent	Build, player profile, objectives	Session logs, friction findings, bug candidates	Designer
+Performance agent	Build, hardware targets, profiling traces	Frame-time report, optimization candidates	Technical director
+Accessibility agent	UI, controls, settings, WCAG/platform guidance	Audit report, remediation tasks	Accessibility lead
+Release-readiness agent	Certification checklist, build metadata, QA results	Release report, blockers, launch risks	Release manager
+Human gate integration
+Use explicit gates, not vague “review by humans.”
+
+Gate	When it occurs	Inputs	Approver	Failure action
+Concept gate	Before pre-production	Vision, prototype, market brief	Game director, product lead	Stop, pivot, or revise
+Technical feasibility gate	Before production	PoC, benchmarks, architecture	Technical director	Reduce scope or change stack
+Vertical-slice gate	Before full production	Playable slice, cost model, quality evidence	Executive/publisher	Delay or rescope
+Feature acceptance gate	Before feature completion	Spec, tests, captures, QA results	Design + engineering + QA	Return to agent with defects
+Art approval gate	Before final asset integration	Asset, art bible, technical validation	Art director	Revise or reject
+Localization gate	Before content lock	Strings, screenshots, cultural review	Localization lead	Revise strings
+Accessibility gate	Before release candidate	Audit results, remediation evidence	Accessibility lead	Fix blockers
+Release-readiness gate	Before certification	Full QA, compliance, performance, crash data	Release manager	Delay launch
+Live hotfix gate	During live operations	Incident report, fix diff, test evidence	On-call engineer + producer	Roll back or delay
+Approval states
+Use these states in your issue tracker:
+
+text
+draft → ready_for_agent → agent_in_progress → validation_failed
+→ needs_human_input → human_review → approved → integrated
+→ verified_in_build → feature_complete
+Never let an agent move a feature from agent_in_progress directly to feature_complete.
+
+Example YAML feature spec
+This is a practical, agent-readable feature specification. Store one file per feature, validate it in CI, and link it directly to tickets, tests, assets, and telemetry.
+
+yaml
+api_version: 1
+feature:
+  id: combat_melee_stamina
+  name: Melee Stamina System
+  epic: combat_melee
+  priority: must_have
+  milestone: alpha
+  status: ready_for_agent
+  owner: lead_combat_designer
+  engineering_owner: senior_gameplay_engineer
+  qa_owner: qa_combat_lead
+  target_platforms:
+    - pc
+    - ps5
+    - xbox_series_x
+  player_fantasy: >
+    Players should feel powerful but constrained: aggressive attacks create
+    openings, while reckless attacks leave the player vulnerable.
+
+  player_goals:
+    - Attack without unlimited stamina
+    - Read stamina cost before committing to an attack
+    - Recover stamina through timing, positioning, and upgrades
+    - Avoid stamina starvation during extended fights
+
+  in_scope:
+    - Stamina resource and regeneration
+    - Stamina cost for light attack, heavy attack, block, and dodge
+    - UI stamina bar and low-stamina feedback
+    - Save/load persistence
+    - Difficulty-based tuning
+    - Telemetry events
+    - Accessibility settings for UI readability
+
+  out_of_scope:
+    - Stamina potions or consumables
+    - Co-op stamina balancing
+    - Controller haptics
+    - Boss-specific stamina rules
+
+  dependencies:
+    - input_system
+    - animation_state_machine
+    - damage_system
+    - enemy_ai
+    - ui_hud
+    - save_system
+    - localization_system
+
+  mechanics:
+    stamina:
+      initial_value: 100
+      maximum_value: 100
+      regeneration_per_second: 18
+      regeneration_delay_seconds: 0.8
+      exhausted_state_threshold: 0
+      exhausted_recovery_multiplier: 0.5
+
+    action_costs:
+      light_attack: 8
+      heavy_attack: 18
+      block_hit: 12
+      dodge: 22
+
+    failure_rules:
+      - A player cannot begin an action if available stamina is below its cost
+      - A player may finish an action already in progress even if stamina reaches zero
+      - Stamina cannot regenerate while the player is exhausted
+      - Stamina regeneration pauses for 0.8 seconds after any stamina-consuming action
+
+  state_machine:
+    states:
+      - ready
+      - acting
+      - exhausted
+      - recovering
+    transitions:
+      - from: ready
+        to: acting
+        when: action_requested AND stamina >= action_cost
+      - from: acting
+        to: exhausted
+        when: stamina == 0
+      - from: exhausted
+        to: recovering
+        when: recovery_delay_elapsed
+      - from: recovering
+        to: ready
+        when: stamina >= minimum_ready_threshold
+
+  tuning:
+    owner: lead_combat_designer
+    data_file: config/combat/stamina_tuning.json
+    simulation_required: true
+    acceptable_ranges:
+      light_attack_cost: [6, 10]
+      heavy_attack_cost: [15, 22]
+      regeneration_per_second: [14, 22]
+      regeneration_delay_seconds: [0.6, 1.2]
+
+  edge_cases:
+    - Player interrupts stamina regeneration by attacking
+    - Player dies while stamina is exhausted
+    - Save occurs during regeneration delay
+    - Player changes difficulty mid-session
+    - UI is hidden during cinematic
+    - Player uses gamepad, keyboard, mouse, and accessibility remapping
+    - Frame rate drops below target during combat
+
+  acceptance_criteria:
+    - id: AC-01
+      statement: Stamina decreases by the configured cost when a valid action begins
+      verification: unit_test
+    - id: AC-02
+      statement: Stamina does not regenerate during the configured delay
+      verification: unit_test
+    - id: AC-03
+      statement: Exhausted players cannot start actions that cost more than zero stamina
+      verification: integration_test
+    - id: AC-04
+      statement: Stamina state persists correctly across save, quit, and reload
+      verification: save_load_test
+    - id: AC-05
+      statement: Stamina UI updates within one rendered frame of a stamina change
+      verification: ui_test
+    - id: AC-06
+      statement: Combat remains within the CPU and GPU performance budget on minimum hardware
+      verification: performance_test
+    - id: AC-07
+      statement: All stamina UI strings are localized in supported languages
+      verification: localization_test
+    - id: AC-08
+      statement: Low-stamina state is distinguishable without relying on color alone
+      verification: accessibility_test
+
+  agent_permissions:
+    allowed_paths:
+      - src/combat/**
+      - src/player/**
+      - tests/combat/**
+      - config/combat/**
+      - docs/design/combat/**
+    forbidden_paths:
+      - src/save/schema/**
+      - src/network/**
+      - src/platform/**
+      - config/economy/**
+    max_changed_files: 12
+    max_changed_lines: 800
+    requires_human_review: true
+
+  validation:
+    required:
+      - unit_tests
+      - integration_tests
+      - save_load_test
+      - ui_test
+      - performance_profile
+      - gameplay_capture
+      - localization_check
+      - accessibility_check
+    performance_budget:
+      cpu_ms: 2.0
+      gpu_ms: 0.8
+      memory_mb: 4
+      target_fps: 60
+
+  telemetry:
+    events:
+      - stamina_consumed
+      - stamina_exhausted
+      - stamina_regen_started
+      - player_death_during_exhaustion
+    privacy: aggregate_only
+    retention_days: 365
+
+  approvals:
+    design:
+      required: true
+      approver: lead_combat_designer
+      status: pending
+    engineering:
+      required: true
+      approver: senior_gameplay_engineer
+      status: pending
+    qa:
+      required: true
+      approver: qa_combat_lead
+      status: pending
+    accessibility:
+      required: true
+      approver: accessibility_lead
+      status: pending
+
+  definition_of_done:
+    - All acceptance criteria pass
+    - Unit and integration tests are added or updated
+    - Performance profile is attached
+    - Gameplay capture is attached
+    - GDD section is updated
+    - Telemetry events are documented
+    - No P0 or P1 defects remain
+    - Design, engineering, QA, and accessibility owners approve
+A spec like this is more useful to an agent than a prose request because it defines scope, permissions, formulas, edge cases, evidence, and approval requirements. Claude Code’s subagents can receive isolated context and return summaries, while hooks can enforce automated checks at defined lifecycle points.
+
+AI agent pipeline structure
+Pipeline stages
+text
+1. INTAKE
+   Feature request → triage → prioritization → owner assignment
+
+2. SPECIFICATION
+   Research → design draft → edge cases → acceptance criteria → human approval
+
+3. PLANNING
+   Dependency graph → task decomposition → context packaging → agent assignment
+
+4. EXECUTION
+   Code / asset / data / documentation generation
+
+5. LOCAL VALIDATION
+   Lint → unit tests → build → schema validation → static analysis
+
+6. INTEGRATION VALIDATION
+   Branch build → integration tests → smoke test → performance test
+
+7. EVIDENCE COLLECTION
+   Logs, diffs, screenshots, captures, profiles, coverage, test reports
+
+8. REVIEW
+   Automated review → human review → revision loop
+
+9. MERGE
+   Approved PR → main branch → playable build
+
+10. PLAYTEST
+   Automated playtests → human playtests → telemetry
+
+11. FEEDBACK
+   Defects, tuning changes, documentation updates, new tasks
+Task context package
+Every agent receives a constrained package:
+
+yaml
+task:
+  id: T-482
+  feature: combat_melee_stamina
+  title: Implement stamina regeneration delay
+  assigned_agent: gameplay_engineer
+  model_policy: approved_internal_model
+  context:
+    - docs/design/combat/stamina.md
+    - src/combat/stamina_component.cpp
+    - src/combat/stamina_component.h
+    - tests/combat/stamina_tests.cpp
+    - config/combat/stamina_tuning.json
+  objective: >
+    Implement the 0.8-second regeneration delay after any stamina-consuming
+    action, using the approved tuning schema.
+  constraints:
+    - Do not modify save schema
+    - Do not alter enemy AI
+    - Do not change global difficulty curves
+    - Keep CPU cost below 2.0 ms
+  required_outputs:
+    - implementation
+    - unit_tests
+    - documentation_update
+    - test_evidence
+  acceptance:
+    - All new and existing unit tests pass
+    - Regeneration delay matches configuration
+    - No P0/P1 regressions
+  human_reviewer: senior_gameplay_engineer
+Orchestration loop
+text
+while feature_not_complete:
+    1. Select highest-priority unblocked task
+    2. Build task context package
+    3. Assign specialist agent
+    4. Agent produces deliverable
+    5. Run local validation
+    6. If validation fails, return structured failure report
+    7. If validation passes, create PR or asset-review request
+    8. Run CI and QA sweep
+    9. Request required human approvals
+    10. Merge only after approval
+    11. Update feature status, docs, dependencies, and telemetry
+Agent permissions
+Use least privilege:
+
+Agent	Read	Write	Execute
+Researcher	Public web, approved docs	Research folder	Search only
+Designer	GDD, telemetry, playtest notes	Draft specs	Simulation sandbox
+Gameplay engineer	Relevant code and tests	Feature-owned code/tests/docs	Build and tests
+QA agent	Build, logs, test plans	Test cases and defect reports	Test runner, captures
+Release agent	Build metadata, certification checklist	Release notes, deployment records	CI/CD with approval
+Live-ops agent	Telemetry, incidents, tickets	Draft patches/notes	No direct production deploy
+PR review workflow
+Automated PR checks
+Run these before a human opens the diff:
+
+text
+1. Branch protection
+2. Conventional commit / ticket linkage
+3. Changed-file permission check
+4. Secret and credential scan
+5. License and dependency scan
+6. Static analysis
+7. Lint and formatting
+8. Compiler warnings
+9. Unit tests
+10. Integration tests
+11. Save/load round trip
+12. Data-schema validation
+13. Localization string validation
+14. Asset naming and budget validation
+15. Build packaging
+16. Smoke test
+17. Performance regression check
+18. Coverage threshold
+19. Documentation diff check
+20. AI provenance metadata check
+PR review template
+markdown
+## Feature
+combat_melee_stamina
+
+## Agent task
+T-482 — Implement stamina regeneration delay
+
+## What changed
+- Added `StaminaComponent::BeginRegenerationDelay()`
+- Added regeneration-delay state to `StaminaStateMachine`
+- Added configuration field `regeneration_delay_seconds`
+- Added 6 unit tests
+- Updated combat GDD and telemetry dictionary
+
+## Acceptance criteria addressed
+- AC-02
+- AC-03
+- AC-04
+
+## Evidence
+- Unit test report: 42 passed, 0 failed
+- Integration test report: 8 passed, 0 failed
+- Performance profile: 1.4 ms CPU, 0.5 ms GPU
+- Gameplay capture: `qa/evidence/T-482/stamina_delay.mp4`
+- Coverage: 87% for changed combat modules
+
+## AI provenance
+- Model: approved-internal-model-v4
+- Prompt ID: prompt-8821
+- Human editor: Jane Doe
+- Reviewer: Senior Gameplay Engineer
+- Rights review: Not applicable
+
+## Human decisions required
+- Confirm that 0.8 seconds creates the intended combat pacing
+- Confirm that exhaustion recovery multiplier is acceptable
+Claude Code can run in GitHub Actions for PR events, issue-to-PR automation, and scheduled tasks; its hooks can run custom checks automatically when files are edited, tasks finish, or input is required.
+
+QA sweep tests
+AI QA agents should run layered tests. The goal is not “the agent says it works”; it is reproducible evidence.
+
+Functional tests
+Test type	What it verifies	Example
+Unit test	A single rule or function	Stamina cost is subtracted correctly
+Integration test	Systems work together	Attack consumes stamina and updates UI
+State-machine test	Legal and illegal transitions	Exhausted player cannot start a heavy attack
+Save/load test	Persistence and corruption resistance	Reload restores stamina and cooldown state
+Progression test	Player can advance through intended paths	Tutorial, mission, boss, and endgame paths complete
+Economy test	Currency and item flows are valid	No duplicate rewards, negative balances, or infinite loops
+Quest logic test	Objectives and branches behave correctly	Failing an objective does not permanently block progression
+AI behavior test	Enemies act within intended rules	Enemy does not walk through walls or attack through cover
+UI test	Menus, HUD, and settings behave correctly	Pause menu opens and closes without input loss
+Localization test	Text fits and reads correctly	German string does not overflow its UI container
+Accessibility test	Inclusive play requirements work	Colorblind mode remains readable without color cues
+Compatibility test	Supported configurations work	Minimum GPU, controller, resolution, and OS combinations
+Network test	Online systems remain stable	Disconnect, reconnect, packet loss, and desync handling
+Regression test	Previously fixed defects remain fixed	A fixed save-corruption bug does not return
+QA sweep sequence
+text
+1. Build intake
+   - Verify build version, platform, commit, and artifact integrity
+
+2. Static sweep
+   - Crash logs
+   - Warnings
+   - Deprecated APIs
+   - Forbidden dependencies
+   - Secret scan
+   - Asset naming violations
+
+3. Core-loop smoke test
+   - Launch game
+   - Create/load save
+   - Complete a representative gameplay loop
+   - Exit cleanly
+   - Verify no crash or progression blocker
+
+4. Feature regression sweep
+   - Run feature-specific automated tests
+   - Run adjacent-system tests
+   - Run prior regression suite
+
+5. Content sweep
+   - Verify all required levels, characters, items, quests, dialogue, and assets exist
+   - Detect missing references, broken prefabs, unloaded audio, and placeholder content
+
+6. Playability sweep
+   - Simulate new-player, speedrunner, completionist, and struggling-player profiles
+   - Record objectives completed, deaths, stalls, softlocks, and unclear UI
+
+7. Performance sweep
+   - Measure frame time, CPU, GPU, memory, load time, and thermal behavior
+   - Compare against budgets and prior baseline
+
+8. Platform sweep
+   - Controller navigation
+   - Suspend/resume
+   - Save data
+   - Store/purchase flows
+   - Parental controls
+   - Localization
+   - Accessibility settings
+
+9. Defect reporting
+   - Reproduce issue
+   - Capture video, screenshot, log, hardware, build, and steps
+   - Classify severity
+   - Assign owner
+   - Link to feature and regression suite
+
+10. Evidence archive
+   - Store all reports, captures, profiles, and logs with build ID and commit hash
+Severity policy
+Severity	Definition	Release impact
+P0	Crash, save corruption, progression blocker, security issue, certification failure	Blocks release
+P1	Major feature failure, severe usability issue, major visual/audio defect	Blocks feature completion
+P2	Significant but non-blocking issue	Must be scheduled before release
+P3	Minor polish issue	May ship if accepted by quality owner
+P4	Cosmetic or low-impact issue	Backlog or polish pass
+QA evidence bundle
+Every completed QA sweep should produce:
+
+yaml
+build:
+  id: 2026.11.24-alpha-1842
+  commit: a91f3c7
+  platform: pc
+  engine: unreal_5_6
+qa_result:
+  status: fail
+  p0_count: 0
+  p1_count: 2
+  p2_count: 7
+  coverage:
+    unit: 86%
+    integration: 74%
+    core_loop: 100%
+    regression: 92%
+performance:
+  average_fps: 61
+  p99_frame_time_ms: 18.4
+  memory_peak_mb: 8120
+  load_time_seconds: 14.2
+defects:
+  - id: BUG-9182
+    severity: P1
+    title: Stamina bar does not update after dodge cancel
+    reproduction: >
+      Start combat, dodge, immediately cancel into light attack.
+    expected: UI updates immediately
+    actual: UI updates after 1.2 seconds
+    attachments:
+      - qa/evidence/BUG-9182/capture.mp4
+      - qa/evidence/BUG-9182/player.log
+approval:
+  qa_lead: pending
+  combat_designer: pending
+Tool comparison
+Dimension	Cursor Composer	Claude Code	Custom orchestrator
+Primary strength	Fast, interactive multi-file editing and terminal-driven iteration inside Cursor	Terminal-native agentic coding, subagents, hooks, CI automation, and repository workflows	Studio-wide coordination across code, assets, tickets, QA, telemetry, and approvals
+Multi-file refactoring	Strong for developer-led, iterative refactors; can edit files and run terminal commands directly	Strong for bounded multi-file changes, especially when guided by specs, tests, and hooks	Strongest when task graphs, permissions, and validation are explicit
+CI testing	Can run tests through terminal/tool integrations, but the primary workflow is developer-centric	Strong CI fit: GitHub Actions integration, hooks, headless claude -p execution, and subagent workflows	Strongest: orchestrator invokes CI, parses results, retries bounded failures, and updates tickets
+QA sweeps	Useful for code-level checks and local test loops	Useful for code review, test generation, log analysis, and automated PR checks	Best for full QA orchestration: build intake, test routing, defect triage, evidence storage, and release reporting
+Asset pipelines	Limited unless connected through MCP/tools	Limited unless connected through MCP/tools	Best: can connect DCC tools, asset validators, version control, ticketing, and review systems
+Documentation	Good for local edits and explanations	Good for repo-aware documentation and automation	Best for keeping GDD, TDD, tickets, tests, and release notes synchronized
+Human review	Developer reviews in IDE	Reviewer reviews PRs and terminal output	Reviewer receives structured evidence and approval request
+Cost model	Composer 2.5 is listed at $0.50 per million input tokens and $2.50 per million output tokens; Fast is $3 input and $15 output per million tokens. 
+Token-based usage; subagents generate additional requests and count against the same usage as the main conversation. 
+Model cost plus infrastructure, integrations, orchestration, storage, and engineering maintenance
+Best use	Individual or small-team implementation loops	Repository-scale coding agents, CI automation, PR checks, and specialized subagents	AAA-scale production control plane with cross-discipline agents, gates, and auditability
+Main limitation	Less natural as a cross-studio production system	Needs careful permissions, context curation, and human review	Highest setup and maintenance cost
+Recommended division
+Use all three where appropriate:
+
+Cursor Composer: interactive implementation, rapid refactoring, local iteration, and developer-driven multi-file edits. Composer is designed for file edits, terminal operations, and multi-file changes directly in Cursor.
+
+Claude Code: repository-aware implementation, specialized subagents, hooks, CI jobs, PR review, issue-to-PR workflows, and automated repository tasks.
+
+Custom orchestrator: the production system of record—feature graph, task routing, permissions, asset pipelines, QA evidence, approvals, release gates, telemetry, and audit trail.
+
+For a AAA-scale project, the best architecture is Cursor or Claude Code as execution tools, plus a custom orchestrator as the production control plane. Do not make the IDE agent the orchestrator for art approvals, certification, live operations, or cross-discipline dependency management.
+
+Cost-control design
+Token cost can grow quickly because every subagent sends its own requests and counts against the same usage as the parent conversation.
+
+Control cost with:
+
+Small, bounded tasks rather than “implement the whole combat system.”
+
+Context retrieval instead of pasting entire repositories.
+
+Model tiering: cheap models for classification, summarization, and test generation; stronger models for architecture and difficult debugging.
+
+Cached context for stable documentation and coding standards.
+
+Test-first workflows to reduce expensive revision loops.
+
+Parallel agents only when tasks are independent.
+
+Token and cost budgets per task, feature, sprint, and milestone.
+
+Human review before expensive asset generation.
+
+Automatic rejection of low-quality or out-of-budget outputs before human review.
+
+Implementation sequence
+Create the spec standard: YAML feature specs, acceptance criteria, permissions, dependencies, and evidence requirements.
+
+Create the context layer: GDD, TDD, coding standards, asset rules, decision log, and test plans in a searchable repository or knowledge base.
+
+Implement CI first: Build, lint, unit tests, integration tests, packaging, smoke test, and performance profiling.
+
+Start with low-risk agents: Documentation, test authoring, static review, bug triage, and localization checks.
+
+Add coding agents: Give them one bounded task, a limited file scope, tests, and a human reviewer.
+
+Add QA agents: Automated smoke tests, regression suites, log clustering, screenshot capture, and defect reports.
+
+Add content agents: Only after asset standards, naming rules, technical budgets, and approval workflows exist.
+
+Add the orchestrator: Route work, manage dependencies, collect evidence, enforce gates, and update the source of truth.
+
+Add live-ops agents: Incident triage, patch-note drafting, telemetry analysis, and community-report clustering.
+
+Audit continuously: Review acceptance rates, defect escapes, rework, cost, security, provenance, and human decision quality.
+
+The decisive design principle is simple: make every AI task small enough to verify, every verification objective enough to automate, and every approval human enough to remain accountable.
+
+How to structure spec authoring for agents
+Automating QA sweeps with custom hooks
+Comparing Cursor Composer and Claude Code
+Designing human-in-the-loop review gates
+Setting up CI/CD pipelines for AI agents
+
+Sources
+Results for "To make a AAA quality videogames what is the optimum work flow, make it as detailed and as comprehensive as possible. I an AI needs research skills and documentation skill add those. The user wants a…"
+Results for "What is further needed to AI assisted workflow, to make the game any game feature complete."
+Results for "Build an end-to-end game production orchestrator map for AI agent teams — spec authoring, PR reviews, QA sweeps, and human gate integration Computer Compare game AI workflow tools: Cursor Composer vs…"
+
+⠴
+
+
+
+
+
