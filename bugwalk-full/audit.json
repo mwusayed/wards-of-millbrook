@@ -1,0 +1,51 @@
+{
+ "colliders": [
+  {
+   "i": 919,
+   "issue": "very large collider (>300 m)",
+   "b": {
+    "minX": -372,
+    "maxX": -64,
+    "minZ": -130,
+    "maxZ": -126,
+    "h": 9
+   }
+  },
+  {
+   "i": 920,
+   "issue": "very large collider (>300 m)",
+   "b": {
+    "minX": -372,
+    "maxX": -64,
+    "minZ": 150,
+    "maxZ": 154,
+    "h": 9
+   }
+  }
+ ],
+ "scene": [
+  {
+   "name": "",
+   "issue": "very large mesh 545x405 m",
+   "at": [
+    0,
+    0,
+    0
+   ]
+  }
+ ],
+ "extent": {
+  "minX": -380,
+  "maxX": 540.6,
+  "minZ": -390.15,
+  "maxZ": 460
+ },
+ "counts": {
+  "colliders": 1531,
+  "meshes": 2022,
+  "noMat": 0,
+  "nanGeo": 0,
+  "badTex": 0,
+  "huge": 1
+ }
+}
