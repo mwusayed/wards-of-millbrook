@@ -1,0 +1,5 @@
+throughput {"ticks":1800,"ms":1939} ticks/s 928
+melee {"hp0":80,"hpAfterStep1s":80} hp after 400 ms wall clock 80
+{"before":{"meleeCd":0,"hp":80,"dist":1.5},"fired":true,"meleeCdAfter":0.67,"hpSyncAfterKey":80,"dist":1.5} hp after 500 ms wall clock with no step: 80
+during step: {"callsDuringStep":0,"inList":true,"alive":true,"ePos":[-20,-1.5],"pPos":[-20,0],"yaw":0}
+after 500 ms wall clock: {"calls":[],"hp":80}

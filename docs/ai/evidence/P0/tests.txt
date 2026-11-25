@@ -1,0 +1,112 @@
+
+> wards-of-millbrook@0.1.0 test:sim
+> tsx tests/sim.test.ts
+
+ok   new game starts day 1 at 07:00 with debt 300
+ok   needs decay per MM rates over one rest hour
+ok   exertion burns three times rest calories
+ok   mana max follows fullness (TAS formula)
+ok   8 hours sleep does not dehydrate from full (VEILWORK bug stays fixed)
+ok   bladder accident at threshold
+ok   worst-need penalty (MM) applies once
+ok   big hit leaves a wound that caps max HP; bandage removes it
+ok   collapse wakes you next morning and charges a fee
+ok   missing two instalments calls the debt
+ok   paying the instalment avoids the miss
+ok   paying the whole debt wins
+ok   ledger: correct and reversed postings
+ok   ledger shift pays per correct entry and only in hours
+ok   errors raise Boss Attention (LW +5 each)
+ok   sweep contract: kills tagged to contract count; turn-in pays
+ok   courier contract: deliver then turn in
+ok   reload pulls a box of rounds from inventory
+ok   save round-trip
+ok   no NaN after a long mixed run
+ok   factions: finishing a notice raises the issuer, prices follow town standing
+ok   factions drift back toward neutral when neglected
+ok   missing an instalment angers the Tower
+ok   prep: armour cuts damage, scouting raises pay, supplies stop exertion drain
+ok   recovery: pick up at the cairn, then turn in
+ok   bank: deposits survive a collapse and earn weekly interest
+ok   feather bed clears fatigue on a full night
+ok   v0.1 saves migrate all the way to v3
+ok   magic 1: a fed, watered caster can cast several spells; each costs mana and calories
+ok   magic 2: a hungry caster gets weaker heals and must eat to cast at all
+ok   magic 2b: heal has a cooldown and never closes wounds
+ok   magic 3: regen drinks water in proportion, slows when thirsty, halts when badly dehydrated
+ok   magic 4: a long boss fight is sustainable only with water and food
+ok   magic 5: recovering after a fight with food, water, medicine and rest always works
+ok   sleep refills mana but pays for it in water
+ok   cooking: stew needs a ration and an onion, gives Hearty for 4 h
+ok   buffs: two at most, same meal refreshes, third replaces the one nearest expiry
+ok   sweet tooth makes spells burn fewer calories
+ok   carrying: weight bands slow you gradually and the chest keeps items across saves
+ok   basin is a quick wash, shower is a full one that uses soap
+ok   reconciliation: the correct corrections close the gap exactly
+ok   invoice investigation: three-way match decides every answer
+ok   a perfect case pays well and lowers Boss Attention; errors raise it
+ok   Patriarch defeat sets the world flag; the Ember takes 50 off the debt once
+ok   feed: real state picks the line, cooldowns stop repeats
+ok   dialogue: NPCs react to a drawn gun, wounds and the mill, and remember
+ok   skills grow by doing and change the numbers
+ok   traits: collapses can scar you, milestones harden you, the chapel can cure a trauma
+ok   difficulty scales needs and damage
+ok   loot is deterministic per kill; pelts sell, tags pay a Watch bounty
+ok   gear: smith upgrades change damage, reload, carry and armour; the coat needs pelts
+ok   revolver fouls with use, misfires when filthy, and cleaning restores it
+ok   tavern and chapel services use real state
+ok   home: reading and meditating
+ok   weather and day events are fixed per day and seed
+ok   quests: the tutorial advances on real actions and conversations
+ok   the Ember can go to the Tower, the Chapel or your own staff, once
+ok   main chain can be played through to an ending
+ok   Red Ink: three clean files open the audit; solving it cuts the debt to the true balance
+ok   v0.3 saves load into v4 with skills, story and gear
+ok   v0.6 (v4) saves load into v5 with the carbine, charm and Ashford standing
+ok   the Lodge posts east notices every morning, with a bounty every third day
+ok   the carbine: bought from Corwin, its own tube and reload, harder hits, steadier aim
+ok   traders: standing lowers prices, wanted goods pay a quarter more, charms are worn one at a time
+ok   the iron-nail charm softens the undead, not wolves
+ok   fishing: a strike on the bite lands a fish, a miss lands nothing; dawn brings them quicker
+ok   mining needs a pick; the deep seams sometimes give ward-copper
+ok   new meals give their buffs: roast boar makes you stout
+ok   Ashford services: the bath, a bed at the Lantern, the coach
+ok   the Eastern Reach arc plays through: dispatch, Tam, the Hollow, the Engine, the seam
+ok   wq1: the West Gate needs Renn's key, opens once, and the notice post appears
+ok   wq2: Vane's key: buy, persuade, threaten
+ok   wq2: Gammer Thrush's ward needs three heather; the barrow door needs key and ward
+ok   the Hall of Kings opens when all three braziers are lit
+ok   Orm's shroud follows the lit braziers
+ok   decideCrown: return, sell or keep, once, and only after Orm falls
+ok   night spawns on the Downs follow the crown's fate
+ok   grave-chill drains stamina and comfort unless grounded; heather tea grounds you
+ok   Westmarch meals: pike pie makes you stout, bilberry cake gives night eyes, bilberries are edible raw
+ok   Westmarch charms: rowan softens the dead, the hag stone calms the night, the circlet bites at night
+ok   lake fishing: perch, eels and the odd pike; Osric's spinners shorten the wait
+ok   Westmarch gathering, traders and the inn: heather, bilberries, Vane pays most for barrow gold, Liss's free bed
+ok   the notice post posts Westmarch work, with a bounty every third day
+ok   side tasks: Gorse, Old Grandmother and the drowned road
+ok   the Westmarch arc plays through to the crown
+ok   v0.7 saves load into v0.8 with Fernhollow standing, waders and the new items
+ok   the tide: high at 02:00 and 14:00, low at 08:00 and 20:00, flats out about 06–10 and 18–22
+ok   wading: sea boots or waders wade at full speed, sea legs halve the slow
+ok   sq1: the Salt Gap needs Dorran's charge; the blast hurts up close and opens the gap for good
+ok   the wreck, the tower and the desk: low water for the wreck, night for Marrow's ledger, the ledger's key for the cave
+ok   the Wreck-Mother: her front is shell, her belly is open while she rears
+ok   False Lights plays through; Marrow can be arrested, squeezed or let go
+ok   coast side tasks: mussels and samphire, the Merry Wren's bell, the keeper's oil
+ok   coast meals, sea fishing, the auction, the inn and the chapel
+ok   Gullhaven's notice post: coast work, a bounty every third day, only once the gap is open
+ok   every conversation reaction is in the priority order (v0.7/v0.8 lines were silent)
+ok   v0.8 saves load into v0.9 with Gullhaven standing, sea boots and the coast items
+ok   v0.9.3: the coast is switched on; The Salt Gap is offered after the mill or from day 4
+ok   v0.9.3: Dorran's counter and the quest line sell the same single charge (bought early, the stage is already done)
+ok   v0.9.3: the tide warning comes in the last half hour of low water, once per low water
+ok   v0.9.3: the Merry Wren's bell is carried like a strongbox: no map walking until it is hung
+ok   v0.9.3: coast kills leave loot: crab meat from crabs, coin from smugglers and pistoleers, fixed by the seed
+ok   v0.9.4 ledges: a step up to 0.6 m is climbable, a taller box is a wall
+ok   v0.9.4 walkTop picks the highest walkable top under a point and ignores walls
+ok   v0.9.4 mantle: a walkable top 0.8 m away within reach is a mantle target; a wall is not
+
+105 passed
+EXIT=0
