@@ -1514,8 +1514,11 @@ function openModal(html: string, mount?: (root: HTMLElement, close: () => void) 
   document.exitPointerLock?.();
   let closeFn: () => void = () => {};
   closeFn = hud.modal(html, (root, close) => {
-    const c = () => { close(); const i = modalClosers.indexOf(closeFn); if (i >= 0) modalClosers.splice(i, 1); onClose?.(); };
-    closeFn = c; root.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', () => { sfx.ui(); c(); }));
+    let done = false;
+    const c = () => { if (done) return; done = true; close(); const i = modalClosers.indexOf(closeFn); if (i >= 0) modalClosers.splice(i, 1); onClose?.(); };
+    closeFn = c;
+    // v0.9.4: delegated, so any [data-close] button works whenever it was rendered (a menu's re-render used to drop it)
+    root.addEventListener('click', e => { if ((e.target as HTMLElement).closest?.('[data-close]')) { sfx.ui(); c(); } });
     mount?.(root, c);
     const wrap = root.parentElement; wrap?.addEventListener('mousedown', e => { if (e.target === wrap && root.querySelector('[data-close]')) c(); });
   });
@@ -2371,7 +2374,7 @@ if (!loopStarted) { loopStarted = true; requestAnimationFrame(frame); }
   get s() { return s; }, player, world, enemies, camera,
   openPack: () => openInventory(), armoury: () => RU.openArmoury(ui, 'gunsmith'), reloadNow: () => startReload(), setGun: (g: B.FirearmId) => G.setFirearm(s, g),
   start: (d = 'standard') => { (document.querySelector('#go') as HTMLElement)?.click(); (document.querySelector(`[data-d="${d}"]`) as HTMLElement)?.click(); },
-  S, T, P, ui, folk, pickups, storyTick, dodge, toggleLantern, openJournal, openInventory, cfg: () => cfg, openMap, pickMood, DOOR_EVENTS, get music() { return music; },
+  S, T, P, ui, folk, pickups, storyTick, dodge, toggleLantern, openJournal, openInventory, openChest, openShop, openDeskChoice, closeTopModal, cfg: () => cfg, openMap, pickMood, DOOR_EVENTS, get music() { return music; },
   W, barrowKing, goBarrow, lightBrazier, westInteract, discoverWest, syncBarrow, get westNight() { return westNight; },
   R, RU, engine, goMine, startFishing, strikeFish, THREE_V: THREE.Vector3, fire: () => fire(), selectSlot: (sl: Slot) => selectSlot(sl), get fishing() { return fishing; }, reachInteract, ewe, discoverEast, interactWith: (id: string) => { const it = world.interactables.find(i => i.id === id); if (!it) return false; player.pos.set(it.pos.x, 0, it.pos.z); if (!southInteract(it) && !reachInteract(it) && !westInteract(it)) { (window as any).__lastInteract = id; } return true; },
   GS: G, get now() { return now; }, bossBar, travelBlock, mother, goSeaCave, southInteract, coast, discoverCoast, syncCoastProps,  get coastWading() { return coastWading; }, get wadeK() { return wadeK; }, get fuseRemaining() { return fuseRemaining; }, get slowed() { return now < slowUntil; },

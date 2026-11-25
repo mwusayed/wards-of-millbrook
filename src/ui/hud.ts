@@ -76,6 +76,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#000;color:var(--ink);
 .modal h2{margin:0 0 4px;font:700 22px "Cinzel",Georgia,serif;color:var(--accent)}
 .modal .sub{color:var(--muted);margin:0 0 12px}
 .modal p{margin:6px 0}
+.modal > p:last-child{position:sticky;bottom:-18px;margin:0;padding:10px 0 4px;background:#1b1712;display:flex;gap:8px;flex-wrap:wrap} /* v0.9.4: Close stays reachable in long menus */
 .btn{pointer-events:auto;cursor:pointer;background:#3a2f22;color:var(--ink);border:1px solid #6a5a40;border-radius:5px;padding:7px 12px;font:600 13px system-ui;margin:3px 4px 3px 0}
 .btn:hover{background:#4d3e2c}.btn:disabled{opacity:.4;cursor:default}
 .btn.primary{background:var(--accent);color:#1b1208;border-color:var(--accent)}
