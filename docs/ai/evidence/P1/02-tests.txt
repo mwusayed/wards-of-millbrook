@@ -1,0 +1,3 @@
+ok   v0.9.4 mantle: a walkable top 0.8 m away within reach is a mantle target; a wall is not
+
+105 passed

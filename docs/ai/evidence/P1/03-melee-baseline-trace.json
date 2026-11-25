@@ -1,0 +1,220 @@
+{
+ "inArc": {
+  "hpEnd": 64,
+  "events": [
+   {
+    "ms": 86,
+    "k": "setup",
+    "player": [
+     -20,
+     0,
+     0
+    ],
+    "yaw": 0,
+    "enemy": [
+     -20,
+     -1.5
+    ],
+    "hp": 80,
+    "alive": true,
+    "state": "idle",
+    "rise": 0,
+    "action": false,
+    "modal": false,
+    "meleeCd": 0,
+    "gameover": null
+   },
+   {
+    "ms": 104,
+    "k": "timeout-scheduled",
+    "delay": 150
+   },
+   {
+    "ms": 104,
+    "k": "keydown",
+    "meleeCd": 0.7
+   },
+   {
+    "ms": 153,
+    "k": "after-1-step",
+    "meleeCd": 0.667,
+    "hp": 80
+   },
+   {
+    "ms": 211,
+    "k": "after-step-0.5s",
+    "hp": 80,
+    "enemyPos": [
+     -20,
+     -1.5
+    ]
+   },
+   {
+    "ms": 1642,
+    "k": "timeout-run",
+    "delay": 150
+   },
+   {
+    "ms": 1642,
+    "k": "check",
+    "kind": "raider",
+    "alive": true,
+    "dl": 1.5,
+    "dot": 1,
+    "inRange": true,
+    "inArc": true,
+    "playerYaw": 0
+   },
+   {
+    "ms": 1644,
+    "k": "damage",
+    "amount": 16,
+    "hpBefore": 80
+   },
+   {
+    "ms": 1644,
+    "k": "damage-done",
+    "hpAfter": 64
+   },
+   {
+    "ms": 1644,
+    "k": "timeout-scheduled",
+    "delay": 120
+   },
+   {
+    "ms": 1644,
+    "k": "timeout-done",
+    "hp": 64
+   },
+   {
+    "ms": 2762,
+    "k": "timeout-run",
+    "delay": 120
+   },
+   {
+    "ms": 2762,
+    "k": "check",
+    "kind": "raider",
+    "alive": true,
+    "dl": 3.1,
+    "dot": 1,
+    "inRange": false,
+    "inArc": true,
+    "playerYaw": 0
+   },
+   {
+    "ms": 2762,
+    "k": "timeout-done",
+    "hp": 64
+   }
+  ]
+ },
+ "outOfArc": {
+  "hpEnd": 80,
+  "events": [
+   {
+    "ms": 13,
+    "k": "setup",
+    "player": [
+     -20,
+     0,
+     0
+    ],
+    "yaw": 0,
+    "enemy": [
+     -18.5,
+     0
+    ],
+    "hp": 80,
+    "alive": true,
+    "state": "idle",
+    "rise": 0,
+    "action": false,
+    "modal": false,
+    "meleeCd": 0,
+    "gameover": null
+   },
+   {
+    "ms": 13,
+    "k": "timeout-scheduled",
+    "delay": 150
+   },
+   {
+    "ms": 13,
+    "k": "keydown",
+    "meleeCd": 0.7
+   },
+   {
+    "ms": 20,
+    "k": "after-1-step",
+    "meleeCd": 0.667,
+    "hp": 80
+   },
+   {
+    "ms": 36,
+    "k": "after-step-0.5s",
+    "hp": 80,
+    "enemyPos": [
+     -18.5,
+     0
+    ]
+   },
+   {
+    "ms": 2341,
+    "k": "timeout-run",
+    "delay": 150
+   },
+   {
+    "ms": 2341,
+    "k": "check",
+    "kind": "raider",
+    "alive": true,
+    "dl": 1.5,
+    "dot": 0,
+    "inRange": true,
+    "inArc": false,
+    "playerYaw": 0
+   },
+   {
+    "ms": 2341,
+    "k": "timeout-done",
+    "hp": 80
+   },
+   {
+    "ms": 3551,
+    "k": "timeout-scheduled",
+    "delay": 220
+   },
+   {
+    "ms": 3879,
+    "k": "timeout-run",
+    "delay": 220
+   },
+   {
+    "ms": 3879,
+    "k": "check",
+    "kind": "raider",
+    "alive": true,
+    "dl": 1.5,
+    "dot": 0,
+    "inRange": true,
+    "inArc": false,
+    "playerYaw": 0
+   },
+   {
+    "ms": 3880,
+    "k": "timeout-done",
+    "hp": 80
+   }
+  ]
+ },
+ "frameMs": [
+  -13,
+  717,
+  1617,
+  1700,
+  3650,
+  1550
+ ],
+ "pageErrors": []
+}
