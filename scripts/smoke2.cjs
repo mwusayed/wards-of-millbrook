@@ -10,7 +10,8 @@ const out = 'shots4'; fs.mkdirSync(out, { recursive: true });
   await page.goto(url); await page.waitForFunction(() => window.__game, null, { timeout: 240000 });
   const g = (fn, arg) => page.evaluate(fn, arg);
   const wait = ms => new Promise(r => setTimeout(r, ms));
-  const until = async (fn, ms = 12000) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await g(fn)) return true; await wait(200); } return false; };
+  // P1: gameplay delays run on the game clock, so waiting means advancing it (0.2 s of game time per check)
+  const until = async (fn, ms = 12000) => { for (let i = 0; i * 200 < Math.max(ms, 30000); i++) { if (await g(fn)) return true; await g(() => window.__game.step(0.2)); } return false; }; // bounded by game time, not wall time
   const shot = async n => { await g(() => window.__game.step(0.1)); await wait(350); await page.screenshot({ path: `${out}/${n}.png` }); };
   let pass = 0, fail = 0;
   const ok = (name, cond, extra = '') => { cond ? pass++ : fail++; console.log(`${cond ? 'PASS' : 'FAIL'}  ${name} ${cond ? '' : extra}`); };
@@ -28,14 +29,15 @@ const out = 'shots4'; fs.mkdirSync(out, { recursive: true });
   ok('Spark learned and chapel quest started', await g(() => window.__game.s.story.sparkLearned && !!window.__game.s.quests.mq3));
   // the chapel exterior and entry
   await g(() => { const G = window.__game; for (const e of [...G.enemies.list]) G.enemies.remove(e); G.view('third'); G.teleport(41, 114, Math.PI * 1.2); G.player.pitch = -0.12; G.step(0.8); }); await shot('21-chapel-exterior');
-  await g(() => window.__game.interactAt('chapel_door')); await wait(2600);
+  await g(() => window.__game.interactAt('chapel_door')); await g(() => window.__game.step(2.6)); // P1: the door fade runs on the game clock
   ok('entered the Sunken Chapel', await g(() => window.__game.world.inChapel && window.__game.player.pos.x > 100));
   await g(() => { const G = window.__game; G.view('first'); const O = G.world.chapel.origin; G.teleport(O.x, O.z + 11, 0); G.player.pitch = -0.1; G.step(0.6); }); await shot('22-nave-flooded');
   ok('wading slows you in the flooded nave', await g(() => { const G = window.__game; const O = G.world.chapel.origin; G.teleport(O.x, O.z + 6, 0); G.step(0.2); return G.player.wading; }));
   await g(() => { const G = window.__game; for (const e of G.enemies.list) if (e.tag === 'chapel') e.hp = 1; G.view('third'); G.interactAt('chapel_valve_a'); }); await wait(700); await shot('23-valve'); await until(() => !window.__game.player.action);
   await g(() => window.__game.interactAt('chapel_valve_b')); await until(() => window.__game.S.flag(window.__game.s, 'valveB') === 1); await until(() => !window.__game.player.action);
-  await g(() => window.__game.step(6)); await wait(300);
-  ok('nave drained and the water gate lifted', await g(() => window.__game.world.chapel.flood < 0.05 && !window.__game.world.colliders.includes(window.__game.world.chapel.gate.box)), String(await g(() => window.__game.world.chapel.flood)));
+  // P1: the valve stations now take their full game time with the chapel's enemies about; heal so the drain is what is tested
+  await g(() => { window.__game.s.hp = 100; window.__game.step(6); }); await wait(300);
+  ok('nave drained and the water gate lifted', await g(() => window.__game.world.chapel.flood < 0.05 && !window.__game.world.colliders.includes(window.__game.world.chapel.gate.box)), String(await g(() => JSON.stringify({ flood: window.__game.world.chapel.flood, modal: window.__game.modalOpen(), over: window.__game.s.gameover, tick: window.__game.sim.tick, hp: window.__game.s.hp, action: window.__game.player.action && window.__game.player.action.clip, wraps: [...document.querySelectorAll('.modal h2')].map(h => h.textContent) }))));
   await g(() => { const G = window.__game; G.view('first'); const O = G.world.chapel.origin; G.teleport(O.x, O.z + 10, 0); G.step(0.4); }); await shot('24-nave-drained');
   await g(() => window.__game.interactAt('chapel_waystone')); await until(() => window.__game.S.flag(window.__game.s, 'chapelCheckpoint') === 1); await until(() => !window.__game.player.action);
   // the Cinder Wraith
@@ -46,7 +48,7 @@ const out = 'shots4'; fs.mkdirSync(out, { recursive: true });
   await g(() => { const G = window.__game; G.s.hp = 100; G.step(1.5); }); await shot('26-wraith-fight');
   await g(() => { const G = window.__game, W = G.wraith; const kinds = ['fire', 'frost', 'spark', 'melee', 'bullet']; for (let i = 0; i < 400 && !W.dead; i++) { G.s.hp = 100; G.enemies.damage(W.e, 35, 0, undefined, kinds[i % 5]); G.step(0.1); } G.step(1); });
   ok('Wraith defeated: flag, Censer', await g(() => window.__game.S.flag(window.__game.s, 'chapelCleared') === 1 && window.__game.s.inventory.censer === 1), JSON.stringify(await g(() => ({ hp: window.__game.wraith.e.hp, ph: window.__game.wraith.phase }))));
-  await g(() => window.__game.interactAt('chapel_exit')); await wait(2600);
+  await g(() => window.__game.interactAt('chapel_exit')); await g(() => window.__game.step(2.6)); // P1: the door fade runs on the game clock
   ok('left the chapel', await g(() => !window.__game.world.dungeon && window.__game.player.pos.z > 100));
   await g(() => { const { s, S } = window.__game; S.updateQuests(s); S.chooseTalk(s, S.talkChoices(s, 'maren').find(c => c.key.includes('mq3')).key); });
   ok('Censer given to the Chapel; Wardbreak Night begins', await g(() => window.__game.s.story.censer === 'chapel' && !!window.__game.s.quests.mq4));

@@ -4,6 +4,8 @@ import * as G from '../src/sim/state';
 import * as B from '../src/sim/balance';
 import { checkPosting, generateShift } from '../src/sim/ledger';
 import { walkTop, climbable, mantleTop, STEP_UP, WALK_TOP_MAX } from '../src/sim/climb';
+import { TickQueue, ticksFor, TICK_HZ, MAX_CATCHUP_TICKS } from '../src/sim/clock';
+import { RngStream, mulberry32 as m32 } from '../src/sim/rng';
 
 let passed = 0; const t = (name: string, fn: () => void) => { try { fn(); passed++; console.log('ok  ', name); } catch (e) { console.error('FAIL', name, '\n', e); process.exitCode = 1; } };
 
@@ -505,6 +507,40 @@ t('v0.9.4 mantle: a walkable top 0.8 m away within reach is a mantle target; a w
   const ledge = { minX: 0.5, maxX: 3, minZ: -1, maxZ: 1, h: 1.1 }, wall = { minX: -5, maxX: -3, minZ: -5, maxZ: 5, h: 3 };
   assert.equal(mantleTop([ledge], 0.1, 0, 0), 1.1); assert.equal(mantleTop([wall], 0.1, 0, 0), 0);
   assert.equal(mantleTop([ledge], -2, 0, 0), 0); assert.equal(mantleTop([{ ...ledge, h: 1.5 }], 0.1, 0, 0), 0);
+});
+
+t('P1 clock: 30 Hz, delays round up and never run early', () => {
+  assert.equal(TICK_HZ, 30); assert.equal(ticksFor(150), 5); assert.equal(ticksFor(1600), 48); assert.equal(ticksFor(1000), 30);
+  assert.equal(ticksFor(0), 1); assert.equal(ticksFor(33), 1); assert.equal(ticksFor(34), 2); assert.equal(MAX_CATCHUP_TICKS, 4);
+});
+t('P1 tick queue runs tasks in (due, seq) order, once each', () => {
+  const q = new TickQueue(), log: string[] = [];
+  q.on('a', d => log.push('a' + d)); q.on('b', d => log.push('b' + d));
+  q.at(0, 5, 'a', 1); q.at(0, 2, 'b', 1); q.at(0, 5, 'b', 2); q.closure(0, 2, 'c', () => log.push('c'));
+  assert.deepEqual(q.run(1), []); assert.deepEqual(q.run(2), ['b', 'closure:c']); assert.deepEqual(q.run(4), []);
+  assert.deepEqual(q.run(5), ['a', 'b']); assert.deepEqual(log, ['b1', 'c', 'a1', 'b2']); assert.equal(q.size, 0); assert.deepEqual(q.run(99), []);
+});
+t('P1 tick queue: a task added while running is not run in the same tick', () => {
+  const q = new TickQueue(), log: number[] = []; let tick = 0;
+  q.on('x', () => { log.push(tick); if (log.length < 3) q.at(tick, 1, 'x'); });
+  q.at(0, 1, 'x'); for (tick = 1; tick <= 5; tick++) q.run(tick);
+  assert.deepEqual(log, [1, 2, 3]);
+});
+t('P1 tick queue: save/load keeps remaining delay, drops closures, ignores junk', () => {
+  const q = new TickQueue(); const log: string[] = []; q.on('eat', d => log.push('eat:' + d.item));
+  q.at(100, 48, 'eat', { item: 'bread' }); q.closure(100, 10, 'fade', () => log.push('fade'));
+  const saved = JSON.parse(JSON.stringify(q.save(120)));
+  assert.deepEqual(saved.tasks.map((t: any) => t.in), [28]); assert.deepEqual(saved.dropped, ['closure:fade']);
+  const r = new TickQueue(); r.on('eat', d => log.push('eat:' + d.item));
+  assert.equal(r.load(500, saved), 1); assert.deepEqual(r.run(527), []); assert.deepEqual(r.run(528), ['eat']); assert.deepEqual(log, ['eat:bread']);
+  const z = new TickQueue(); z.on('eat', () => {});
+  assert.equal(z.load(0, { v: 1, tasks: [{ in: NaN, seq: 0, kind: 'eat' }, { in: 3, seq: 1, kind: 'nope' }] } as any), 0); assert.equal(z.load(0, null), 0);
+  assert.throws(() => z.at(0, 1, 'unregistered'));
+});
+t('P1 gameplay RNG: same sequence as mulberry32, and its state restores exactly', () => {
+  const a = new RngStream(12345), b = m32(12345);
+  for (let i = 0; i < 50; i++) assert.equal(a.next(), b());
+  const saved = a.state, x = [a.next(), a.next(), a.next()]; a.state = saved; assert.deepEqual([a.next(), a.next(), a.next()], x);
 });
 
 console.log(`\n${passed} passed`);

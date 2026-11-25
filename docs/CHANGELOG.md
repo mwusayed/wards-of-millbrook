@@ -1,5 +1,24 @@
 # Changelog
 
+## P1 (in review, 25 Nov 2026) — the fixed 30 Hz clock
+Groundwork for the practice mode (Design A). Full record: `docs/ai/P1-record.md`; evidence: `docs/ai/evidence/P1/`.
+- **One clock:** the game simulates in fixed 1/30 s ticks (`stepSim`); frames run up to 4 ticks and draw the player
+  and enemies between them. A long frame slows the game instead of jumping it.
+- **Gameplay off the wall clock:** the melee hit (now 5 ticks, 167 ms), quick-eat, station finishes, the collapse,
+  travel, dungeon doors, the coach, the mine lift, the case file and the ledger shift wait on game ticks. **Menus now
+  stop all game time**, including NPCs and pending actions.
+- **Seeded randomness:** enemy strafing, wandering, aim, line-of-sight timing, spawn scatter, boss attack picks and
+  shot spread draw from a saved stream; flavour text has its own. Loot is unchanged (identical sequence).
+- **Deterministic aim:** shots and spells aim from the camera position computed from game state, not the smoothed
+  rendered camera.
+- **Fixes found by replaying:** loading a save ran the story check before your position was restored (a save could
+  pick up a discovery and XP from wherever you stood before loading); the feed's line gap leaked across loads; the
+  moonpetal night check and the game-over screen depended on the drawn frame.
+- **Tools:** `scripts/replay.cjs` (record, play, verify across 30/60/144 fps and irregular frames, first divergence,
+  header check, 3 x 3 x 10,000-tick matrix), `scripts/p1-verify.cjs`, `scripts/melee-regress.cjs`,
+  `scripts/save-compat.cjs`. 110 rules tests. Browser suites now advance the game clock while they wait.
+- Version metadata set to 0.9.4. Save format unchanged (v5); P1 data rides in the save's `extra.p1`.
+
 ## v0.9.3 — The Saltway Coast (24 Nov 2026)
 The fourth region is wired into the live game and switched on (`FEATURES.coast = true`). Builds on Codex's v0.9.2
 Salt Gap preview.

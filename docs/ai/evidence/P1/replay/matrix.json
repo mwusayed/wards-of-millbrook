@@ -1,0 +1,182 @@
+[
+ {
+  "scene": "town",
+  "seed": 11,
+  "ticks": 10000,
+  "stalledAtTick": null,
+  "decisions": 136,
+  "repeat": true,
+  "sched60": true,
+  "schedIrregular": true,
+  "checkpointRestored": true,
+  "firstDiff": {
+   "repeat": null,
+   "s60": null,
+   "irregular": null
+  },
+  "framesIrregular": 10003,
+  "renderCrashesRetried": [],
+  "pageErrors": 0,
+  "seconds": 190
+ },
+ {
+  "scene": "combat",
+  "seed": 11,
+  "ticks": 10000,
+  "stalledAtTick": null,
+  "decisions": 785,
+  "repeat": true,
+  "sched60": true,
+  "schedIrregular": true,
+  "checkpointRestored": true,
+  "firstDiff": {
+   "repeat": null,
+   "s60": null,
+   "irregular": null
+  },
+  "framesIrregular": 10003,
+  "renderCrashesRetried": [],
+  "pageErrors": 0,
+  "seconds": 204
+ },
+ {
+  "scene": "tide",
+  "seed": 11,
+  "ticks": 10000,
+  "stalledAtTick": null,
+  "decisions": 136,
+  "repeat": true,
+  "sched60": true,
+  "schedIrregular": true,
+  "checkpointRestored": true,
+  "firstDiff": {
+   "repeat": null,
+   "s60": null,
+   "irregular": null
+  },
+  "framesIrregular": 10003,
+  "renderCrashesRetried": [],
+  "pageErrors": 0,
+  "seconds": 146
+ },
+ {
+  "scene": "town",
+  "seed": 4242,
+  "ticks": 10000,
+  "stalledAtTick": null,
+  "decisions": 111,
+  "repeat": true,
+  "sched60": true,
+  "schedIrregular": true,
+  "checkpointRestored": true,
+  "firstDiff": {
+   "repeat": null,
+   "s60": null,
+   "irregular": null
+  },
+  "framesIrregular": 10003,
+  "renderCrashesRetried": [],
+  "pageErrors": 0,
+  "seconds": 164
+ },
+ {
+  "scene": "combat",
+  "seed": 4242,
+  "ticks": 10000,
+  "stalledAtTick": null,
+  "decisions": 745,
+  "repeat": true,
+  "sched60": true,
+  "schedIrregular": true,
+  "checkpointRestored": true,
+  "firstDiff": {
+   "repeat": null,
+   "s60": null,
+   "irregular": null
+  },
+  "framesIrregular": 10003,
+  "renderCrashesRetried": [],
+  "pageErrors": 0,
+  "seconds": 241
+ },
+ {
+  "scene": "tide",
+  "seed": 4242,
+  "ticks": 10000,
+  "stalledAtTick": null,
+  "decisions": 111,
+  "repeat": true,
+  "sched60": true,
+  "schedIrregular": true,
+  "checkpointRestored": true,
+  "firstDiff": {
+   "repeat": null,
+   "s60": null,
+   "irregular": null
+  },
+  "framesIrregular": 10003,
+  "renderCrashesRetried": [],
+  "pageErrors": 0,
+  "seconds": 135
+ },
+ {
+  "scene": "town",
+  "seed": 90001,
+  "ticks": 10000,
+  "stalledAtTick": null,
+  "decisions": 128,
+  "repeat": true,
+  "sched60": true,
+  "schedIrregular": true,
+  "checkpointRestored": true,
+  "firstDiff": {
+   "repeat": null,
+   "s60": null,
+   "irregular": null
+  },
+  "framesIrregular": 10003,
+  "renderCrashesRetried": [],
+  "pageErrors": 0,
+  "seconds": 164
+ },
+ {
+  "scene": "combat",
+  "seed": 90001,
+  "ticks": 10000,
+  "stalledAtTick": null,
+  "decisions": 804,
+  "repeat": true,
+  "sched60": true,
+  "schedIrregular": true,
+  "checkpointRestored": true,
+  "firstDiff": {
+   "repeat": null,
+   "s60": null,
+   "irregular": null
+  },
+  "framesIrregular": 10003,
+  "renderCrashesRetried": [],
+  "pageErrors": 0,
+  "seconds": 213
+ },
+ {
+  "scene": "tide",
+  "seed": 90001,
+  "ticks": 10000,
+  "stalledAtTick": null,
+  "decisions": 128,
+  "repeat": true,
+  "sched60": true,
+  "schedIrregular": true,
+  "checkpointRestored": true,
+  "firstDiff": {
+   "repeat": null,
+   "s60": null,
+   "irregular": null
+  },
+  "framesIrregular": 10003,
+  "renderCrashesRetried": [],
+  "pageErrors": 0,
+  "seconds": 130
+ }
+]

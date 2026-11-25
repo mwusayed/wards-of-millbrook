@@ -1,0 +1,12 @@
+PASS quick-eat lands 48 ticks after it starts (1.6 s rounded up) and eats one bread
+PASS menu open: no ticks pass (steps and 300 frames) and the queued eat waits
+PASS after the menu closes the eat lands exactly once
+PASS a slot save keeps the clock and the pending eat (same tick, same delay)
+PASS continuing and loading both eat once, on the same tick (208)
+PASS collapse locks movement on the game clock (30 ticks in, still locked, no movement)
+PASS 3 s of wall time without ticks does not end the collapse (the clock decides, not the timer)
+PASS the collapse ends after both fades (48 + 42 ticks) and you wake at home
+PASS a 5,000 ms frame runs at most 4 ticks (the game slows rather than jumps)
+PASS 60 frames at 60 fps run 30 ticks (one second of game time)
+PASS no page errors
+11 passed, 0 failed

@@ -11,6 +11,7 @@ import { MAT, M, collide, type World, type Box } from './world';
 import { Humanoid, clip, gaitPose } from './rig';
 import { Enemy, type EnemyManager, type EnemyDef, type DamageKind } from './enemies';
 
+import { gameplayRng } from '../sim/rng';
 export interface MineRefs {
   origin: THREE.Vector3; spawn: THREE.Vector3; deep: THREE.Vector3; checkpoint: THREE.Vector3; arena: THREE.Vector3; outside: THREE.Vector3;
   upper: { minX: number; maxX: number; minZ: number; maxZ: number }; vault: { minX: number; maxX: number; minZ: number; maxZ: number };
@@ -169,7 +170,7 @@ export class WardenEngine {
     if (this.atk === 'none') {
       this.cd -= dt;
       if (this.hugT > 2.2) { this.atk = 'pulse'; this.t = 0; }
-      else if (this.cd <= 0 && alive) { this.atk = dist > 9 ? 'charge' : Math.random() < 0.55 ? 'slam' : 'charge'; this.t = 0; if (this.atk === 'charge') this.hooks.sound('growl', 0); }
+      else if (this.cd <= 0 && alive) { this.atk = dist > 9 ? 'charge' : gameplayRng.next() < 0.55 ? 'slam' : 'charge'; this.t = 0; if (this.atk === 'charge') this.hooks.sound('growl', 0); }
       else {
         // lumber toward you, turning slowly
         face(1.4 * speedMul);

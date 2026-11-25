@@ -15,7 +15,7 @@ fs.mkdirSync(SHOTS, { recursive: true });
   const wait = ms => new Promise(r => setTimeout(r, ms));
   let pass = 0, fail = 0;
   const ok = (name, cond, extra = '') => { cond ? pass++ : fail++; console.log(`${cond ? 'PASS' : 'FAIL'}  ${name} ${cond ? '' : extra}`); };
-  const waitIdle = async (ms = 20000) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await g(() => !window.__game.player.action)) return true; await wait(250); } return false; };
+  const waitIdle = async (ms = 30000) => { for (let i = 0; i * 200 < ms; i++) { if (await g(() => !window.__game.player.action)) return true; await g(() => window.__game.step(0.2)); } return false; }; // P1: stations end on the game clock
   const closeAll = () => g(() => { const G = window.__game; for (let i = 0; i < 5 && G.modalOpen(); i++) G.closeModal(); });
   const shot = async n => { await g(() => window.__game.step(0.1)); await wait(400); await page.screenshot({ path: `${SHOTS}/${n}.png` }); };
   const clear = () => g(() => { const G = window.__game; for (const e of [...G.enemies.list]) G.enemies.remove(e); });
@@ -79,7 +79,7 @@ fs.mkdirSync(SHOTS, { recursive: true });
   ok('fishing Lake Hallow from the jetty end lands a lake fish', bite === 'bite' && caught.n1 === caught.n0 + 1, JSON.stringify({ bite, caught }));
   // ---------- the Barrow of King Orm ----------
   await clear(); await hour(13);
-  await g(() => { const G = window.__game; G.s.gear.lantern = true; G.teleport(-200, -88.6); G.player.yaw = 0; G.interactWith('barrow_door'); }); await wait(1800); await g(() => window.__game.step(0.3));
+  await g(() => { const G = window.__game; G.s.gear.lantern = true; G.teleport(-200, -88.6); G.player.yaw = 0; G.interactWith('barrow_door'); }); await g(() => window.__game.step(1.8)); /* P1: fade on the game clock */ await g(() => window.__game.step(0.3));
   const b1 = await g(() => { const G = window.__game, s = G.s; G.storyTick(); return { d: G.world.dungeon, entered: G.S.flag(s, 'barrowEntered'), ward: s.inventory.rowanward, stage: s.quests.wq2.stage }; });
   ok('entering King Orm\'s barrow uses the key and the ward', b1.d === 'barrow' && b1.entered === 1 && b1.ward === 0 && b1.stage === 4, JSON.stringify(b1));
   await g(() => { const G = window.__game, O = G.world.barrow.origin; if (!G.player.lantern) G.toggleLantern(); G.teleport(O.x + 1.5, O.z + 16.5); G.player.yaw = Math.atan2(-(O.x - 5 - (O.x + 1.5)), -(O.z + 14 - (O.z + 16.5))); G.player.pitch = -0.1; G.view('third'); G.step(0.05); });
@@ -122,7 +122,7 @@ fs.mkdirSync(SHOTS, { recursive: true });
   await g(() => { const G = window.__game; G.interactWith('barrow_crate_2'); }); await waitIdle();
   const hoard = await g(() => window.__game.s.inventory.barrowgold);
   ok('King Orm\'s hoard can be searched once he has fallen', hoard >= 4, 'gold=' + hoard);
-  await g(() => window.__game.goBarrow(false)); await wait(1600);
+  await g(() => window.__game.goBarrow(false)); await g(() => window.__game.step(1.6)); /* P1: fade on the game clock */
   const out = await g(() => { const G = window.__game, s = G.s, S = G.S; S.chooseTalk(s, S.talkChoices(s, 'hesk')[0].key); G.storyTick(); return { d: G.world.dungeon, wq2: s.quests.wq2.state, done: S.flag(s, 'westDone') }; });
   ok('out of the barrow; Orla Hesk closes The King Under the Hill', out.d === null && out.wq2 === 'done' && out.done === 1, JSON.stringify(out));
   // ---------- the Downs at night ----------

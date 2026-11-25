@@ -1,0 +1,7 @@
+PASS in arc: damage lands on tick 6 after the press (swing tick 1 + 5); hp 80 -> 64
+PASS in arc: exactly one hit of 16
+PASS out of arc: no damage (hp 80)
+PASS menu open: clock stopped (0 ticks) and the queued hit waited
+PASS after the menu closes the hit lands exactly once (hp 80 -> 64)
+PASS no page errors []
+6 passed, 0 failed

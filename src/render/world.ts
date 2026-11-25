@@ -598,7 +598,7 @@ export class World {
 
   /** Time of day lighting. h in fractional hours. */
   setTime(h: number, playerPos: THREE.Vector3) {
-    const dayAmt = Math.max(0, Math.min(1, (Math.sin(((h - 6) / 12) * Math.PI) + 0.15) * 1.4));
+    const dayAmt = 1 - nightAmount(h);
     const ang = ((h - 6) / 12) * Math.PI;
     // Shadow box follows the player, snapped to whole shadow-map texels in light space so shadows
     // don't crawl and shimmer every time you move or turn.
@@ -762,3 +762,5 @@ export function rayBoxes(colliders: Box[], o: THREE.Vector3, d: THREE.Vector3, m
   }
   return best;
 }
+/** How dark it is at hour h (0 day .. 1 night). Pure, so gameplay can ask without a rendered frame (P1). */
+export function nightAmount(h: number): number { return 1 - Math.max(0, Math.min(1, (Math.sin(((h - 6) / 12) * Math.PI) + 0.15) * 1.4)); }

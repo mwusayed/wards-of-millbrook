@@ -80,6 +80,7 @@ export class Feed {
     this.lines.push(l); if (this.lines.length > 30) this.lines.shift();
     return l;
   }
-  save() { return { last: this.last }; }
-  load(o: any) { if (o?.last) this.last = o.last; }
+  save() { return { last: this.last, gap: this.gapUntil }; }
+  /** P1: a load replaces the whole feed gate (cooldowns and the gap); nothing carries over from the session. */
+  load(o: any) { this.last = o?.last && typeof o.last === 'object' ? { ...o.last } : {}; this.gapUntil = Number.isFinite(o?.gap) ? o.gap : 0; }
 }

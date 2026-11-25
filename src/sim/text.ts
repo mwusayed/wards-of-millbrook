@@ -1,3 +1,4 @@
+import { textRng } from './rng';
 // Feed lines in the Mercenary Maintenance voice, rewritten for Millbrook.
 // Each action has several variants so the log reads differently every day.
 
@@ -93,10 +94,9 @@ export const LINES: Record<string, string[]> = {
   noCoin: ['You count again. Still not enough.', 'Your purse says no.'],
 };
 
-let counter = 0;
 export function line(key: string, seed?: number): string {
   const pool = LINES[key];
   if (!pool || pool.length === 0) return key;
-  const i = seed !== undefined ? Math.abs(seed) % pool.length : (counter++ * 7 + Math.floor(Math.random() * pool.length)) % pool.length;
+  const i = seed !== undefined ? Math.abs(seed) % pool.length : Math.floor(textRng.next() * pool.length) % pool.length; // P1: seeded
   return pool[i];
 }

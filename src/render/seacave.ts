@@ -8,6 +8,7 @@ import { Crab } from './crab';
 import { Enemy, type EnemyDef, type EnemyManager, type DamageKind } from './enemies';
 import { motherArmour, MOTHER_PHASE2, MOTHER_CALLS } from '../sim/south';
 
+import { gameplayRng } from '../sim/rng';
 export const SEA_O = { x: 520, z: -300 };
 export interface SeaCaveRefs {
   origin: THREE.Vector3; spawn: THREE.Vector3; grotto: THREE.Vector3; pool: THREE.Vector3;
@@ -180,7 +181,7 @@ export class WreckMother {
         // charge across the grotto toward the platform nearest you
         const tgt = this.refs.platforms.slice().sort((a, b) => Math.hypot(a.x - player.x, a.z - player.z) - Math.hypot(b.x - player.x, b.z - player.z))[0];
         this.chargeTo = new THREE.Vector3(tgt.x, 0, tgt.z); this.atk = 'charge'; this.t = 0; this.hitDone = false; this.hooks.sound('growl', 0);
-      } else if (this.cd <= 0 && alive && dist < 4.8) { this.atk = Math.random() < 0.5 ? 'sweep' : 'rear'; this.t = 0; this.hitDone = false; this.hooks.sound('growl', 0); }
+      } else if (this.cd <= 0 && alive && dist < 4.8) { this.atk = gameplayRng.next() < 0.5 ? 'sweep' : 'rear'; this.t = 0; this.hitDone = false; this.hooks.sound('growl', 0); }
       else if (this.cd <= 0 && alive && dist < 9.5) { this.atk = 'spray'; this.t = 0; this.hitDone = false; this.hooks.sound('hiss', 0); }
       else { face(1.3 * fast); if (dist > 3.8) walk(toP, MOTHER.speed * fast); pose(spd > 0 ? 'walk' : 'idle', now); return; }
     }
@@ -234,7 +235,7 @@ export class WreckMother {
       if (this.t < 0.6) { face(3, to); pose('windup', this.t); return; }
       walk(to, MOTHER_ATK.chargeSpeed); pose('walk', this.t);
       if (!this.hitDone && alive && Math.hypot(player.x - e.pos.x, player.z - e.pos.z) < MOTHER.radius + 0.9) { this.hitDone = true; this.hooks.hurtPlayer(MOTHER_ATK.chargeDmg); this.hooks.shake(0.7); }
-      if (to.length() < 1.2 || this.t > 4) { this.atk = 'none'; this.cd = 1.0; this.chargeT = 7 + Math.random() * 3; this.chargeTo = null; }
+      if (to.length() < 1.2 || this.t > 4) { this.atk = 'none'; this.cd = 1.0; this.chargeT = 7 + gameplayRng.next() * 3; this.chargeTo = null; }
       return;
     }
     if (this.atk === 'call') {

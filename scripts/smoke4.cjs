@@ -13,7 +13,7 @@ fs.mkdirSync('shots7', { recursive: true });
   const wait = ms => new Promise(r => setTimeout(r, ms));
   let pass = 0, fail = 0;
   const ok = (name, cond, extra = '') => { cond ? pass++ : fail++; console.log(`${cond ? 'PASS' : 'FAIL'}  ${name} ${cond ? '' : extra}`); };
-  const waitIdle = async (ms = 20000) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await g(() => !window.__game.player.action)) return true; await wait(300); } return false; };
+  const waitIdle = async (ms = 30000) => { for (let i = 0; i * 200 < ms; i++) { if (await g(() => !window.__game.player.action)) return true; await g(() => window.__game.step(0.2)); } return false; }; // P1: stations end on the game clock
   const closeAll = () => g(() => { const G = window.__game; for (let i = 0; i < 5 && G.modalOpen(); i++) G.closeModal(); });
   const shot = async n => { await g(() => window.__game.step(0.1)); await wait(350); await page.screenshot({ path: `shots7/${n}.png` }); };
   await g(() => { localStorage.clear(); window.__game.start('standard'); }); await wait(500);
@@ -42,11 +42,11 @@ fs.mkdirSync('shots7', { recursive: true });
   const q3 = await g(() => { const G = window.__game, s = G.s, S = G.S; S.chooseTalk(s, S.talkChoices(s, 'ilse')[0].key); const noPie = S.talkChoices(s, 'tam').map(c => c.label); s.inventory.eelpie = 1; const withPie = S.talkChoices(s, 'tam'); S.chooseTalk(s, withPie[0].key); return { noPie, key: s.inventory.liftkey, stage: s.quests.eq2.stage }; });
   ok('Tam only talks for an eel pie, then gives the lift key', q3.key === 1 && q3.stage === 2 && q3.noPie.length === 1, JSON.stringify(q3));
   // --- Copper Hollow ---
-  await clear(); await g(() => { const G = window.__game; G.teleport(262, -116); G.goMine(true); }); await wait(1600); await g(() => window.__game.step(0.5));
+  await clear(); await g(() => { const G = window.__game; G.teleport(262, -116); G.goMine(true); }); await g(() => window.__game.step(1.6)); /* P1: fade on the game clock */ await g(() => window.__game.step(0.5));
   const m1 = await g(() => { const G = window.__game, s = G.s; G.storyTick(); return { d: G.world.dungeon, entered: G.S.flag(s, 'mineEntered'), stage: s.quests.eq2.stage, hollow: G.enemies.list.filter(e => e.tag === 'mine').length }; });
   ok('entering Copper Hollow: dungeon, flag, hollowed miners, quest stage', m1.d === 'mine' && m1.entered === 1 && m1.hollow >= 4 && m1.stage === 3, JSON.stringify(m1));
   await shot('22-mine-workings');
-  await g(() => { const G = window.__game; G.interactWith('mine_lift'); }); await wait(2600); await g(() => window.__game.step(0.4));
+  await g(() => { const G = window.__game; G.interactWith('mine_lift'); }); await g(() => window.__game.step(2.6)); /* P1: fade on the game clock */ await g(() => window.__game.step(0.4));
   const m2 = await g(() => { const G = window.__game, p = G.player.pos, d = G.world.mine.deep; return { dist: p.distanceTo(d) }; });
   ok('the lift cage takes you to the deep gallery (with the key)', m2.dist < 3, JSON.stringify(m2));
   await g(() => { const G = window.__game; for (const e of [...G.enemies.list]) if (e.tag === 'mine') G.enemies.remove(e); G.interactWith('mine_waystone'); G.step(0.5); G.interactWith('mine_note_2'); G.step(0.3); }); await waitIdle(); await g(() => { const G = window.__game; G.step(0.2); G.storyTick(); });
@@ -70,7 +70,7 @@ fs.mkdirSync('shots7', { recursive: true });
   ok('the Engine falls: flag, heart in your pack, quest moves to the seam', e4.dead && e4.flag === 1 && e4.core === 1 && e4.stage === 5, JSON.stringify(e4));
   const e5 = await g(() => { const G = window.__game, s = G.s; const c0 = s.crowns; G.S.decideSeam(s, 2); G.storyTick(); const r = G.S.talkChoices(s, 'garrow'); G.S.chooseTalk(s, r[0].key); G.storyTick(); return { gained: s.crowns - c0, eq2: s.quests.eq2.state, core: s.inventory.wardcore }; });
   ok('open the seam to the guild (+150) and report: the arc is complete', e5.gained >= 150 && e5.eq2 === 'done' && e5.core === 0, JSON.stringify(e5));
-  await g(() => window.__game.goMine(false)); await wait(1500); await g(() => window.__game.step(0.3));
+  await g(() => window.__game.goMine(false)); await g(() => window.__game.step(1.5)); /* P1: fade on the game clock */ await g(() => window.__game.step(0.3));
   ok('back out of the mine', await g(() => !window.__game.world.dungeon));
   // --- fishing ---
   await clear(); const f1 = await g(() => { const G = window.__game, s = G.s; window.__modalBefore = document.querySelector('.modal')?.textContent?.slice(0, 80); s.inventory.rod = 1; const it = G.world.interactables.find(i => i.id === 'fish_bridge'); G.teleport(it.pos.x, it.pos.z); G.startFishing(it); return { fishing: !!G.fishing, modal: window.__modalBefore }; });

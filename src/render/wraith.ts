@@ -12,6 +12,7 @@ import { Humanoid, clip } from './rig';
 import { Enemy, type EnemyManager, type EnemyDef, type DamageKind } from './enemies';
 import { rayBoxes, type Box } from './world';
 
+import { gameplayRng } from '../sim/rng';
 export const WRAITH: EnemyDef = { hp: 820, speed: 3.4, sight: 40, reach: 2.8, windup: 0.8, dmg: 20, recover: 1.0, radius: 0.7, height: 2.8 };
 export const KIND_NAME: Record<DamageKind, string> = { bullet: 'bullets', fire: 'fire', frost: 'frost', spark: 'lightning', melee: 'your staff' };
 const RESIST = 0.3;          // damage multiplier while hardened
@@ -137,7 +138,7 @@ export class Wraith {
       }
       case 'rain': { // ember rain: circles appear around you, then fall
         m.apply(clip('castOrb', this.t), dt, 10, 'castOrb');
-        if (!this.spotAt.length) { const P = player.clone().setY(0); this.spotAt = [P.clone()]; for (let i = 0; i < (this.phase === 3 ? 5 : 4); i++) { const a = Math.random() * 6.28, r = 2.5 + Math.random() * 3.5; this.spotAt.push(P.clone().add(new THREE.Vector3(Math.cos(a) * r, 0, Math.sin(a) * r))); } }
+        if (!this.spotAt.length) { const P = player.clone().setY(0); this.spotAt = [P.clone()]; for (let i = 0; i < (this.phase === 3 ? 5 : 4); i++) { const a = gameplayRng.next() * 6.28, r = 2.5 + gameplayRng.next() * 3.5; this.spotAt.push(P.clone().add(new THREE.Vector3(Math.cos(a) * r, 0, Math.sin(a) * r))); } }
         const k = Math.min(1, this.t / 1.3);
         this.spots.forEach((s, i) => { if (i < this.spotAt.length) { s.visible = true; s.position.set(this.spotAt[i].x, 0.13, this.spotAt[i].z); (s.material as THREE.MeshBasicMaterial).opacity = 0.12 + 0.5 * k; s.scale.setScalar(0.5 + 0.5 * k); } });
         if (this.t >= 1.3) { const pp = this.tmp.copy(player).setY(0); if (alive && !this.hooks.dodging() && this.spotAt.some(q => q.distanceTo(pp) < 1.7)) this.hooks.hurtPlayer(18); this.hooks.sound('fire', pan); this.spotAt = []; this.end(1.1); }
@@ -158,7 +159,7 @@ export class Wraith {
       case 'blink': { // Ash Step: vanishes, reappears beside you, then swipes
         m.apply(clip('float', now), dt, 8, 'float');
         if (this.t < 0.5) { m.root.visible = Math.floor(this.t * 30) % 2 === 0; }
-        else if (this.t < 0.55) { const side = new THREE.Vector3(-toP.z, 0, toP.x).normalize().multiplyScalar(Math.random() < 0.5 ? 2.6 : -2.6); e.pos.copy(player).setY(0).add(side); clampArena(); m.root.visible = true; this.hooks.sound('hiss', pan); }
+        else if (this.t < 0.55) { const side = new THREE.Vector3(-toP.z, 0, toP.x).normalize().multiplyScalar(gameplayRng.next() < 0.5 ? 2.6 : -2.6); e.pos.copy(player).setY(0).add(side); clampArena(); m.root.visible = true; this.hooks.sound('hiss', pan); }
         else { m.root.visible = true; this.atk = 'swipe'; this.t = 0.25; }
         break;
       }
@@ -187,7 +188,7 @@ export class Wraith {
     this.t = 0; this.spotAt = []; void player;
     if (this.queued) { this.atk = this.queued; this.queued = null; return; }
     if (this.phase >= 2 && !this.summoned) { this.summoned = true; this.atk = 'summon'; return; }
-    const r = Math.random();
+    const r = gameplayRng.next();
     if (dist < 3.4) this.atk = r < 0.6 ? 'swipe' : 'burst';
     else if (this.phase === 1) this.atk = r < 0.55 ? 'bolt' : 'wave';
     else this.atk = r < 0.3 ? 'bolt' : r < 0.6 ? 'wave' : 'rain';

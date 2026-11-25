@@ -1,10 +1,12 @@
+import { TICK_S, MAX_CATCHUP_TICKS, ticksFor, TickQueue, type SavedQueue } from './sim/clock';
+import { gameplayRng, textRng, gameplaySeed, hashString } from './sim/rng';
 import { walkTop, mantleTop, STEP_UP } from './sim/climb';
 import * as THREE from 'three';
 import * as G from './sim/state';
 import * as B from './sim/balance';
 import { SITES, ENEMY_NAMES, FACTIONS, issuerFaction, type SiteId, type EnemyKind, type FactionId } from './sim/contracts';
 import { ACCOUNTS, ACCOUNT_ORDER, type Account } from './sim/ledger';
-import { World, collide, rayBoxes, type Interactable, type InteractId } from './render/world';
+import { World, collide, rayBoxes, nightAmount, type Interactable, type InteractId } from './render/world';
 import { Humanoid, clip, layered, makeRevolver, makeStaff, makeCarbine, makeTool, pistolPose, riflePose, gaitPose, airPose, type ClipName } from './render/rig';
 import { EnemyManager, type Enemy } from './render/enemies';
 import { NPCS, Townsfolk, alignStops } from './render/npcs';
@@ -194,6 +196,34 @@ function syncContractEnemies() {
 // ---------------- input ----------------
 const keys = new Set<string>();
 let started = false, paused = true;
+// ---------------- P1: the authoritative 30 Hz clock ----------------
+// The simulation advances only in fixed ticks (stepSim). Frames run 0..MAX_CATCHUP_TICKS ticks and
+// interpolate between them. Gameplay delays live on `tq` (due ticks), not on setTimeout.
+let simTick = 0;
+const tq = new TickQueue();
+type Press = Action | 'attack';
+/** One tick of input: held keys, look direction, and the action presses since the last tick. */
+interface InputFrame { k: string[]; yaw: number; pitch: number; p: Press[] }
+let pendingPresses: Press[] = [];
+let recorder: InputFrame[] | null = null;
+let playback: { frames: InputFrame[]; i: number } | null = null;
+/** Set by the replay harness: when a recording runs out, the clock stops instead of switching to live input. */
+let holdAfterPlayback = false;
+let decisionLog: { t: number; d: string[] }[] | null = null;
+/** Tests drive frames themselves (frameAt) and the requestAnimationFrame loop stands aside. */
+let externalClock = false;
+let acc = 0, rnow = 0;
+const prevPos = new THREE.Vector3();
+function queuePress(a: Press) { if (!playback) pendingPresses.push(a); }
+// Named tick tasks: these survive a save and a load (their data is plain JSON).
+tq.on('meleeHit', () => meleeHit());
+tq.on('eatFinish', (d: { item: 'bread' }) => { G.eat(s, 'bread'); player.action = null; });
+tq.on('actClear', (d: { clip: string }) => { if (player.action?.clip === d.clip) player.action = null; });
+/** P1: a full-screen caption that holds for `ms` of game time, then runs `then` on that tick. */
+function simFade(text: string, ms: number, then?: () => void) {
+  hud.fadeShow(text);
+  tq.closure(simTick, ticksFor(ms), 'fade', () => { hud.fadeHide(); then?.(); });
+}
 const mouse = new THREE.Vector2();
 /** Which action a physical key is bound to (settings → controls). */
 function actionOf(code: string): Action | null {
@@ -213,7 +243,14 @@ addEventListener('keydown', e => {
   if (e.repeat) return;
   if (e.code === 'F3') { e.preventDefault(); cfg.showPerf = !cfg.showPerf; saveSettings(cfg); applySettings(); return; }
   if (e.code === 'Escape') { openMenu(); return; }
-  switch (actionOf(e.code)) {
+  const a = actionOf(e.code);
+  if (a === 'inventory') openInventory(); else if (a === 'journal') openJournal(); else if (a === 'map') openMap();
+  else if (a) queuePress(a); // P1: gameplay verbs run at the start of the next simulation tick
+}, true);
+/** P1: a gameplay key press, run inside the tick that consumes it. */
+function pressAction(a: Press) {
+  switch (a) {
+    case 'attack': attack(); break;
     case 'interact': interact(); break;
     case 'view': player.view = player.view === 'first' ? 'third' : 'first'; sfx.ui(); break;
     case 'reload': startReload(); break;
@@ -226,21 +263,18 @@ addEventListener('keydown', e => {
     case 'slot6': selectSlot('spark'); break;
     case 'quickEat': quickEat(); break;
     case 'holster': toggleHolster(); break;
-    case 'inventory': openInventory(); break;
-    case 'journal': openJournal(); break;
-    case 'map': openMap(); break;
     case 'lantern': toggleLantern(); break;
     case 'dodge': dodge(); break;
   }
-}, true);
+}
 addEventListener('keyup', e => keys.delete(e.code));
 addEventListener('blur', () => keys.clear());
 canvas.addEventListener('mousedown', e => {
   if (!started || hud.modalOpen) return;
   sfx.start();
   if (document.pointerLockElement !== canvas) { lockPointer(); }
-  if (e.button === 0) attack();
-  if (e.button === 2) melee();
+  if (e.button === 0) queuePress('attack');
+  if (e.button === 2) queuePress('melee');
 });
 canvas.addEventListener('contextmenu', e => e.preventDefault());
 // Mouse look. Deltas are accumulated and applied once per frame, so the camera, the body and the
@@ -307,10 +341,10 @@ function hurtPlayer(amount: number, src: EnemyKind | string) {
 }
 let busyCollapse = false;
 let runLatched = false, runWasDown = false;
-async function onCollapse() {
+function onCollapse() {
   busyCollapse = true; player.action = null; sfx.death();
-  await hud.fade('You collapse…', 1600);
-  respawnHome(); busyCollapse = false; save();
+  // P1: movement unlocks on the simulation clock; only the overlay is visual
+  simFade('You collapse…', 1600, () => { respawnHome(); busyCollapse = false; save(); });
 }
 function respawnHome() {
   boss.reset();
@@ -327,8 +361,32 @@ function respawnHome() {
   player.pos.copy(world.homeSpawn); player.vy = 0; player.yaw = Math.PI / 2; player.pitch = 0; player.shield = 0;
   for (const e of enemies.list) if (e.alive && e.state !== 'idle') { e.state = 'return'; }
 }
+/** P1: where shots and spells aim from, from game state only: the camera position without smoothing,
+ *  head bob or recoil. (The rendered camera depends on frame timing, so the simulation must not read it.) */
+function aimEye(): THREE.Vector3 {
+  const act = player.action;
+  if (player.view === 'first') {
+    const eye = player.pos.clone(); eye.y += 1.62;
+    if (act && !act.upper && act.seat) { if (act.clip === 'sleep') eye.copy(act.seat).add(SLEEP_EYE); else eye.copy(act.seat).setY(1.12); }
+    return eye;
+  }
+  const head = player.pos.clone(); head.y += 1.55;
+  if (act?.seat && !act.upper) head.copy(act.seat).setY(act.clip === 'sleep' ? 1.0 : 1.2);
+  const f = forward(); const right = new THREE.Vector3(Math.cos(player.yaw), 0, -Math.sin(player.yaw));
+  const want = head.clone().addScaledVector(right, 0.55).addScaledVector(f, -3.4); want.y += 0.25;
+  const dir = want.clone().sub(head); const len = dir.length(); dir.multiplyScalar(1 / len);
+  const hit = Math.min(rayBoxes(world.colliders, head, dir, len), rayBoxes(world.cameraBlockers, head, dir, len));
+  const dist = Math.max(0.4, Math.min(len, hit - 0.25));
+  const o = head.clone().addScaledVector(dir, dist); o.y += Math.max(0, (len - dist) / len) * 0.8; if (o.y < 0.3) o.y = 0.3;
+  return o;
+}
+/** P1: where a spell leaves the hand, from game state only (the drawn hand is animated per frame). */
+function simHand(): THREE.Vector3 {
+  const f = forward(); const right = new THREE.Vector3(Math.cos(player.yaw), 0, -Math.sin(player.yaw));
+  return aimEye().addScaledVector(right, 0.22).addScaledVector(f, 0.45).add(new THREE.Vector3(0, -0.22, 0));
+}
 function aimPoint(): THREE.Vector3 {
-  const o = camera.getWorldPosition(new THREE.Vector3()), d = forward();
+  const o = aimEye(), d = forward();
   const wall = rayBoxes(world.colliders, o, d, 80);
   const hit = enemies.raycast(o, d, 80);
   const dist = hit && hit.dist < wall ? hit.dist : Math.min(wall, o.y / Math.max(0.0001, -d.y) > 0 && d.y < 0 ? o.y / -d.y : 80, 80);
@@ -363,13 +421,13 @@ function fire() {
   player.fireCd = gun === 'revolver' ? 0.4 : GD.cooldown; player.lastCombat = now;
   sfx.shot(); if (gun === 'scattergun') setTimeout(() => sfx.shot(), 18); if (rifle) setTimeout(() => sfx.reload(), gun === 'longrifle' ? 420 : 260);
   vm.play('shoot', rifle ? (gun === 'longrifle' ? 0.8 : 0.55) : 0.25); if (player.view === 'third') player.action = null; tpOverlay = { clip: 'shoot', t: 0, dur: rifle ? 0.5 : 0.25 };
-  const o = camera.getWorldPosition(new THREE.Vector3()), from = handWorld();
+  const o = aimEye(), from = handWorld(); // from: the visible tracer only
   const spread = 0.012 * B.spreadMultiplier(s.needs) * G.aimMult(s) * (player.moving ? (player.sprinting ? 3 : 1.6) : 1);
   // v0.9: a scattergun throws eight pellets in a cone; each is its own ray (hits on one target add up)
   const dmgBy = new Map<Enemy, number>(); let anyHit = false;
   for (let p = 0; p < GD.pellets; p++) {
     const d = forward();
-    d.x += (Math.random() - 0.5) * spread * 2; d.y += (Math.random() - 0.5) * spread * 2; d.z += (Math.random() - 0.5) * spread * 2; d.normalize();
+    d.x += (gameplayRng.next() - 0.5) * spread * 2; d.y += (gameplayRng.next() - 0.5) * spread * 2; d.z += (gameplayRng.next() - 0.5) * spread * 2; d.normalize();
     const hit = enemies.raycast(o, d, GD.range);
     const wall = rayBoxes(world.colliders, o, d, GD.range);
     let end: THREE.Vector3;
@@ -415,14 +473,14 @@ function cast(slot: Exclude<Slot, 'carbine'>) {
   if (slot === 'ward') { player.shield = 30; player.shieldUntil = now + 12; sfx.ward(); G.log(s, 'Stone Ward: the next 30 damage is absorbed.', 'info'); return; }
   const wx = world.dungeon ? 'clear' : G.today(s).weather, pw = G.spellPower(s);
   if (slot === 'spark') { castSpark(18 * pw * weatherSpellMult(wx, 'spark')); return; }
-  const from = handWorld(); const target = aimPoint(); const dir = target.sub(from).normalize();
+  const from = simHand(); const target = aimPoint(); const dir = target.sub(from).normalize();
   enemies.fireProjectile(from.add(dir.clone().multiplyScalar(0.3)), dir, 'player', slot === 'firebolt' ? 'fire' : 'frost', (slot === 'firebolt' ? 22 : 13) * pw * weatherSpellMult(wx, slot === 'firebolt' ? 'fire' : 'frost'));
   slot === 'firebolt' ? sfx.fire() : sfx.frost();
 }
 /** Spark: lightning from the staff to the enemy you are looking at, then on to up to two more close by. */
 function castSpark(dmg: number) {
   sfx.zap();
-  const o = camera.getWorldPosition(new THREE.Vector3()), d = forward();
+  const o = aimEye(), d = forward();
   const live = enemies.list.filter(e => e.alive);
   let first = enemies.raycast(o, d, 26)?.e ?? null;
   if (first && rayBoxes(world.colliders, o, d, 26) < first.center().distanceTo(o) - 0.5) first = null;
@@ -447,7 +505,9 @@ function bolt(pts: THREE.Vector3[]) {
 function melee() {
   if (busy() || player.meleeCd > 0 || s.gameover) return;
   player.meleeCd = 0.7; player.lastCombat = now; vm.play('melee', 0.5); tpOverlay = { clip: 'melee', t: 0, dur: 0.5 }; sfx.swing();
-  setTimeout(() => {
+  tq.at(simTick, ticksFor(150), 'meleeHit'); // P1: lands 5 ticks (167 ms) after the swing
+}
+function meleeHit() {
     const f = new THREE.Vector3(-Math.sin(player.yaw), 0, -Math.cos(player.yaw));
     for (const e of enemies.list) {
       if (!e.alive) continue;
@@ -457,7 +517,6 @@ function melee() {
         const kb = to.multiplyScalar(s.gear.ironStaff ? 2.4 : 1.6); const [x, z] = collide(world.colliders, e.pos.x + kb.x, e.pos.z + kb.z, e.def.radius); e.pos.set(x, 0, z);
       }
     }
-  }, 150);
 }
 let tpOverlay: { clip: ClipName; t: number; dur: number } | null = null;
 let healGlow = 0;
@@ -536,8 +595,8 @@ function station(it: Interactable, fx: StationFx) {
   if (it.facing !== undefined) player.yaw = it.facing;
   vm.play(fx.fp, fx.dur); fx.sound?.();
   const finish = () => { fx.then(); player.action = null; if (it.seat) { player.pos.set(it.pos.x, 0, it.pos.z); } };
-  if (fx.fade) { setTimeout(async () => { await hud.fade(fx.fade!, 1300); finish(); save(); }, Math.min(900, fx.dur * 500)); }
-  else setTimeout(finish, fx.dur * 1000);
+  if (fx.fade) tq.closure(simTick, ticksFor(Math.min(900, fx.dur * 500)), 'stationFade', () => simFade(fx.fade!, 1300, () => { finish(); save(); }));
+  else tq.closure(simTick, ticksFor(fx.dur * 1000), 'stationFinish', finish);
 }
 function interact() {
   if (busy() || s.gameover) return;
@@ -621,7 +680,7 @@ function quickEat() {
   if (busy()) return;
   if (s.inventory.bread <= 0) { G.log(s, 'No bread on you.', 'warn'); return; }
   player.action = { clip: 'eat', t: 0, dur: 1.6, upper: true }; vm.play('eat', 1.6); sfx.eat();
-  setTimeout(() => { G.eat(s, 'bread'); player.action = null; }, 1600);
+  tq.at(simTick, ticksFor(1600), 'eatFinish', { item: 'bread' });
 }
 
 // ---------------- pass 4: quest hooks in the world ----------------
@@ -641,7 +700,8 @@ function onEnemyDown(e: Enemy) {
 }
 /** Herbs come back each morning; moonpetal shows only at night and is cut once a night. */
 function refreshNodes() {
-  const d = G.day(s), nightNow = world.night > 0.5 && !world.dungeon, half = d * 2 + (G.hour(s) >= 12 ? 1 : 0) + 1;
+  const d = G.day(s), nightNow = nightAmount(G.hour(s)) > 0.5 && !world.dungeon, half = // P1: from the game hour, not the last drawn frame
+    d * 2 + (G.hour(s) >= 12 ? 1 : 0) + 1;
   for (const n of world.nodes) {
     const picked = S.flag(s, 'node:' + n.id);
     const show = n.kind !== 'moon' ? Math.floor((picked - 1) / 2) !== d || !picked : nightNow && picked !== half && picked !== half - 1;
@@ -714,7 +774,7 @@ function openMap() {
   for (const site of ['heath_road', 'barrow_downs', 'reed_marsh'] as SiteId[]) { const p = world.places['cairn_' + site]; if (s.discovered.includes('cairn_' + site)) marks.push({ x: p.x, z: p.z, label: '', color: '#cfc8b0', shape: 'tri' }); }
   showMap(openModal, { buildings: world.buildings, marks, player: { x: player.pos.x, z: player.pos.z, yaw: player.yaw }, travel, travelNote: block || 'Walking takes the same time it would on foot, and you get as hungry and thirsty as if you had walked. The coach between Millbrook\'s East Gate and Ashford is quicker.', header: `Day ${G.day(s)}, ${G.clock(s)} · ${WEATHER_TEXT[d.weather]} · ${world.regionAt(player.pos).name}`, features: world.east.map, view: player.pos.z > 136 ? 'coast' : player.pos.x > 64 ? 'reach' : player.pos.x < -64 ? 'west' : 'local', reachKnown, west: world.west.map, westKnown, westGateOpen: westKnown, coast: world.south.map, coastKnown, gapOpen: S.flag(s, 'saltGapOpen') > 0, lowTideIn: s.gear.spyglass || S.flag(s, 'tideRead') ? coast.minutesToLowWater(s) : undefined }, id => {
     const t = TRAVEL.find(x => x.id === id)!; const mins = Math.max(2, Math.round(t.pos().distanceTo(player.pos) / 4.2));
-    hud.fade(`You walk to ${t.label.toLowerCase().replace('cairn: ', 'the cairn at ')}… (${mins} min)`, 900).then(() => { G.advanceMinutes(s, mins, 'active'); player.pos.copy(t.pos()); player.vy = 0; G.count(s, 'walks'); save(); relock(); });
+    simFade(`You walk to ${t.label.toLowerCase().replace('cairn: ', 'the cairn at ')}… (${mins} min)`, 900, () => { G.advanceMinutes(s, mins, 'active'); player.pos.copy(t.pos()); player.vy = 0; G.count(s, 'walks'); save(); relock(); });
   }, relock);
 }
 
@@ -724,7 +784,7 @@ const looted = new Set<string>();
 function goMill(enter: boolean) {
   if (busy()) return;
   sfx.ui();
-  hud.fade(enter ? 'You climb down into the dark…' : 'You climb back up into the air…', 900).then(() => {
+  simFade(enter ? 'You climb down into the dark…' : 'You climb back up into the air…', 900, () => {
     if (enter) {
       player.pos.copy(world.mill.spawn); player.yaw = 0; world.setMillMode(true); spawnMill();
       const warn = G.enterMill(s); if (warn.length) feed.push(s, 'millWarn', `Unprepared: ${warn.join(', ')}. Turn back or be careful.`, 'explore', 3, 1);
@@ -738,7 +798,7 @@ function goMill(enter: boolean) {
 function goChapel(enter: boolean) {
   if (busy()) return;
   sfx.water();
-  hud.fade(enter ? 'You wade down into the dark…' : 'You climb back into the air…', 900).then(() => {
+  simFade(enter ? 'You wade down into the dark…' : 'You climb back into the air…', 900, () => {
     if (enter) {
       player.pos.copy(world.chapel.spawn); player.yaw = 0; world.setDungeon('chapel'); spawnChapel();
       const warn = G.enterChapel(s); if (warn.length) feed.push(s, 'chapelWarn', `Unprepared: ${warn.join(', ')}. Turn back or be careful.`, 'explore', 3, 1);
@@ -774,14 +834,14 @@ function updateGate(dt: number) {
     const w = GATE_WAVES[gate.wave]; gate.wave++; S.setFlag(s, 'gateWave', gate.wave); sfx.horn();
     feed.push(s, 'gateWave' + gate.wave, gate.wave === 1 ? 'First wave: hounds, with raiders behind them.' : gate.wave === 2 ? 'Second wave: shades in the tree line. Keep moving.' : 'Last wave. Two big ones at the back: put fire and lightning into them.', 'combat', 3, 0);
     for (const [kind, n, elite] of w) for (let i = 0; i < n; i++) {
-      const e = enemies.spawn(kind, GATE_POS, 'gate', elite); e.pos.set((Math.random() - 0.5) * 26, 0, 58 + Math.random() * 10); e.state = 'chase'; e.los = true;
+      const e = enemies.spawn(kind, GATE_POS, 'gate', elite); e.pos.set((gameplayRng.next() - 0.5) * 26, 0, 58 + gameplayRng.next() * 10); e.state = 'chase'; e.los = true;
     }
     gate.t = 8;
   } else if (alive.length === 0 && gate.t > 6.9 && gate.wave > 0 && gate.wave < GATE_WAVES.length) feed.push(s, 'gateClear' + gate.wave, 'Wave broken. Reload, drink, bind what needs binding.', 'combat', 3, 0);
   // the Watch shoots from the gate towers
   if (gate.shotT <= 0 && alive.length) {
     gate.shotT = 2.4; const near = alive.filter(e => e.pos.distanceTo(GATE_POS) < 26);
-    if (near.length) { const e = near[Math.floor(Math.random() * near.length)], from = new THREE.Vector3(Math.random() < 0.5 ? -4.6 : 4.6, 6.2, 32.5);
+    if (near.length) { const e = near[Math.floor(gameplayRng.next() * near.length)], from = new THREE.Vector3(gameplayRng.next() < 0.5 ? -4.6 : 4.6, 6.2, 32.5);
       const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([from, e.center()]), new THREE.LineBasicMaterial({ color: 0xffe0a0, transparent: true, opacity: 0.8 })); world.scene.add(line); tracers.push({ line, life: 0.07 });
       sfx.shot(); enemies.damage(e, 10, now, undefined, 'bullet'); }
   }
@@ -817,7 +877,7 @@ function spawnMine() {
 function goMine(enter: boolean) {
   if (busy()) return;
   sfx.ui();
-  hud.fade(enter ? 'You duck under the timbers into the dark…' : 'You walk back up toward the daylight…', 900).then(() => {
+  simFade(enter ? 'You duck under the timbers into the dark…' : 'You walk back up toward the daylight…', 900, () => {
     if (enter) {
       player.pos.copy(world.mine.spawn); player.yaw = 0; world.setDungeon('mine'); spawnMine();
       if (!S.flag(s, 'mineEntered')) { S.setFlag(s, 'mineEntered'); G.log(s, 'Copper Hollow. The air tastes of metal and old smoke. Somewhere deep below, very slowly, something goes bang, bang, bang.', 'warn'); }
@@ -845,7 +905,7 @@ function strikeFish() {
   if (!fishing) return;
   const ok = fishing.phase === 'bite';
   vm.play('reel', 1.0); const spot = fishing.spot; fishing = null; if (player.action?.clip === 'fish') player.action = null;
-  const text = R.landFish(s, spot, ok); feed.push(s, 'fish' + Math.random(), text, 'explore', 2, 0); if (ok) sfx.pickup(); else sfx.ui();
+  const text = R.landFish(s, spot, ok); feed.push(s, 'fish' + simTick, text, 'explore', 2, 0); if (ok) sfx.pickup(); else sfx.ui();
 }
 function updateFishing(dt: number) {
   if (!fishing) return;
@@ -905,7 +965,7 @@ function reachInteract(it: Interactable): boolean {
   if (id === 'coach_mb' || id === 'coach_ash') {
     const to = id === 'coach_mb' ? 'ashford' : 'millbrook';
     if (to === 'ashford' && !s.discovered.includes('place:ashford') && !S.questActive(s, 'eq1')) { G.log(s, 'The coach post is empty. A chalked board says: "ASHFORD COACH, 7 TO 20. ASK JOSS." Nobody has asked Joss to come this far yet.', 'info'); }
-    RU.openCoach(ui, to, () => { if (!R.takeCoach(s, to)) return; sfx.coin(); hud.fade(to === 'ashford' ? 'The coach rattles east…' : 'The coach rattles west…', 1200).then(() => { player.pos.copy(to === 'ashford' ? world.places.coach_ash : world.places.coach_mb); player.yaw = to === 'ashford' ? -Math.PI / 2 : Math.PI / 2; player.vy = 0; S.updateQuests(s); save(); relock(); }); });
+    RU.openCoach(ui, to, () => { if (!R.takeCoach(s, to)) return; sfx.coin(); simFade(to === 'ashford' ? 'The coach rattles east…' : 'The coach rattles west…', 1200, () => { player.pos.copy(to === 'ashford' ? world.places.coach_ash : world.places.coach_mb); player.yaw = to === 'ashford' ? -Math.PI / 2 : Math.PI / 2; player.vy = 0; S.updateQuests(s); save(); relock(); }); });
     return true;
   }
   if (id === 'inn_bed') {
@@ -965,10 +1025,10 @@ function reachInteract(it: Interactable): boolean {
   if (id === 'mine_lift') {
     if (s.inventory.liftkey <= 0 && !S.flag(s, 'liftOpen')) { G.log(s, 'The lift cage is chained shut. The padlock is new, and wants a key. Brask\'s key, probably.', 'warn'); sfx.bad(); return true; }
     S.setFlag(s, 'liftOpen'); sfx.reload();
-    hud.fade('The cage drops into the dark, rattling on its chains…', 1100).then(() => { player.pos.copy(world.mine.deep); player.yaw = 0; player.vy = 0; relock(); });
+    simFade('The cage drops into the dark, rattling on its chains…', 1100, () => { player.pos.copy(world.mine.deep); player.yaw = 0; player.vy = 0; relock(); });
     return true;
   }
-  if (id === 'mine_lift_up') { sfx.reload(); hud.fade('The cage grinds back up…', 900).then(() => { player.pos.copy(world.places.mine_lift).add(new THREE.Vector3(-1.5, 0, 0)); player.yaw = Math.PI / 2; player.vy = 0; relock(); }); return true; }
+  if (id === 'mine_lift_up') { sfx.reload(); simFade('The cage grinds back up…', 900, () => { player.pos.copy(world.places.mine_lift).add(new THREE.Vector3(-1.5, 0, 0)); player.yaw = Math.PI / 2; player.vy = 0; relock(); }); return true; }
   if (id === 'mine_waystone') { if (!S.flag(s, 'mineCheckpoint')) { S.setFlag(s, 'mineCheckpoint'); sfx.ward(); G.log(s, 'You light the old waystone. Copper light runs along the veins in the walls. If you fall below, you will wake here.', 'good'); save(); } else G.log(s, 'The waystone burns steady.', 'info'); return true; }
   if (id.startsWith('mine_note_')) {
     const notes: Record<string, string> = {
@@ -1034,7 +1094,7 @@ function goBarrow(enter: boolean) {
   if (busy()) return;
   if (enter && !W.enterBarrow(s)) { G.log(s, W.barrowBlock(s), 'warn'); sfx.bad(); return; }
   sfx.ui();
-  hud.fade(enter ? 'You put your shoulder to the stone and it gives. Cold breathes out of the hill…' : 'You climb back out into the air…', 1000).then(() => {
+  simFade(enter ? 'You put your shoulder to the stone and it gives. Cold breathes out of the hill…' : 'You climb back out into the air…', 1000, () => {
     if (enter) {
       player.pos.copy(world.barrow.spawn); player.yaw = 0; world.setDungeon('barrow'); barrowWoke = { ante: false, hall: false }; syncBarrow();
       if (!s.gear.lantern) feed.push(s, 'barrowDark', 'It is very dark under the hill. A hand lantern would help, and would light the old braziers (Tobin Crake sells them).', 'explore', 2, 1);
@@ -1133,7 +1193,7 @@ function goSeaCave(enter: boolean) {
   if (busy()) return;
   if (enter && !coast.enterCave(s)) { G.log(s, coast.caveBlock(s), 'warn'); sfx.bad(); return; }
   sfx.ui();
-  hud.fade(enter ? 'The grille swings in on its chain. Salt water drips from the roof as you go under the cliff…' : 'You walk back out toward the grey light and the gulls…', 1000).then(() => {
+  simFade(enter ? 'The grille swings in on its chain. Salt water drips from the roof as you go under the cliff…' : 'You walk back out toward the grey light and the gulls…', 1000, () => {
     if (enter) { player.pos.copy(world.seacave.spawn); player.yaw = 0; world.setDungeon('seacave'); caveGuards = false; }
     else { player.pos.copy(world.places.cave_mouth); player.yaw = -Math.PI / 2; world.setDungeon(null); leaveSeaCave(); }
     player.vy = 0; S.updateQuests(s); save();
@@ -1449,13 +1509,14 @@ function openCase() {
       <p><b>${escapeHtml(q.prompt)}</b></p>${q.options.map((o, i) => `<p><button class="btn" style="text-align:left;width:100%" data-o="${i}">${escapeHtml(o.label)}</button></p>`).join('')}`;
     root.querySelectorAll('[data-o]').forEach(b => b.addEventListener('click', () => { const r = G.answerCase(s, Number((b as HTMLElement).dataset.o)); r?.ok ? sfx.good() : sfx.bad(); sfx.scribble(); render(root, close); }));
   };
-  openModal('', render, async () => {
+  openModal('', render, () => {
     if (s.caseFile) { while (s.caseFile.index < s.caseFile.c.questions.length) { s.caseFile.errors++; s.caseFile.index++; s.job.attention += B.ATTENTION_PER_ERROR; } }
     const audit = s.caseFile?.c.kind === 'audit';
     if (audit && s.caseFile) s.job.attention = Math.max(0, s.job.attention - s.caseFile.errors * B.ATTENTION_PER_ERROR); // Brannic is on your side for this one
     const r = G.endCase(s); player.action = null; vm.play('none', 0);
-    if (r) { await hud.fade(audit ? (r.perfect ? 'Three hours later… it casts' : 'Three hours later… not good enough') : `Three hours later… +${r.pay} crowns`, 1100); r.perfect ? sfx.coin() : sfx.ui(); }
-    storyTick(); save(); relock();
+    const after = () => { storyTick(); save(); relock(); };
+    if (r) simFade(audit ? (r.perfect ? 'Three hours later… it casts' : 'Three hours later… not good enough') : `Three hours later… +${r.pay} crowns`, 1100, () => { r.perfect ? sfx.coin() : sfx.ui(); after(); });
+    else after();
   });
 }
 function openSettings(back?: () => void) {
@@ -1533,7 +1594,7 @@ const ui: P.Ctx = {
   s: () => s, openModal, relock, save: () => save(),
   sound: n => (sfx as any)[n]?.(),
   npcName: id => npcDef(id)?.name ?? id, npcFaction,
-  act: (c, sec) => { playTP(c as ClipName, sec, true); setTimeout(() => { if (player.action?.clip === c) player.action = null; }, sec * 1000); },
+  act: (c, sec) => { playTP(c as ClipName, sec, true); tq.at(simTick, ticksFor(sec * 1000), 'actClear', { clip: c }); },
 };
 
 function openShop() {
@@ -1648,7 +1709,7 @@ function openTalk(t: Townsfolk) {
   if (id === 'wenna') services.push(['inn', 'Food, drink and a bed', () => RU.openInn(ui)]);
   if (id === 'dace') services.push(['lodge', 'Lodge notices', () => openBoard(true)], ['stores', 'Lodge stores', () => RU.openTrader(ui, 'lodge', 'Lodge kit at Lodge prices.')]);
   if (id === 'aldous') services.push(['chapel', 'Healing and blessing', () => P.openChapel(ui)]);
-  if (id === 'joss') services.push(['coach', 'The coach to Millbrook', () => RU.openCoach(ui, 'millbrook', () => { if (!R.takeCoach(s, 'millbrook')) return; sfx.coin(); hud.fade('The coach rattles west…', 1200).then(() => { player.pos.copy(world.places.coach_mb); player.yaw = Math.PI / 2; player.vy = 0; save(); relock(); }); })]);
+  if (id === 'joss') services.push(['coach', 'The coach to Millbrook', () => RU.openCoach(ui, 'millbrook', () => { if (!R.takeCoach(s, 'millbrook')) return; sfx.coin(); simFade('The coach rattles west…', 1200, () => { player.pos.copy(world.places.coach_mb); player.yaw = Math.PI / 2; player.vy = 0; save(); relock(); }); })]);
   if (id === 'merrin') services.push(['song', 'Ask for a song', () => RU.openBard(ui)]);
   // v0.9.3: Gullhaven
   const COAST_SHOP: Record<string, [R.ShopId, string]> = { jowan: ['anchor', 'Food and drink'], pasco: ['chandlery', 'Buy and sell'], morwenna: ['fishauction', 'Sell fish (she pays ×1.3)'], tegen: ['shipwright', 'Sea boots and tackle'] };
@@ -1709,13 +1770,12 @@ function openLedger(it: Interactable) {
       r?.ok ? sfx.good() : sfx.bad(); sfx.scribble(); render(root, close);
     });
   };
-  openModal('', render, async () => {
+  const leave = () => { player.action = null; vm.play('none', 0); player.pos.set(it.pos.x, 0, it.pos.z); save(); relock(); };
+  openModal('', render, () => {
     if (s.shift) { // finish (or walk out early: unposted entries count as errors)
       while (s.shift.index < s.shift.entries.length) { s.shift.errors++; s.shift.index++; s.job.attention += B.ATTENTION_PER_ERROR; }
-      await hud.fade('Four hours later…', 1200);
-      const res = G.endShift(s); if (res && res.pay) sfx.coin();
-    }
-    player.action = null; vm.play('none', 0); player.pos.set(it.pos.x, 0, it.pos.z); save(); relock();
+      simFade('Four hours later…', 1200, () => { const res = G.endShift(s); if (res && res.pay) sfx.coin(); leave(); });
+    } else leave();
   });
 }
 // ---- v0.9: the grid pack ----
@@ -1889,26 +1949,46 @@ function slotMeta(id: SlotId): { day: number; time: string; crowns: number; debt
   return { day: G.day(o.s), time: G.clock(o.s), crowns: o.s.crowns, debt: o.s.debt, where: o.extra?.where ?? 'Millbrook', saved: o.extra?.savedAt ? new Date(o.extra.savedAt).toLocaleString() : '' };
 }
 function hasSave() { return (['auto', '1', '2', '3'] as SlotId[]).some(id => slotMeta(id)); }
+function saveExtra(where: unknown) {
+  return { pos: [player.pos.x, player.pos.z], yaw: player.yaw, view: player.view, slot: player.slot, holstered, where, savedAt: Date.now(), feed: feed.save(), p1: { tick: simTick, now, rng: gameplayRng.state, text: textRng.state, tq: tq.save(simTick), y: player.pos.y, vy: player.vy } };
+}
 function saveTo(id: SlotId): boolean {
   if (s.gameover) return false;
   const where = world.inChapelArea(player.pos) ? 'the Sunken Chapel' : world.inMillArea(player.pos) ? 'the Old Mill' : world.inMineArea(player.pos) ? 'Copper Hollow' : world.insideBuilding(player.pos) ?? (player.pos.x > 42 ? world.regionAt(player.pos).name : player.pos.z > 32 ? 'the Whispering Vale' : 'Millbrook');
-  try { localStorage.setItem(slotKey(id), G.serialize(s, { pos: [player.pos.x, player.pos.z], yaw: player.yaw, view: player.view, slot: player.slot, holstered, where, savedAt: Date.now(), feed: feed.save() })); return true; } catch { return false; }
+  try { localStorage.setItem(slotKey(id), G.serialize(s, saveExtra(where))); return true; } catch { return false; }
 }
 function save() { saveTo('auto'); }
 function loadFrom(id: SlotId): boolean {
   let raw: string | null = null; try { raw = localStorage.getItem(slotKey(id)); } catch { return false; }
+  if (!applySaveString(raw)) return false;
+  G.log(s, `Loaded ${id === 'auto' ? 'the autosave' : `slot ${id}`}.`, 'info');
+  return true;
+}
+/** Load a save string into the running game (slots and replays use the same path). */
+function applySaveString(raw: string | null): boolean {
   const o = raw ? G.deserialize(raw) : null; if (!o) return false;
   s = o.s; resetWorldState();
-  if (o.extra?.feed) feed.load(o.extra.feed);
+  feed.load(o.extra?.feed); // P1: always, so an older save without feed data starts the feed fresh
   if (o.extra?.pos) { player.pos.set(o.extra.pos[0], 0, o.extra.pos[1]); if (world.inMillArea(player.pos)) { world.setMillMode(true); spawnMill(); } else if (world.inChapelArea(player.pos)) { world.setDungeon('chapel'); spawnChapel(); } else if (world.inMineArea(player.pos)) { world.setDungeon('mine'); spawnMine(); } else if (world.inBarrowArea(player.pos)) { world.setDungeon('barrow'); barrowWoke = { ante: false, hall: false }; } else if (world.inSeaCaveArea(player.pos)) { world.setDungeon('seacave'); caveGuards = false; } else world.setDungeon(null); player.yaw = o.extra.yaw ?? 0; player.view = o.extra.view ?? 'first'; selectSlot(o.extra.slot ?? 'carbine'); if (o.extra.holstered) toggleHolster(); }
+  applyClock(o.extra?.p1);
+  storyTick(true);
   gameoverShown = false;
-  G.log(s, `Loaded ${id === 'auto' ? 'the autosave' : `slot ${id}`}.`, 'info');
   return true;
 }
 function load(): boolean { return loadFrom('auto'); }
 /** New game never touches the save slots; the autosave starts fresh. */
-function newGame(d: B.Difficulty = 'standard') { s = G.newGame(Math.floor(Math.random() * 1e6), d); resetWorldState(); S.updateQuests(s); player.pos.copy(world.homeSpawn); player.yaw = Math.PI / 2; player.pitch = 0; gameoverShown = false; save(); }
+function newGame(d: B.Difficulty = 'standard') { s = G.newGame(Math.floor(Math.random() * 1e6), d); resetWorldState(); applyClock(undefined); S.updateQuests(s); player.pos.copy(world.homeSpawn); player.yaw = Math.PI / 2; player.pitch = 0; gameoverShown = false; storyTick(true); save(); }
+/** P1: restore the clock, the gameplay stream and pending gameplay from a save (or seed them for an older save). */
+function applyClock(p1: { tick?: number; now?: number; rng?: number; text?: number; tq?: SavedQueue; y?: number; vy?: number } | undefined) {
+  if (p1 && Number.isFinite(p1.tick) && Number.isFinite(p1.now)) { simTick = p1.tick!; now = p1.now!; }
+  gameplayRng.state = p1 && Number.isFinite(p1.rng) ? p1.rng! >>> 0 : gameplaySeed(s.seed, s.minutes);
+  textRng.state = p1 && Number.isFinite(p1.text) ? p1.text! >>> 0 : hashString(`text:${s.seed}:${s.minutes}`);
+  tq.load(simTick, p1?.tq);
+  if (p1 && Number.isFinite(p1.y)) { player.pos.y = p1.y!; player.vy = Number.isFinite(p1.vy) ? p1.vy! : 0; player.onGround = player.pos.y <= 0.001; }
+  prevPos.copy(player.pos);
+}
 function resetWorldState() {
+  tq.clear(); busyCollapse = false; hud.fadeHide(); enemies.nextId = 0; pendingPresses.length = 0; feed.load(undefined);
   for (const e of [...enemies.list]) enemies.remove(e);
   ambientDay = -1; player.action = null; player.shield = 0; player.reloading = 0;
   boss.reset(); if (s.flags.millCleared) { boss.dead = true; }
@@ -1923,7 +2003,7 @@ function resetWorldState() {
   mother.dead = false; mother.reset(); if (S.flag(s, 'motherDown')) mother.dead = true;
   syncCoastProps();
   barrowKing.dead = false; barrowKing.reset(); if (S.flag(s, 'ormDown')) barrowKing.dead = true; world.barrowDark = false; westNight = -1; gorseSpawned = false; syncBarrow();
-  refreshNodes(); storyTick(true);
+  refreshNodes(); // story refresh runs after the position is restored (applySaveString, newGame): P1 load-order fix
 }
 let lastSaveHour = -1;
 
@@ -2001,28 +2081,133 @@ intro();
 // instead of a separate clock sampled at an arbitrary point in the frame. Long stalls are clamped to
 // 0.1 s so a hitch cannot teleport you, but ordinary 30–60 fps frames are never slowed down.
 let hudT = 0, footT = 0, feedT = 0, gameoverShown = false, lastTs = -1, loopStarted = false, capAcc = 0;
+/** P1: this tick's input. Live play samples the keyboard and look; a replay supplies recorded frames. */
+function sampleInput(): InputFrame | null {
+  if (playback) { const f = playback.frames[playback.i++]; if (f) return f; playback = null; if (holdAfterPlayback) return null; }
+  else if (holdAfterPlayback) return null;
+  return { k: [...keys].sort(), yaw: player.yaw, pitch: player.pitch, p: pendingPresses.splice(0) };
+}
+/** P1: one authoritative 1/30 s step. The only place gameplay time moves, in play, tests and replays.
+ *  Returns false (and changes nothing) while the game is paused: not started, or a menu is open. */
+function stepSim(inp: InputFrame): boolean {
+  if (!started || hud.modalOpen) return false;
+  simTick++;
+  if (recorder) recorder.push({ k: inp.k.slice(), yaw: inp.yaw, pitch: inp.pitch, p: inp.p.slice() });
+  keys.clear(); for (const k of inp.k) keys.add(k); // the frame's keys are authoritative (live play samples the same set)
+  player.yaw = inp.yaw; player.pitch = inp.pitch;
+  prevPos.copy(player.pos); for (const e of enemies.list) { e.prevX = e.pos.x; e.prevZ = e.pos.z; }
+  const d: string[] = [];
+  for (const a of inp.p) { if (hud.modalOpen) break; d.push('press:' + a); pressAction(a); }
+  now += TICK_S;
+  if (!hud.modalOpen && !s.gameover && !busyCollapse) update(TICK_S);
+  const hh = (s.minutes % 1440) / 60; for (const f of folk) f.update(TICK_S, hh, player.pos);
+  updateEwe(TICK_S);
+  d.push(...tq.run(simTick));
+  if (simTick % 15 === 0) storyTick();
+  if (simTick % 30 === 0 && !s.gameover) feed.tick(s, feedCtx());
+  // the game-over screen is a pause the simulation decides, on the tick the game ends (not when a frame happens to notice)
+  if (s.gameover && !gameoverShown && !hud.modalOpen) { gameoverShown = true; d.push('gameover:' + s.gameover); showGameover(); }
+  if (decisionLog && d.length) decisionLog.push({ t: simTick, d });
+  onTick?.();
+  return true;
+}
+
+// ---------------- P1: replay harness (tests and development only) ----------------
+/** The state that must match for two runs to count as the same game: clock, gameplay stream, player,
+ *  enemies (by stable id), ground loot, pending gameplay (by delay and kind) and, when full, the campaign. */
+function canonical(full: boolean) {
+  return {
+    t: simTick, now, rng: gameplayRng.state, text: textRng.state, busy: busyCollapse,
+    p: [player.pos.x, player.pos.y, player.pos.z, player.vy, player.yaw, player.pitch, player.onGround, player.meleeCd, player.castCd, player.dodgeT, player.reloading, player.action?.clip ?? null],
+    e: enemies.list.map(e => [e.id, e.kind, e.pos.x, e.pos.z, e.hp, e.state, e.yaw]),
+    k: pickups.map(pk => [pk.mesh.position.x, pk.mesh.position.z, pk.loot]),
+    q: tq.describe().map(x => [x.due - simTick, x.kind, x.data ?? null]),
+    s: full ? s : undefined,
+  };
+}
+const stateHash = (full = true) => hashString(JSON.stringify(canonical(full)));
+/** Player fields that are plain values (cooldowns, timers, flags), for an exact replay start. */
+function playerPrimitives(): Record<string, unknown> { const o: Record<string, unknown> = {}; for (const [k, v] of Object.entries(player)) if (typeof v === 'number' || typeof v === 'boolean' || typeof v === 'string') o[k] = v; return o; }
+let onTick: (() => void) | null = null;
+const REPLAY_RULES = 'wom-0.9.4-p1';
+function simHooks() {
+  return {
+    TICK_S,
+    /** What a replay must match to be played here. Bump RULES when gameplay rules change. */
+    header: () => ({ format: 1, tickHz: Math.round(1 / TICK_S), rules: REPLAY_RULES, schema: s.version, modelDigest: 'none:design-A', flags: { autoplay: false } }),
+    get tick() { return simTick; },
+    hash: (full = true) => stateHash(full),
+    canonical: () => canonical(true),
+    /** A replay start: the save string plus the player's plain fields. */
+    snapshot: () => JSON.stringify({ save: G.serialize(s, saveExtra(world.dungeon ?? null)), pl: playerPrimitives() }),
+    begin: (snap: string) => {
+      const o = JSON.parse(snap); if (!applySaveString(o.save)) throw new Error('replay: bad start state');
+      for (const [k, v] of Object.entries(o.pl ?? {})) (player as any)[k] = v;
+      keys.clear(); pendingPresses.length = 0; acc = 0; lastTs = -1; prevPos.copy(player.pos);
+      return stateHash();
+    },
+    setExternalClock: (on: boolean) => { externalClock = on; lastTs = -1; acc = 0; },
+    frameAt: (ts: number, render = false) => frameAt(ts, render),
+    /** Run recorded or scripted input frames through stepSim; returns per-tick light hashes and a full hash every 30 ticks. */
+    run: (frames: InputFrame[]) => {
+      const light: number[] = [], full: [number, number][] = []; decisionLog = [];
+      let stalled = false;
+      for (const f of frames) { if (!stepSim(f)) { stalled = true; break; } light.push(stateHash(false)); if (simTick % 30 === 0) full.push([simTick, stateHash(true)]); }
+      const d = decisionLog; decisionLog = null; return { light, full, decisions: d, end: stateHash(true), tick: simTick, stalled };
+    },
+    record: (on: boolean) => { recorder = on ? [] : null; },
+    takeRecording: () => { const r = recorder; recorder = null; return r; },
+    play: (frames: InputFrame[], hold = true) => { playback = { frames, i: 0 }; holdAfterPlayback = hold; },
+    release: () => { holdAfterPlayback = false; playback = null; },
+    playing: () => playback ? playback.frames.length - playback.i : 0,
+    onTick: (fn: (() => void) | null) => { onTick = fn; },
+    logDecisions: (on: boolean) => { const d = decisionLog; decisionLog = on ? [] : null; return d; },
+    press: (a: Press) => queuePress(a),
+    hurt: (amount: number) => hurtPlayer(amount, 'test'),
+    busyCollapse: () => busyCollapse,
+    queue: () => tq.describe(),
+    get rng() { return gameplayRng.state; },
+    acc: () => acc,
+  };
+}
 function frame(ts: number) {
   requestAnimationFrame(frame);
+  if (externalClock) return;
+  frameAt(ts, true);
+}
+/** One displayed frame: run the ticks that are due, then draw between the last two of them. */
+function frameAt(ts: number, render: boolean) {
   if (lastTs < 0) { lastTs = ts; return; }
-  let raw = ts - lastTs;
+  let raw = Math.max(0, ts - lastTs); // a clock that steps backwards runs no ticks
   if (cfg.fpsCap) { capAcc += raw; const need = 1000 / cfg.fpsCap - 1.5; if (capAcc < need) { lastTs = ts; return; } raw = capAcc; capAcc = 0; }
   lastTs = ts;
   perf.frame(raw);
   const dt = Math.min(0.1, raw / 1000);
-  now += dt;
-  applyLook();
-  const live = started && !hud.modalOpen && !s.gameover && !busyCollapse;
-  if (live) update(dt);
-  else if (started && !gameoverShown && s.gameover && !hud.modalOpen) { gameoverShown = true; showGameover(); }
+  rnow += dt;
+  if (!playback) applyLook();
+  let alpha = 1;
+  if (started && !hud.modalOpen) {
+    acc += raw / 1000; let n = 0;
+    while (acc >= TICK_S && n < MAX_CATCHUP_TICKS) { const inp = sampleInput(); if (!inp || !stepSim(inp)) break; acc -= TICK_S; n++; }
+    if (n === MAX_CATCHUP_TICKS && acc >= TICK_S) acc = 0; // a long frame slows the game rather than jumping it
+    alpha = Math.min(1, acc / TICK_S);
+  } else acc = 0;
+  // draw the player and enemies between the previous tick and this one (a teleport is not smeared)
+  const realPos = player.pos.clone();
+  if (alpha < 1 && prevPos.distanceToSquared(realPos) < 25) player.pos.lerpVectors(prevPos, realPos, alpha);
+  for (const e of enemies.list) { const dx = e.pos.x - e.prevX, dz = e.pos.z - e.prevZ; if (dx * dx + dz * dz < 25) { e.root.position.x = e.prevX + dx * alpha; e.root.position.z = e.prevZ + dz * alpha; } }
+  try { drawFrame(dt, render); } finally { player.pos.copy(realPos); }
+}
+/** Everything visual. Reads game state, never changes it (the player position here is interpolated). */
+function drawFrame(dt: number, render: boolean) {
   if (!s.gameover) gameoverShown = false;
   // visuals always animate
   const h = introOpen ? 17.3 : (s.minutes % 1440) / 60;
-  world.setTime(h, player.pos); if (world.dungeon) world.dungeonAtmosphere(); world.updateLights(dt, player.pos, now); world.animate(now);
+  world.setTime(h, player.pos); if (world.dungeon) world.dungeonAtmosphere(); world.updateLights(dt, player.pos, rnow); world.animate(rnow);
   // Night eyes (bilberry cake): the dark is less dark: more ambient light and fog pushed back, outdoors at night
   if (!world.dungeon && world.night > 0.3 && G.buffActive(s, 'nightEyes')) { const k = (world.night - 0.3) / 0.7; world.hemi.intensity += 0.35 * k; const fog = world.scene.fog as THREE.Fog; fog.far *= 1 + 0.35 * k; }
-  world.updateRegions(player.pos); world.east.animate(dt, now, player.pos); world.west.animate(dt, now, player.pos); if (world.dungeon === 'barrow') world.barrow.animate(dt, now); updateEwe(dt);
+  world.updateRegions(player.pos); world.east.animate(dt, rnow, player.pos); world.west.animate(dt, rnow, player.pos); if (world.dungeon === 'barrow') world.barrow.animate(dt, rnow);
   world.updateRoofs(player.pos, player.view === 'third');
-  for (const t of folk) t.update(dt, h, player.pos);
   updatePlayerVisual(dt);
   // weather, lantern, compass
   const outdoors = !world.dungeon && !player.indoors;
@@ -2037,13 +2222,12 @@ function frame(ts: number) {
   if (world.showerDrops.visible) { const a = world.showerDrops.geometry.attributes.position as THREE.BufferAttribute; for (let i = 0; i < a.count; i++) { let y = a.getY(i) - dt * 5; if (y < 0) y += 2.1; a.setY(i, y); } a.needsUpdate = true; }
   hudT -= dt; feedT -= dt;
   if (hudT <= 0 && started) { hudT = 0.1; updateHud(); }
-  if (feedT <= 0 && started && !s.gameover) { feedT = 1; feed.tick(s, feedCtx()); hud.feed(feed.lines, s.minutes); }
-  storyT -= dt; if (storyT <= 0 && started) { storyT = 0.5; storyTick(); }
+  if (feedT <= 0 && started && !s.gameover) { feedT = 1; hud.feed(feed.lines, s.minutes); }
   const ch = (window as any).__camHook; if (ch) ch(camera, player);
   if (introOpen) { // the title screen: a slow circle over Millbrook's square
-    const a = now * 0.04; camera.position.set(Math.cos(a) * 58, 24 + Math.sin(now * 0.11) * 2, -4 + Math.sin(a) * 58); camera.lookAt(0, 2, -4);
+    const a = rnow * 0.04; camera.position.set(Math.cos(a) * 58, 24 + Math.sin(rnow * 0.11) * 2, -4 + Math.sin(a) * 58); camera.lookAt(0, 2, -4);
   }
-  renderer.render(world.scene, camera);
+  if (render) renderer.render(world.scene, camera);
 }
 // ---------------- story, markers, weather (pass 4) ----------------
 const weatherFx = new WeatherFx(world.scene);
@@ -2199,7 +2383,7 @@ function update(dt: number) {
   // sim
   const inCombat = now - player.lastCombat < 4;
   if (!act || act.upper) G.tickReal(s, dt, { sprinting: player.sprinting, moving: player.moving, inCombat });
-  if (G.consumeRespawn()) { if (!busyCollapse) { busyCollapse = true; hud.fade('You collapse…', 1400).then(() => { respawnHome(); busyCollapse = false; save(); }); } }
+  if (G.consumeRespawn()) { if (!busyCollapse) { busyCollapse = true; simFade('You collapse…', 1400, () => { respawnHome(); busyCollapse = false; save(); }); } }
   // enemies
   if (ambientDay !== G.day(s)) spawnAmbient();
   if (world.inMill) spawnMill();
@@ -2391,5 +2575,7 @@ if (!loopStarted) { loopStarted = true; requestAnimationFrame(frame); }
   /** Run the simulation at full speed without rendering (tests on slow machines). */
   /** CPU cost of one game frame without the GPU (update + visuals + HUD), for before/after measurement. */
   bench: (frames = 300) => { const t: number[] = []; for (let i = 0; i < frames; i++) { const a = performance.now(); now += 1 / 60; player.yaw += 0.05; update(1 / 60); updatePlayerVisual(1 / 60); { const hh = (s.minutes % 1440) / 60; for (const f of folk) f.update(1 / 60, hh, player.pos); world.updateRegions(player.pos); world.east.animate(1 / 60, now, player.pos); world.updateLights(1 / 60, player.pos, now); } if (i % 6 === 0) updateHud(); t.push(performance.now() - a); } t.sort((x, y) => x - y); const avg = t.reduce((x, y) => x + y, 0) / t.length; return { avg: +avg.toFixed(3), p50: +t[Math.floor(t.length / 2)].toFixed(3), p99: +t[Math.floor(t.length * 0.99)].toFixed(3), worst: +t[t.length - 1].toFixed(3) }; },
-  step: (seconds: number) => { const n = Math.round(seconds * 30); for (let i = 0; i < n; i++) { now += 1 / 30; if (!hud.modalOpen && !s.gameover && !busyCollapse) update(1 / 30); updatePlayerVisual(1 / 30); const hh = (s.minutes % 1440) / 60; for (const f of folk) f.update(1 / 30, hh, player.pos); updateEwe(1 / 30); if (i % 30 === 0) feed.tick(s, feedCtx()); } },
+  /** P1: advance whole 1/30 s ticks through the same stepSim the game uses (paused while a menu is open). */
+  step: (seconds: number) => { const n = Math.round(seconds * 30); for (let i = 0; i < n; i++) { const inp = sampleInput(); if (inp) stepSim(inp); updatePlayerVisual(TICK_S); } },
+  sim: simHooks(),
 };

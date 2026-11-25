@@ -1,0 +1,7 @@
+PASS a v0.9.4 save loads in P1 (no p1 block: streams seeded, campaign intact)
+PASS the v0.9.4 save really has no p1 block
+PASS no page errors loading the old save in P1
+PASS the P1 save carries a p1 block in extra (save format still v5)
+PASS a P1 save loads in v0.9.4 (rollback keeps saves)
+PASS no page errors loading the P1 save in v0.9.4
+6 passed, 0 failed

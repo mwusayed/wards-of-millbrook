@@ -6,6 +6,12 @@ Source: wards-of-millbrook-v0.9.3-full.zip (sent in chat). Process: docs/WORKFLO
 ## What it is
 First/third-person survival life-sim RPG combining Mercenary Maintenance (needs, wounds, contracts, debt), VEILWORK (first-person combat), Ledger & Ward (Millbrook, Aldric's debt, factions, the Wardbreak) and Home Office Tycoon (real debit/credit ledger work). Built directly by Claude in TypeScript + Three.js.
 
+## P1 in review (25 Nov 2026): deterministic 30 Hz clock
+The adaptive-AI practice mode (Design A, approved) starts with P1: fixed ticks, tick-scheduled gameplay, seeded
+gameplay randomness and a replay harness. 9 of 9 replay matrix rows identical; all seven browser suites and 110
+rules tests pass. Behaviour to feel-test on real hardware: menus freeze game time, melee lands at 167 ms, key
+presses act on the next tick (≤ 33 ms). See `docs/ai/P1-record.md`. Next: P2 after Waiz accepts P1.
+
 ## v0.9.3 (24 Nov 2026): The Saltway Coast
 - The fourth region is live: blast the Salt Gap (Dorran's charge, an 8 s fuse, damage by distance), walk the
   Saltway past the Gull Tower to Gullhaven, wade the tidal flats, and go under the cliffs to the Wreck-Mother.

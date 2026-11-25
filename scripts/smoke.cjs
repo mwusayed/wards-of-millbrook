@@ -10,7 +10,8 @@ const out = 'shots4'; fs.mkdirSync(out, { recursive: true });
   await page.goto(url); await page.waitForFunction(() => window.__game, null, { timeout: 240000 });
   const g = (fn, arg) => page.evaluate(fn, arg);
   const wait = ms => new Promise(r => setTimeout(r, ms));
-  const until = async (fn, ms = 10000) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await g(fn)) return true; await wait(200); } return false; };
+  // P1: gameplay delays run on the game clock, so waiting means advancing it (0.2 s of game time per check)
+  const until = async (fn, ms = 10000) => { for (let i = 0; i * 200 < Math.max(ms, 30000); i++) { if (await g(fn)) return true; await g(() => window.__game.step(0.2)); } return false; }; // bounded by game time, not wall time
   const shot = async n => { await g(() => window.__game.step(0.1)); await wait(350); await page.screenshot({ path: `${out}/${n}.png` }); };
   let pass = 0, fail = 0;
   const ok = (name, cond, extra = '') => { cond ? pass++ : fail++; console.log(`${cond ? 'PASS' : 'FAIL'}  ${name} ${cond ? '' : extra}`); };

@@ -18,7 +18,7 @@ fs.mkdirSync(SHOTS, { recursive: true });
   const wait = ms => new Promise(r => setTimeout(r, ms));
   let pass = 0, fail = 0; const crit = {};
   const ok = (c, name, cond, extra = '') => { cond ? pass++ : fail++; (crit[c] = crit[c] || []).push(cond); console.log(`${cond ? 'PASS' : 'FAIL'}  [${c}] ${name} ${cond ? '' : extra}`); };
-  const waitIdle = async (ms = 20000) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await g(() => !window.__game.player.action)) return true; await wait(200); } return false; };
+  const waitIdle = async (ms = 30000) => { for (let i = 0; i * 200 < ms; i++) { if (await g(() => !window.__game.player.action)) return true; await g(() => window.__game.step(0.2)); } return false; }; // P1: stations end on the game clock
   const closeAll = () => g(() => { const G = window.__game; for (let i = 0; i < 6 && G.modalOpen(); i++) G.closeModal(); });
   const shot = async (n, view = 'first') => { await g(v => { window.__game.view(v); window.__game.step(0.15); }, view); await wait(500); await page.screenshot({ path: `${SHOTS}/${n}.png` }); };
   const clear = () => g(() => { const G = window.__game; for (const e of [...G.enemies.list]) if (!e.external) G.enemies.remove(e); });
@@ -171,7 +171,7 @@ fs.mkdirSync(SHOTS, { recursive: true });
 
   // ================= 5. The Sea Cave and the Wreck-Mother =================
   await hour(11); await clear();
-  await g(() => { const G = window.__game; G.teleport(-112, 378); G.interactWith('cave_mouth'); }); await wait(1600);
+  await g(() => { const G = window.__game; G.teleport(-112, 378); G.interactWith('cave_mouth'); }); await g(() => window.__game.step(1.6)); /* P1: fade on the game clock */
   const cv = await g(() => { const G = window.__game, s = G.s; return { dungeon: G.world.dungeon, entered: G.S.flag(s, 'caveEntered'), stage: s.quests.sq2.stage }; });
   ok(5, 'the ledger\'s key opens the cave grille; you are inside the Sea Cave', cv.dungeon === 'seacave' && cv.entered === 1 && cv.stage >= 5, JSON.stringify(cv));
   const store = await g(() => { const G = window.__game, O = G.world.seacave.origin; G.teleport(O.x, O.z - 22); G.step(0.3); const g1 = G.enemies.list.filter(e => e.tag === 'seacave' && e.alive).map(e => e.kind); return g1; });
@@ -206,15 +206,15 @@ fs.mkdirSync(SHOTS, { recursive: true });
   ok(5, 'below half health the grotto floods over about 6 s; off the platforms you wade (×0.65), on them you do not', flood.p2 === 2 && flood.mid > 0.3 && flood.mid < 0.8 && flood.full > 0.97 && flood.off?.wading && Math.abs(flood.off.k - 0.65) < 1e-6 && !flood.on.wading, JSON.stringify(flood));
   await g(() => { const G = window.__game, e = G.mother.e, P = G.player; const dx = e.pos.x - P.pos.x, dz = e.pos.z - P.pos.z; P.yaw = Math.atan2(-dx, -dz); P.pitch = 0.05; }); await shot('09-grotto-flooded', 'third');
   // leaving resets her: full health, drained grotto
-  await g(() => window.__game.goSeaCave(false)); await wait(1500);
+  await g(() => window.__game.goSeaCave(false)); await g(() => window.__game.step(1.5)); /* P1: fade on the game clock */
   const reset = await g(() => { const G = window.__game, M = G.mother; return { out: G.world.dungeon, hp: M.e.hp, active: M.active, flood: G.world.seacave.floodLevel, crabs: G.enemies.list.filter(e => e.tag === 'mother_call').length }; });
   ok(5, 'leaving the cave mid-fight resets her: full health, the grotto drained, her crabs gone', reset.out === null && reset.hp === 1300 && !reset.active && reset.flood === 0 && reset.crabs === 0, JSON.stringify(reset));
-  await g(() => { const G = window.__game; G.teleport(-112, 378); G.interactWith('cave_mouth'); }); await wait(1600);
+  await g(() => { const G = window.__game; G.teleport(-112, 378); G.interactWith('cave_mouth'); }); await g(() => window.__game.step(1.6)); /* P1: fade on the game clock */
   const kill = await g(() => { const G = window.__game, M = G.mother, C = G.world.seacave, s = G.s; G.teleport(C.grotto.x, C.grotto.z + 15); window.__hstep(3); for (let i = 0; i < 60 && !M.dead; i++) { const f = { x: -Math.sin(M.e.yaw + Math.PI / 2), z: -Math.cos(M.e.yaw + Math.PI / 2) }; G.teleport(M.e.pos.x + f.x * 8, M.e.pos.z + f.z * 8); M.update(0.0001, G.now, G.player.pos, true); G.enemies.damage(M.e, 120, G.now, undefined, 'bullet'); window.__hstep(0.2); } window.__hstep(3.5); G.storyTick(); return { dead: M.dead, flag: G.S.flag(s, 'motherDown'), flood: +C.floodLevel.toFixed(2), stage: s.quests.sq2.stage, bar: G.bossBar() }; });
   ok(5, 'the Wreck-Mother can be killed: the flag is set, the water drains, False Lights moves on to Marrow', kill.dead && kill.flag === 1 && kill.flood < 0.05 && kill.stage === 6 && kill.bar === null, JSON.stringify(kill));
   const calm = await g(() => { const G = window.__game; G.save(); G.load(); const C = G.world.seacave; G.teleport(C.grotto.x, C.grotto.z + 15); G.step(1); return { active: G.mother.active, dead: G.mother.dead, guards: G.enemies.list.filter(e => e.tag === 'seacave').length }; });
   ok(5, 'after the boss the grotto stays calm across save and load', !calm.active && calm.dead && calm.guards === 0, JSON.stringify(calm));
-  await g(() => window.__game.goSeaCave(false)); await wait(1500);
+  await g(() => window.__game.goSeaCave(false)); await g(() => window.__game.step(1.5)); /* P1: fade on the game clock */
 
   // ================= 6. Collector Marrow: three decisions, each restored from a save =================
   await hour(12); await clear();
@@ -260,7 +260,7 @@ fs.mkdirSync(SHOTS, { recursive: true });
     s.needs.stress = 50; G.interactWith('sea_chapel'); return out; });
   await waitIdle();
   const tr2 = await g(() => { const G = window.__game, s = G.s; const st = s.needs.stress; G.teleport(80, 342); return { st }; });
-  await hour(21); await g(() => window.__game.interactWith('inn_bed_s')); await wait(2800); await waitIdle();
+  await hour(21); await g(() => window.__game.interactWith('inn_bed_s')); await g(() => window.__game.step(2.8)); /* P1: fade on the game clock */ await waitIdle();
   const inn = await g(() => { const G = window.__game, s = G.s; return { hour: G.GS.hour(s) }; });
   ok(7, 'the chandlery, the fish auction, the slipway and the Anchor and Gull open; sea boots for sale; the auction pays more for fish', tr.chandlery && tr.auction && tr.shipwright && tr.inn_bar_s && tr.boots && tr.auctionPays, JSON.stringify(tr));
   ok(7, 'crab cakes give Sea legs; Sister Elowen\'s blessing clears stress; a bed at the Anchor and Gull sleeps you to morning', tr.seaLegs && tr2.st <= 36 && inn.hour >= 6 && inn.hour < 10, JSON.stringify({ tr2, inn }));

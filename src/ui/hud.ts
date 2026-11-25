@@ -293,6 +293,9 @@ export class Hud {
   heal(amount: number) { this.el.vignette.style.boxShadow = `inset 0 0 220px rgba(80,220,110,${Math.min(0.6, 0.2 + amount / 50)})`; setTimeout(() => (this.el.vignette.style.boxShadow = 'inset 0 0 180px rgba(160,20,10,0)'), 450); }
   hitmarker() { this.el.cross.classList.add('hit'); setTimeout(() => this.el.cross.classList.remove('hit'), 120); }
   hurt(amount: number) { const a = Math.min(0.75, amount / 25); this.el.vignette.style.boxShadow = `inset 0 0 200px rgba(170,20,10,${a})`; setTimeout(() => (this.el.vignette.style.boxShadow = 'inset 0 0 180px rgba(160,20,10,0)'), 220); }
+  /** P1: show the caption overlay; the game's clock decides when fadeHide is called. */
+  fadeShow(text: string) { this.el.fade.textContent = text; this.el.fade.style.opacity = '1'; }
+  fadeHide() { setTimeout(() => (this.el.fade.style.opacity = '0'), 120); }
   fade(text: string, ms: number): Promise<void> {
     return new Promise(res => { this.el.fade.textContent = text; this.el.fade.style.opacity = '1'; setTimeout(() => { res(); setTimeout(() => (this.el.fade.style.opacity = '0'), 120); }, ms); });
   }

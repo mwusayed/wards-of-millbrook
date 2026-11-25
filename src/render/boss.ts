@@ -8,6 +8,7 @@ import { Humanoid, clip } from './rig';
 import { Enemy, type EnemyManager, type EnemyDef } from './enemies';
 import { rayBoxes, type Box } from './world';
 
+import { gameplayRng } from '../sim/rng';
 export const PATRIARCH: EnemyDef = { hp: 640, speed: 2.2, sight: 40, reach: 3.2, windup: 0.9, dmg: 22, recover: 1.2, radius: 0.9, height: 3.3 };
 
 type Atk = 'none' | 'grasp' | 'call' | 'volley' | 'dark' | 'wail';
@@ -147,9 +148,9 @@ export class Patriarch {
     this.t = 0;
     const p = this.phase;
     if (p === 1) this.atk = this.callT <= 0 ? 'call' : dist < 4.5 ? 'grasp' : 'volley';
-    else if (p === 2) this.atk = this.callT <= 0 ? 'call' : dist < 3.5 ? 'grasp' : Math.random() < 0.5 ? 'dark' : 'volley';
-    else this.atk = Math.random() < 0.45 ? 'wail' : dist < 3.5 ? 'grasp' : Math.random() < 0.5 ? 'dark' : 'volley';
-    if (this.atk === 'volley' && p === 1) this.atk = Math.random() < 0.6 ? 'volley' : 'grasp';
+    else if (p === 2) this.atk = this.callT <= 0 ? 'call' : dist < 3.5 ? 'grasp' : gameplayRng.next() < 0.5 ? 'dark' : 'volley';
+    else this.atk = gameplayRng.next() < 0.45 ? 'wail' : dist < 3.5 ? 'grasp' : gameplayRng.next() < 0.5 ? 'dark' : 'volley';
+    if (this.atk === 'volley' && p === 1) this.atk = gameplayRng.next() < 0.6 ? 'volley' : 'grasp';
     this.poolAt = [];
   }
   /** The game supplies the player position when the dark attack is chosen. */

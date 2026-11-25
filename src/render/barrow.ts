@@ -9,6 +9,7 @@ import { Enemy, type EnemyDef, type EnemyManager, type DamageKind } from './enem
 import type { LightAnchor } from './lights';
 import { ormShroud, ORM_FIRE_MULT, ORM_SNUFF_EVERY } from '../sim/west';
 
+import { gameplayRng } from '../sim/rng';
 export const BARROW_ORIGIN = new THREE.Vector3(-180, 0, -330);
 export interface Brazier { id: string; pos: THREE.Vector3; fire: THREE.Mesh; light: LightAnchor; lit: boolean; hall: boolean }
 export interface BarrowRefs {
@@ -189,7 +190,7 @@ export class BarrowKing {
     if (this.phase === 2 && this.atk === 'none') { this.snuffT -= dt; if (this.snuffT <= 0) { const lit = this.refs.braziers.filter(b => !b.hall && b.lit); if (lit.length) { this.target = lit.sort((a, b) => a.pos.distanceTo(e.pos) - b.pos.distanceTo(e.pos))[0]; this.atk = 'snuff'; this.t = 0; } else this.snuffT = 4; } }
     if (this.atk === 'none') {
       this.cd -= dt;
-      if (this.cd <= 0 && alive && dist < 6.5) { this.atk = dist > 3.4 || Math.random() < 0.4 ? 'cleave' : 'sweep'; this.t = 0; this.hitDone = false; this.hooks.sound('growl', 0); }
+      if (this.cd <= 0 && alive && dist < 6.5) { this.atk = dist > 3.4 || gameplayRng.next() < 0.4 ? 'cleave' : 'sweep'; this.t = 0; this.hitDone = false; this.hooks.sound('growl', 0); }
       else { face(1.8 * speedMul); if (dist > 2.8) walk(toP, ORM.speed * speedMul); else m.apply(clip('ready', now), dt, 10, 'ready'); }
     }
     if (this.atk === 'sweep') {

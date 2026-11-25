@@ -6,6 +6,7 @@ import { collide, rayBoxes, type Box } from './world';
 import { Crab } from './crab';
 import type { EnemyKind } from '../sim/contracts';
 
+import { gameplayRng } from '../sim/rng';
 export interface EnemyDef { hp: number; speed: number; sight: number; reach: number; windup: number; dmg: number; recover: number; radius: number; height: number }
 export const DEFS: Record<EnemyKind, EnemyDef> = {
   hound: { hp: 55, speed: 6.2, sight: 24, reach: 1.7, windup: 0.45, dmg: 12, recover: 0.7, radius: 0.5, height: 0.9 },
@@ -59,7 +60,11 @@ export class Enemy {
   model: Humanoid | Hound | Wisp | Crab; root: THREE.Group;
   /** v0.8: seconds left of rising out of the ground; time spent sinking back (0 = not sinking); a grave-light that burst. */
   rise = 0; sinkT = 0; burst = false;
-  slowUntil = 0; burnUntil = 0; burnTick = 0; flash = 0; deadT = 0; strafe = Math.random() < 0.5 ? 1 : -1;
+  slowUntil = 0; burnUntil = 0; burnTick = 0; flash = 0; deadT = 0; strafe = gameplayRng.next() < 0.5 ? 1 : -1;
+  /** P1: stable id, in spawn order (reset with the world), for hashing and replays. */
+  id = 0;
+  /** P1: position at the start of the last simulation tick, for render interpolation. */
+  prevX = 0; prevZ = 0;
   wanderTarget = new THREE.Vector3(); voiceT = Math.random() * 5; los = false; losT = 0;
   /** Measured ground speed and movement direction relative to facing (for the gait). */
   lastX = 0; lastZ = 0; spd = 0; moveDir = 0; lastHitBig = false;
@@ -107,7 +112,7 @@ export class Enemy {
     }
     this.root = this.model.root;
     if (this.elite) { const d = DEFS[kind]; this.defOverride = { ...d, hp: Math.round(d.hp * 2.2), dmg: Math.round(d.dmg * 1.3), sight: d.sight + 6 }; this.hp = this.defOverride.hp; this.root.scale.setScalar(1.22); }
-    this.pos.copy(home).add(new THREE.Vector3((Math.random() - 0.5) * 8, 0, (Math.random() - 0.5) * 8));
+    this.pos.copy(home).add(new THREE.Vector3((gameplayRng.next() - 0.5) * 8, 0, (gameplayRng.next() - 0.5) * 8));
     this.wanderTarget.copy(this.pos);
     this.root.position.copy(this.pos);
   }
@@ -165,8 +170,10 @@ export class EnemyManager {
     const e = new Enemy(kind, home, tag, elite);
     if (rise) { e.rise = kind === 'wisp' ? 1.2 : 2.0; }
     const [x, z] = collide(this.colliders, e.pos.x, e.pos.z, e.def.radius); e.pos.set(x, 0, z);
+    e.id = ++this.nextId; e.prevX = e.pos.x; e.prevZ = e.pos.z;
     this.scene.add(e.root); this.list.push(e); return e;
   }
+  nextId = 0;
   remove(e: Enemy) { this.scene.remove(e.root); this.list = this.list.filter(x => x !== e); }
   /** v0.8: the night's dead go back into the ground at dawn (no reward). */
   sink(e: Enemy) { if (e.alive && e.sinkT === 0) { e.sinkT = 0.001; e.state = 'idle'; } }
@@ -240,7 +247,7 @@ export class EnemyManager {
       const eye = e.pos.clone().setY(D.height * 0.9), dirP = player.clone().setY(1.4).sub(eye);
       // Line of sight is re-tested five times a second per enemy, not every frame.
       e.losT -= dt;
-      if (e.losT <= 0) { e.losT = 0.2 + Math.random() * 0.05; e.los = dist < D.sight && rayBoxes(this.colliders, eye, dirP.clone().normalize(), dirP.length()) >= dirP.length() - 0.3; }
+      if (e.losT <= 0) { e.losT = 0.2 + gameplayRng.next() * 0.05; e.los = dist < D.sight && rayBoxes(this.colliders, eye, dirP.clone().normalize(), dirP.length()) >= dirP.length() - 0.3; }
       const los = e.los && dist < D.sight;
       const fromHome = e.pos.distanceTo(e.home);
       const face = (target: THREE.Vector3, rate = 8) => { const want = Math.atan2(-(target.x - e.pos.x), -(target.z - e.pos.z)); let dlt = want - e.yaw; while (dlt > Math.PI) dlt -= Math.PI * 2; while (dlt < -Math.PI) dlt += Math.PI * 2; e.yaw += dlt * Math.min(1, dt * rate); };
@@ -259,7 +266,7 @@ export class EnemyManager {
         case 'idle': {
           if (playerAlive && los) { e.state = 'chase'; e.t = 0; this.hooks.sound(e.kind === 'hound' || e.kind === 'wolf' || e.kind === 'boar' ? 'growl' : e.kind === 'raider' || e.kind === 'bandit' || e.kind === 'smuggler' || e.kind === 'pistoleer' ? 'shout' : 'hiss', pan); break; }
           if (e.kind === 'drowned' || e.kind === 'hollow' || e.kind === 'wight') break; // the drowned, the hollowed and the barrow dead stand where they are until something living comes near
-          if (e.pos.distanceTo(e.wanderTarget) < 0.6 || e.t > 6) { e.t = 0; e.wanderTarget.copy(e.home).add(new THREE.Vector3((Math.random() - 0.5) * 12, 0, (Math.random() - 0.5) * 12)); }
+          if (e.pos.distanceTo(e.wanderTarget) < 0.6 || e.t > 6) { e.t = 0; e.wanderTarget.copy(e.home).add(new THREE.Vector3((gameplayRng.next() - 0.5) * 12, 0, (gameplayRng.next() - 0.5) * 12)); }
           const w = e.wanderTarget.clone().sub(e.pos); if (w.length() > 0.6) { face(e.wanderTarget, 4); move(w, D.speed * 0.3); }
           break;
         }
@@ -278,7 +285,7 @@ export class EnemyManager {
             const want = e.kind === 'imp' ? (dist < 5 ? -1 : dist > 10 ? 1 : 0) : e.kind === 'bandit' ? (dist < 9 ? -1 : dist > 18 ? 1 : 0) : e.kind === 'pistoleer' ? (dist < 10 ? -1 : dist > 16 ? 1 : 0) : dist < 8 ? -1 : dist > 13 ? 1 : 0;
             const side = new THREE.Vector3(-toP.z, 0, toP.x).normalize().multiplyScalar(e.strafe * 0.7);
             move(toP.clone().normalize().multiplyScalar(want).add(side), D.speed);
-            if (Math.random() < dt * 0.3) e.strafe *= -1;
+            if (gameplayRng.next() < dt * 0.3) e.strafe *= -1;
             if (los && dist < D.reach && e.t > (e.kind === 'imp' ? 0.8 : e.kind === 'bandit' ? 1.6 : 1.2)) { e.state = 'windup'; e.t = 0; e.anim = 0; if (e.kind === 'pistoleer') this.hooks.sound('shout', pan); }
           } else if (e.kind === 'boar') {
             // close to charging distance, then paw the ground and go
@@ -318,7 +325,7 @@ export class EnemyManager {
             e.state = 'strike'; e.t = 0; e.anim = 0;
             if (RANGED(e.kind)) {
               const hand = e.pos.clone().setY(e.kind === 'imp' ? 1.0 : GUNNER(e.kind) ? 1.45 : 1.6); const dir = player.clone().setY(1.2).sub(hand).normalize();
-              if (GUNNER(e.kind)) { dir.x += (Math.random() - 0.5) * 0.05; dir.y += (Math.random() - 0.5) * 0.03; dir.normalize(); }
+              if (GUNNER(e.kind)) { dir.x += (gameplayRng.next() - 0.5) * 0.05; dir.y += (gameplayRng.next() - 0.5) * 0.03; dir.normalize(); }
               this.fireProjectile(hand.add(dir.clone().multiplyScalar(0.5)), dir, 'enemy', e.kind === 'imp' ? 'fire' : e.kind === 'bandit' ? 'bolt' : e.kind === 'pistoleer' ? 'shot' : 'orb', D.dmg, e.kind); this.hooks.sound(e.kind === 'bandit' ? 'swing' : e.kind === 'pistoleer' ? 'hit' : 'orb', pan);
             } else if (e.kind === 'boar') {
               e.chargeHit = false; e.chargeDir.set(-Math.sin(e.yaw), 0, -Math.cos(e.yaw)); this.hooks.sound('growl', pan);

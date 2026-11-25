@@ -1,0 +1,199 @@
+== smoke
+PASS  new game starts on standard difficulty with the tutorial quest 
+PASS  tutorial advanced to "ask Tolan" 
+PASS  talking to Tolan advances the quest 
+PASS  bought lantern, loader and coat 
+PASS  dice round resolved 
+PASS  kneeling at the flame blesses 
+PASS  killed enemies with skill-scaled revolver 
+PASS  marksmanship gained XP 
+PASS  spark cast spent mana 
+PASS  dodge moves you and costs stamina 
+PASS  lantern lit 
+PASS  moonpetal can be cut at night 
+PASS  save keeps gear, skills, quests 
+PASS  no page errors 
+14 passed, 0 failed
+== smoke2
+PASS  story at "attune the cairns" 
+PASS  attuned at a cairn 
+PASS  Spark learned and chapel quest started 
+PASS  entered the Sunken Chapel 
+PASS  wading slows you in the flooded nave 
+PASS  nave drained and the water gate lifted 
+PASS  the Cinder Wraith wakes in the sanctum 
+PASS  three bullets in a row harden it against bullets; fire still hurts 
+PASS  Wraith defeated: flag, Censer 
+PASS  left the chapel 
+PASS  Censer given to the Chapel; Wardbreak Night begins 
+PASS  gate defence started 
+PASS  three waves beaten: the gate held 
+PASS  Aldric comes down from the Spire 
+PASS  Aldric: wards done, 100 off the debt (both stones to the Chapel) 
+PASS  ending screen shown with title 
+PASS  free play after the ending 
+PASS  audit solved: working papers in hand 
+PASS  no page errors 
+19 passed, 0 failed
+== smoke3
+PASS  walking up to a cairn discovers it 
+PASS  map lists Home as a place to walk to 
+PASS  walking home moves you and costs time 
+PASS  all 19 door-event options run 
+PASS  door event closes cleanly 
+PASS  notice board offers a bounty on an even day 
+PASS  music mood follows place and hour 
+PASS  no page errors 
+8 passed, 0 failed
+== smoke4
+PASS  walk east through the new East Gate 
+PASS  gait phase advances with distance and limbs move 
+PASS  Vole offers The Road East and hands over the dispatch 
+PASS  arriving in Ashford is discovered and moves the quest on 
+PASS  the Reeve takes the dispatch; Copper and Silence begins 
+PASS  Tam only talks for an eel pie, then gives the lift key 
+PASS  entering Copper Hollow: dungeon, flag, hollowed miners, quest stage 
+PASS  the lift cage takes you to the deep gallery (with the key) 
+PASS  deep gallery: waystone lit, Brask's journal found, his widow's task opens 
+PASS  the Warden Engine wakes when you enter the vault 
+PASS  the Engine's front is armoured and its back core is not 
+PASS  a charge into the wall stuns it 
+PASS  the Engine falls: flag, heart in your pack, quest moves to the seam 
+PASS  open the seam to the guild (+150) and report: the arc is complete 
+PASS  back out of the mine 
+PASS  casting a line from the bridge jetty 
+PASS  striking on the bite lands a fish 
+PASS  a pick works the copper seam outside the Hollow 
+PASS  picking Thornwood mushrooms 
+PASS  buy the Hale carbine and switch to it 
+PASS  the carbine fires from its own tube, in first person 
+PASS  traders pay more for what they want 
+PASS  buy and wear a charm 
+PASS  the coach runs between the towns 
+PASS  the bathhouse leaves you clean and steamed 
+PASS  renting a bed at the Drowned Lantern sleeps you to morning 
+PASS  the Lodge board offers east notices and spawns them 
+PASS  night at the fold brings four wolves 
+PASS  driving them off completes the fold 
+PASS  Bluebell found, follows you home 
+PASS  22 people of the Reach, Ashford folk visible and animating 
+PASS  the map has an Eastern Reach sheet 
+PASS  saves are version 5 and keep the carbine and charm 
+PASS  no page errors 
+34 passed, 0 failed
+== smoke5
+PASS  the West Gate is barred until it is opened 
+PASS  Petch offers The Sealed Gate; the gate will not open without Renn's key 
+PASS  Renn's key opens the West Gate; the notice post fills; Garth takes the gate 
+PASS  walk west through the open West Gate 
+PASS  the open gate survives save and load (and a closed save closes it again) 
+PASS  walk the West Road to Fernhollow: heath, camp and village are discovered 
+PASS  Orla Hesk finishes The Sealed Gate and begins The King Under the Hill 
+PASS  Fernhollow's notice post shows Westmarch work 
+PASS  Vane gives up the barrow-key (talking him round needs Tower standing; bought here) 
+PASS  cutting heather on the heath 
+PASS  Gammer Thrush binds the rowan ward from three heather 
+PASS  a bed at the Heron and Reed sleeps you to morning for 3 crowns 
+PASS  Marra Quill sells fen waders 
+PASS  fishing Lake Hallow from the jetty end lands a lake fish 
+PASS  entering King Orm's barrow uses the key and the ward 
+PASS  barrow wights rise out of the ground (below the floor, then standing) 
+PASS  a wight's blow hurts and brings grave-chill (stamina drained) 
+PASS  three coffins open in the Hall; lighting three braziers sinks the inner slab 
+PASS  King Orm wakes when you enter the burial chamber, rising from the bier 
+PASS  below half health the braziers die, the chamber goes dark, and Orm is shrouded 
+PASS  relighting a brazier with the lantern makes Orm easier to hurt 
+PASS  a Firebolt that lands by an unlit brazier lights it 
+PASS  King Orm falls: the crown is yours to decide, the lights come back 
+PASS  at the bier you can return the crown: the barrow is sealed 
+PASS  King Orm's hoard can be searched once he has fallen 
+PASS  out of the barrow; Orla Hesk closes The King Under the Hill 
+PASS  night on the Downs: wights and grave-lights rise, the drowned walk the marsh 
+PASS  a grave-light that reaches you swells and bursts: it hurts, chills, and is gone 
+PASS  a Spark puts a grave-light out (double damage), with no burst 
+PASS  at dawn the night's dead sink back into the ground 
+PASS  Smoke on the Heath: three lights circle Gorse at night; putting them out frees him 
+PASS  the reed marsh slows you off the boardwalk, unless you wear waders 
+PASS  The Drowned Road: Aled's ring at the causeway post; Liss makes your bed free 
+PASS  the map has a Westmarch sheet (open by default out west) 
+PASS  settings offer camera motion and run toggle (UX A7, A8) 
+PASS  run toggle: one press runs, another walks 
+PASS  new rigs stay finite (King Orm after his fall) 
+PASS  saves keep the Westmarch: the gate, the crown, Fernhollow standing 
+PASS  Night eyes (bilberry cake) lifts the dark at night: more ambient light, fog further out 
+PASS  no page errors 
+40 passed, 0 failed
+== smoke6
+ok   the title screen shows the game's name
+ok   the title menu offers new/continue, load, settings, how to play and credits
+ok   the world turns slowly behind the title
+ok   How to play opens over the title
+ok   starting a game leaves the title screen
+ok   the pack is a grid of item tiles (10)
+ok   the pack shows its weight against what you can carry
+ok   picking a tile shows the item and its use
+ok   big things take bigger tiles (a medkit is 2 wide)
+ok   the Arms filter shows only ammunition and gun oil
+ok   the armoury racks four guns with stat bars (4)
+ok   buying the scattergun, long rifle and carbine works
+ok   new guns come loaded
+ok   ammunition can be bought five boxes at a time
+ok   revolver: taking it up and firing spends one round (6→5)
+ok   carbine: taking it up and firing spends one round (8→7)
+ok   scattergun: taking it up and firing spends one round (2→1)
+ok   longrifle: taking it up and firing spends one round (5→4)
+ok   a close scattergun blast does many pellets of damage (85)
+ok   reloading with silver chosen fills the cylinder with silvered rounds (6)
+ok   the pack lists all four guns you own, with the silver choice
+ok   no page errors
+22 passed, 0 failed
+== smoke7
+PASS  [1] the coast is on: Sera offers The Salt Gap and the rockfall collider is in place 
+PASS  [1] walking from the smithy to the gap on foot (no teleport) is stopped by the rockfall 
+PASS  [6] Dorran: his counter sells a charge before the quest; during The Salt Gap only the quest line does; one charge only 
+PASS  [1] setting the charge uses it; loading mid-fuse lights the fuse again from 8 s 
+PASS  [1] the blast at 3 m does the near damage (40 at Standard); the rockfall collider and most boulders are gone 
+PASS  [1] after the blast you can walk through the gap and on to the Saltway 
+PASS  [1] loading after the blast keeps the gap open; a save from before it closes the gap again with every boulder back 
+PASS  [1] a new game after loading an open gap starts with the rockfall back: collider, all nine boulders and the prompt 
+PASS  [1] at 9 m the blast does the far damage (15); at 20 m none 
+PASS  [6] a charge bought before The Salt Gap counts: accepting the quest after the blast goes straight to the Saltway 
+PASS  [2] down the Saltway: the shrine, the Gull Tower and Gullhaven are discovered; you are in Gullhaven 
+PASS  [2] the map has a Saltway Coast sheet with Gullhaven, and coast places to walk to 
+PASS  [6] Bree Calloway closes The Salt Gap (+10 Gullhaven) and False Lights begins 
+PASS  [7] Gullhaven's notice post lists coast work 
+PASS  [3] the tide follows cos(2π(h−2)/12): high at 02:00/14:00, low at 08:00/20:00, and the sea surface moves with it 
+PASS  [3] at high water the wreck cannot be searched (and standing out there, the sea carries you ashore) 
+PASS  [3] at low water you can walk to the wreck and take the Merry Wren's log 
+PASS  [3] half an hour before the flood you are warned (once); when it comes in you are carried to the shore (−10 stamina), not drowned 
+PASS  [3] the near flats are waded while the water is on them (×0.65), dry at low water; sea boots wade at full speed 
+PASS  [4] shore crabs circle sideways, dart in to pinch and back off; bullets do ×0.6, frost ×1.5 
+PASS  [4] pistoleers keep their distance (about 10–16 m), aim, fire, and reload between shots 
+PASS  [4] cove smugglers close in and fight with the cutlass, as raiders do (85 hp) 
+PASS  [4] each morning the coast sites fill: smugglers on the Saltway, a pistoleer at the Gull Tower, crabs on the flats, both at the cove 
+PASS  [6] False Lights: Trewin, the log, the Gull Tower's red lantern, Marrow's ledger only after hours 
+PASS  [5] the ledger's key opens the cave grille; you are inside the Sea Cave 
+PASS  [5] the smugglers' store has its guards: two smugglers and a pistoleer 
+PASS  [7] the Merry Wren's cargo and strongbox can be looted once (105 crowns) 
+PASS  [8] a save inside the Sea Cave restores into the cave 
+PASS  [5] the Wreck-Mother climbs out of the pool when you enter the grotto; a boss bar shows 
+PASS  [5] her front is shell (×0.3); the side and back take full hits; while she rears the belly takes ×1.8 
+PASS  [5] she sweeps, rears up and slams, and sprays brine (which slows you); each hurts 
+PASS  [5] at three-quarters she drums the rock and crabs pour out of the walls 
+PASS  [5] below half health the grotto floods over about 6 s; off the platforms you wade (×0.65), on them you do not 
+PASS  [5] leaving the cave mid-fight resets her: full health, the grotto drained, her crabs gone 
+PASS  [5] the Wreck-Mother can be killed: the flag is set, the water drains, False Lights moves on to Marrow 
+PASS  [5] after the boss the grotto stays calm across save and load 
+PASS  [6] Marrow arrested: Watch +10, Tower −10, Gullhaven up; he is gone from the customs house after a reload 
+PASS  [6] Marrow squeezed: +150 crowns, Gullhaven −15; still at his desk after a reload 
+PASS  [6] Marrow let go: Tower +10, Gullhaven −20; the choice survives a reload; Trewin is cleared in every ending 
+PASS  [6] Mussels and Samphire: Jowan takes six and four, pays, and gives two crab cakes 
+PASS  [6] The Merry Wren's Bell: taken from the bow at low water, carried at a walk (no running, no map), hung at the chapel for the shell charm 
+PASS  [6] The Keeper's Oil: two flasks to Trewin for his spyglass 
+PASS  [7] the chandlery, the fish auction, the slipway and the Anchor and Gull open; sea boots for sale; the auction pays more for fish 
+PASS  [7] crab cakes give Sea legs; Sister Elowen's blessing clears stress; a bed at the Anchor and Gull sleeps you to morning 
+PASS  [7] the breakwater is a sea fishing spot 
+PASS  [7] mussel beds and samphire can be gathered; the far beds only at low water; picked beds wait for tomorrow 
+PASS  [6] twelve coast townsfolk; Lowdy picks mussels on the flats at low water and works the quay by day 
+PASS  [8] no page errors 
+48 passed, 0 failed
