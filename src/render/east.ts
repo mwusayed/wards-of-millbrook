@@ -72,10 +72,10 @@ export function buildEast(w: World): EastRefs {
     // the old west edge collider at x = 64 is removed; the Reach continues east from there
     const i = w.colliders.findIndex(c => c.minX === 64 && c.maxX === 66); if (i >= 0) w.colliders.splice(i, 1);
     w.colliders.push(
-      { minX: 62, maxX: 64, minZ: -128, maxZ: -30, h: 9 }, { minX: 62, maxX: 64, minZ: 136, maxZ: 152, h: 9 },
       { minX: 308, maxX: 312, minZ: -130, maxZ: 154, h: 9 },
     );
     // v0.9.4: the north and south edges were invisible 9 m colliders; now visible 3 m drystone walls on the same line
+    w.block(63, -79, 2, 98, 3, MAT.stoneDark); w.block(63, 144, 2, 16, 3, MAT.stoneDark); // v0.9.5: north of Millbrook, east side
     w.block(188, -128, 248, 4, 3, MAT.stoneDark); w.block(188, 152, 248, 4, 3, MAT.stoneDark);
     w.bounds = { minX: -64, maxX: 308, minZ: -126, maxZ: 150 };
   }

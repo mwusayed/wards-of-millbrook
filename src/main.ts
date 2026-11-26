@@ -378,6 +378,7 @@ function aimEye(): THREE.Vector3 {
   const hit = Math.min(rayBoxes(world.colliders, head, dir, len), rayBoxes(world.cameraBlockers, head, dir, len));
   const dist = Math.max(0.4, Math.min(len, hit - 0.25));
   const o = head.clone().addScaledVector(dir, dist); o.y += Math.max(0, (len - dist) / len) * 0.8; if (o.y < 0.3) o.y = 0.3;
+  o.y = Math.min(o.y, world.ceilingAt(player.pos) - 0.35); // same ceiling rule as the drawn camera
   return o;
 }
 /** P1: where a spell leaves the hand, from game state only (the drawn hand is animated per frame). */
@@ -2207,7 +2208,7 @@ function drawFrame(dt: number, render: boolean) {
   // Night eyes (bilberry cake): the dark is less dark: more ambient light and fog pushed back, outdoors at night
   if (!world.dungeon && world.night > 0.3 && G.buffActive(s, 'nightEyes')) { const k = (world.night - 0.3) / 0.7; world.hemi.intensity += 0.35 * k; const fog = world.scene.fog as THREE.Fog; fog.far *= 1 + 0.35 * k; }
   world.updateRegions(player.pos); world.east.animate(dt, rnow, player.pos); world.west.animate(dt, rnow, player.pos); if (world.dungeon === 'barrow') world.barrow.animate(dt, rnow);
-  world.updateRoofs(player.pos, player.view === 'third');
+  world.updateRoofs(player.pos, false); // v0.9.5: roofs stay; indoors the third-person camera stays under the ceiling instead
   updatePlayerVisual(dt);
   // weather, lantern, compass
   const outdoors = !world.dungeon && !player.indoors;
@@ -2523,6 +2524,7 @@ function updatePlayerVisual(dt: number) {
     camera.position.y += squeeze * 0.8;
     if (vb < 1) camera.position.lerp(eye, 1 - vb);
     if (camera.position.y < 0.3) camera.position.y = 0.3;
+    camera.position.y = Math.min(camera.position.y, world.ceilingAt(player.pos) - 0.35);
     camera.rotation.copy(camLook);
     if (squeeze > 0) camera.rotateX(-squeeze * 0.35);
   }

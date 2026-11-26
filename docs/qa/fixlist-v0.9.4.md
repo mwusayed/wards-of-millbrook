@@ -12,6 +12,10 @@ Date: 2026-11-24. Built with `npm run build`; tested with `npx tsx tests/sim.tes
 
 | 4 | Menus | Close did nothing in some menus. The chest's Close button had no click handler: `openModal` wired Close before the chest rendered its contents, and every re-render (after a transfer) dropped it again. Also, long menus (map, inventory) pushed Close below the fold. | Close is now handled by delegation on the modal, so any `[data-close]` button works wherever and whenever it renders, and a guard stops double closes. The Close row is pinned to the bottom of long menus. (`openModal` in `src/main.ts`, `.modal > p:last-child` in `src/ui/hud.ts`.) | Journal, map, inventory, shop and chest all close with a real click, and the chest closes after a transfer (`openChest` now exposed to the test hooks). smoke4 34/34, smoke7 48/48. |
 
+| 5 | Terrain | Blade-shaped green "sheets" at the Salt Gap and Whisper Stones: the coast escarpment rose to 22 m right at the edge of its terrain mesh (z 136), so from the Vale you saw the open back edge of the surface. | The escarpment now rises from the Vale floor at z 136 (the line of its wall) to full height by z 141, giving a proper cliff face. `south.ts` height(). | Before/after screenshots; terrain edge audit. |
+| 6 | Boundaries | Invisible walls between the Vale and the heath (x -66..-64, z 36..152) and north of Millbrook on both sides (x ±63, z -128..-30), plus a short one at x 63, z 136..152. | Replaced with visible 3 m drystone walls on the same lines (`west.ts`, `east.ts`). | Screenshot facing the old wall; collider list shows them gone. |
+| 7 | Camera | Entering a building in third person hid its roof. | Roofs stay. Indoors the third-person camera (and the matching aim origin) is held just under that building's ceiling. `World.ceilingAt`, `main.ts`. | Third-person screenshots inside the house. |
+
 ## Bot corrections (not game bugs)
 
 These were false alarms caused by the bot. They are fixed in the bot so they won't come back.

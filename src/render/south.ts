@@ -58,7 +58,7 @@ export function buildSouth(w: World): SouthRefs {
     let hill = 0;
     // the escarpment along the north edge of the coast plain, cut by the Salt Gap; it stands taller than the
     // Westmarch's and the Reach's southern hills, which end inside it
-    if (z < GAP.z1) { const outside = x < GAP.minX ? GAP.minX - x : x > GAP.maxX ? x - GAP.maxX : 0; hill = Math.min(26, (GAP.z1 - z) * 2.4 + 4) * Math.min(1, outside / 3); }
+    if (z < GAP.z1) { const outside = x < GAP.minX ? GAP.minX - x : x > GAP.maxX ? x - GAP.maxX : 0; hill = Math.min(26, (GAP.z1 - z) * 2.4 + 4) * Math.min(1, outside / 3) * Math.max(0, Math.min(1, (z - GAP.z0) / 5)); } // v0.9.5: the north face rises from the Vale floor at z0 (the wall's line) instead of ending 22 m up in the air
     hill = Math.max(hill, (-120 - x) * 2.2, (x - 178) * 1.8);
     if (hill > 0) return Math.min(22, hill) + n * 2.0 * Math.min(1, hill / 5);
     const sz = shoreZ(x);

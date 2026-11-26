@@ -721,6 +721,11 @@ export class World {
   updateRoofs(p: THREE.Vector3, hideAll: boolean) {
     for (const b of this.buildings) b.roof.visible = !(p.x > b.minX - 0.2 && p.x < b.maxX + 0.2 && p.z > b.minZ - 0.2 && p.z < b.maxZ + 0.2) || !hideAll;
   }
+  /** v0.9.5: the ceiling height over p if p is inside a roofed building, else Infinity (keeps the third-person camera indoors). */
+  ceilingAt(p: THREE.Vector3): number {
+    for (const b of this.buildings) if (p.x > b.minX && p.x < b.maxX && p.z > b.minZ && p.z < b.maxZ) return b.roof.position.y;
+    return Infinity;
+  }
   insideBuilding(p: THREE.Vector3): string | null {
     for (const b of this.buildings) if (p.x > b.minX && p.x < b.maxX && p.z > b.minZ && p.z < b.maxZ) return b.name;
     return null;

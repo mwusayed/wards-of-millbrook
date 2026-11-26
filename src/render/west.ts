@@ -87,12 +87,13 @@ export function buildWest(w: World): WestRefs {
     // the old west edge of the map at x = -64 opens north of the Vale; the Vale itself stays closed to the west
     const i = w.colliders.findIndex(c => c.minX === -66 && c.maxX === -64); if (i >= 0) w.colliders.splice(i, 1);
     w.colliders.push(
-      { minX: -66, maxX: -64, minZ: 36, maxZ: 152, h: 9 },            // between the Vale and the heath
-      { minX: -64, maxX: -62, minZ: -128, maxZ: -30, h: 9 },          // north of Millbrook
       // the lake: open water west of the shore, except the jetty
       { minX: -380, maxX: LAKE_X - 0.4, minZ: -130, maxZ: JETTY.z - 1.15, h: 9 }, { minX: -380, maxX: LAKE_X - 0.4, minZ: JETTY.z + 1.15, maxZ: 154, h: 9 },
       { minX: -380, maxX: JETTY.end - 0.4, minZ: JETTY.z - 1.2, maxZ: JETTY.z + 1.2, h: 9 },
     );
+    // v0.9.5: the Vale/heath edge (x -66..-64, z 36..152) and the edge north of Millbrook (x -64..-62, z -128..-30)
+    // were invisible 9 m colliders too; now visible drystone walls on the same lines.
+    w.block(-65, 94, 2, 116, 3, MAT.stoneDark); w.block(-63, -79, 2, 98, 3, MAT.stoneDark);
     // v0.9.4: the old north and south edges were invisible 9 m colliders. They are now visible drystone walls
     // (3 m, same line and footprint), so what blocks you can be seen.
     w.block(-218, -128, 308, 4, 3, MAT.stoneDark); w.block(-218, 152, 308, 4, 3, MAT.stoneDark);
